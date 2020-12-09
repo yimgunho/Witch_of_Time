@@ -8,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include <Runtime/Engine/Public/DrawDebugHelpers.h>
+#include "TimeControllableActorBase.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AWitch_of_TimeCharacter
@@ -45,6 +47,7 @@ AWitch_of_TimeCharacter::AWitch_of_TimeCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,6 +77,12 @@ void AWitch_of_TimeCharacter::SetupPlayerInputComponent(class UInputComponent* P
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AWitch_of_TimeCharacter::OnResetVR);
+
+	PlayerInputComponent->BindAction("PickTarget", IE_Pressed, this, &AWitch_of_TimeCharacter::PickTarget);
+
+	PlayerInputComponent->BindAction("SlowTime", IE_Pressed, this, &AWitch_of_TimeCharacter::SlowTime);
+
+	PlayerInputComponent->BindAction("FastTime", IE_Pressed, this, &AWitch_of_TimeCharacter::FastTime);
 }
 
 
@@ -90,6 +99,54 @@ void AWitch_of_TimeCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVecto
 void AWitch_of_TimeCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
 {
 		StopJumping();
+}
+
+void AWitch_of_TimeCharacter::PickTarget()
+{
+	FVector CLocation = FollowCamera->GetComponentLocation();
+	FVector CForwardVector = FollowCamera->GetForwardVector();
+
+	FHitResult hitResult;
+
+	FCollisionQueryParams collisionParams;
+
+	collisionParams.AddIgnoredActor(this);
+
+
+	DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
+
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams))
+	{
+		PickedActor = hitResult.GetActor();
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, PickedActor->GetName());
+
+	}
+
+	
+}
+
+void AWitch_of_TimeCharacter::SlowTime()
+{
+	if (PickedActor!= NULL)
+	{
+		if (PickedActor->ActorHasTag("Returnable"))
+		{
+			dynamic_cast<ATimeControllableActorBase*>(PickedActor)->ReturnTime();
+		}
+	}
+	
+}
+
+void AWitch_of_TimeCharacter::FastTime()
+{
+	if (PickedActor != NULL)
+	{
+		if (PickedActor->ActorHasTag("Jumpable"))
+		{
+			dynamic_cast<ATimeControllableActorBase*>(PickedActor)->JumpTime();
+		}
+	}
 }
 
 void AWitch_of_TimeCharacter::TurnAtRate(float Rate)
@@ -125,7 +182,7 @@ void AWitch_of_TimeCharacter::MoveRight(float Value)
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
-	
+		
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction

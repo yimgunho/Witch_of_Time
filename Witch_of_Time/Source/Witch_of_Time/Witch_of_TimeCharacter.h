@@ -18,6 +18,8 @@ class AWitch_of_TimeCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	AActor* PickedActor = NULL;
 public:
 	AWitch_of_TimeCharacter();
 
@@ -57,6 +59,12 @@ protected:
 
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
+
+	void PickTarget();
+
+	void SlowTime();
+
+	void FastTime();
 
 protected:
 	// APawn interface
