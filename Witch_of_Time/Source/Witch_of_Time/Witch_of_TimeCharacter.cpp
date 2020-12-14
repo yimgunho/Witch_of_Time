@@ -112,13 +112,14 @@ void AWitch_of_TimeCharacter::PickTarget()
 
 	collisionParams.AddIgnoredActor(this);
 
-
-	DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
+	// 디버깅용 라인
+	// DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
 
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams))
 	{
 		PickedActor = hitResult.GetActor();
 
+		// 디버그 메시지 출력
 		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, PickedActor->GetName());
 
 	}
