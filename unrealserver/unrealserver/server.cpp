@@ -1,6 +1,7 @@
-#pragma warning(disable:4996)
+//#pragma warning(disable:4996)
 #pragma comment(lib, "ws2_32")
 #include <iostream>
+#include <WS2tcpip.h>
 #include <winsock2.h>
 #include <stdlib.h>
 #include <string>
@@ -73,8 +74,11 @@ int main()
 			break;
 		}
 
+		char buff[200];
+		inet_ntop(AF_INET, &clientaddr.sin_addr, buff, 200);
+
 		printf("\n[TCP 서버] 클라이언트 접속: IP 주소=%s, 포트 번호=%d\n",
-			inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+			buff, ntohs(clientaddr.sin_port));
 	
 
 	while (1)
@@ -91,7 +95,9 @@ int main()
 		}
 
 		buf[retval] = '\0';
-		printf("[TCP/%s:%d] %s\n", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port), buf);
+		char addr_buff[200];
+		inet_ntop(AF_INET, &clientaddr.sin_addr, addr_buff, 200);
+		printf("[TCP/%s:%d] %s\n", addr_buff, ntohs(clientaddr.sin_port), buf);
 
 		//retval = send(client_sock, buf, retval, 0);
 		//if (retval == SOCKET_ERROR)
@@ -102,7 +108,9 @@ int main()
 	}
 	
 	closesocket(client_sock);
-	printf("[TCP 서버] 클라이언트 종료: IP 주소= %s, 포트 번호=%d\n:", inet_ntoa(clientaddr.sin_addr), ntohs(clientaddr.sin_port));
+	char addr_buff[200];
+	inet_ntop(AF_INET, &clientaddr.sin_addr, addr_buff, 200);
+	printf("[TCP 서버] 클라이언트 종료: IP 주소= %s, 포트 번호=%d\n:", addr_buff, ntohs(clientaddr.sin_port));
 	}
 
 	closesocket(listen_sock);
