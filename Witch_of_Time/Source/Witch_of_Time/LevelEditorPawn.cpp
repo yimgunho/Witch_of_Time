@@ -3,6 +3,7 @@
 
 #include "LevelEditorPawn.h"
 #include <Runtime/Engine/Public/DrawDebugHelpers.h>
+#include "math.h"
 
 ALevelEditorPawn::ALevelEditorPawn()
 {
@@ -24,13 +25,52 @@ void ALevelEditorPawn::PlaceBlock()
 	collisionParams.AddIgnoredActor(this);
 
 	// µð¹ö±ë¿ë ¶óÀÎ
-	DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
+	// DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
 
-	FRotator Rotator;
-	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams))
+	FRotator Rotator = { 0,0,0 };
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
 	{
 		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		FVector Location = hitResult.GetComponent()->GetComponentLocation();
+
+
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, Location.ToString());
+
+		Location -= (FVector)hitResult.Location;
+
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, Location.ToString());
+		
+		if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
+		{
+			hitResult.Location.X -= Location.X;
+		}
+		else
+		{
+			hitResult.Location.X = hitResult.GetComponent()->GetComponentLocation().X;
+		}
+
+		if (fabsf(Location.Y - 100.f) < 0.01f || fabsf(Location.Y + 100.f) < 0.01f)
+		{
+			hitResult.Location.Y -= Location.Y;
+		}
+		else
+		{
+			hitResult.Location.Y = hitResult.GetComponent()->GetComponentLocation().Y;
+		}
+		
+		if (fabsf(Location.Z + 200.f) < 0.01f || fabsf(Location.Z) < 0.01f)
+		{
+			if (fabsf(Location.Z + 200.f) < 0.01f)
+				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z + 200.f;
+			else
+				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z - 200.f;
+		}
+		else
+		{
+			hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
+		}
+
 		GetWorld()->SpawnActor<AActor>(PlaceActor,(FVector)hitResult.Location, Rotator, SpawnParams);
 	}
 }
@@ -47,7 +87,7 @@ void ALevelEditorPawn::DestroyBlock()
 	collisionParams.AddIgnoredActor(this);
 
 	// µð¹ö±ë¿ë ¶óÀÎ
-	DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
+	//DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
 
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
 	{
@@ -65,4 +105,9 @@ void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// ÁÂÅ¬¸¯
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ALevelEditorPawn::DestroyBlock);
 
+}
+
+void ALevelEditorPawn::SetPlaceActor(UClass* Actor)
+{
+	PlaceActor = Actor;
 }

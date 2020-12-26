@@ -25,5 +25,8 @@ protected:
 	void DestroyBlock();
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Placing")
+	void SetPlaceActor(UClass* Actor);
 	
 };
