@@ -17,12 +17,21 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 	UPROPERTY(EditAnywhere)
 	UClass* PlaceActor;
 
+	UPROPERTY(EditAnywhere)
+	UClass* DummyActor;
+
+	AActor* DummyBlock;
+
 public:
 	ALevelEditorPawn();
 
 protected:
+	virtual void BeginPlay() override;
+
 	void PlaceBlock();
 	void DestroyBlock();
+
+	void DrawDummyBlock(float value);
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
