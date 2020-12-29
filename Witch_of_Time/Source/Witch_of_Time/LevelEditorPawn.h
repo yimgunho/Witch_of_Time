@@ -28,5 +28,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable, Category = "Placing")
 	void SetPlaceActor(UClass* Actor);
+
+	UFUNCTION(BlueprintCallable, Category = "Placing")
+	UClass* GetPlaceActor();
+
 	
 };

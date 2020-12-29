@@ -111,3 +111,8 @@ void ALevelEditorPawn::SetPlaceActor(UClass* Actor)
 {
 	PlaceActor = Actor;
 }
+
+UClass* ALevelEditorPawn::GetPlaceActor()
+{
+	return PlaceActor;
+}
