@@ -1,0 +1,62 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "BlockBase.generated.h"
+
+UCLASS()
+class WITCH_OF_TIME_API ABlockBase : public AActor
+{
+	GENERATED_BODY()
+	
+public:	
+	// Sets default values for this actor's properties
+	ABlockBase();
+
+	void ApplyHeatEnergy(float heat);
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+
+	UPROPERTY(EditAnywhere)
+	float temperature = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	float FreezingPoint = 0.f;
+
+	UPROPERTY(EditAnywhere)
+	float MeltingPoint = 100.f;
+
+	UPROPERTY(EditAnywhere)
+	int hp = 100;
+
+	UPROPERTY(EditAnywhere)
+	float mess = 20.f;
+
+	UPROPERTY(EditAnywhere)
+	bool ApplyPhysics = false;
+	UPROPERTY(EditAnywhere)
+	bool ApplyTimeMagic = false;
+	UPROPERTY(EditAnywhere)
+	bool ApplyCommandBlocks = false;
+
+	UPROPERTY(EditAnywhere)
+	bool ApplyStateChange = false;
+
+	UPROPERTY(EditAnywhere)
+	bool ApplyHeatNearBlocks = false;
+
+	UPROPERTY(EditAnywhere)
+	UClass* m_FreezingClass = NULL;
+
+	UPROPERTY(EditAnywhere)
+	UClass* m_MeltingClass = NULL;
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+};
