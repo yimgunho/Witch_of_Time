@@ -37,9 +37,6 @@ void ALevelEditorPawn::PlaceBlock()
 	collisionParams.AddIgnoredActor(this);
 	collisionParams.AddIgnoredActor(DummyBlock);
 
-	// 디버깅용 라인
-	// DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
-
 	FRotator Rotator = { 0,0,0 };
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
 	{
@@ -47,13 +44,8 @@ void ALevelEditorPawn::PlaceBlock()
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		FVector Location = hitResult.GetComponent()->GetComponentLocation();
 
-
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, Location.ToString());
-
 		Location -= (FVector)hitResult.Location;
 
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, Location.ToString());
-		
 		if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
 		{
 			hitResult.Location.X -= Location.X;
@@ -84,7 +76,13 @@ void ALevelEditorPawn::PlaceBlock()
 			hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
 		}
 
-		GetWorld()->SpawnActor<AActor>(PlaceActor,(FVector)hitResult.Location, Rotator, SpawnParams);
+		auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor,(FVector)hitResult.Location, Rotator, SpawnParams);
+		TArray<AActor*> overlapped;
+		spawned->GetOverlappingActors(overlapped);
+		for (AActor* actor : overlapped)
+		{
+			actor->Destroy();
+		}
 	}
 }
 

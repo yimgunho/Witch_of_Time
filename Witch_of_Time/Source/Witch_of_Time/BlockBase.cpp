@@ -10,6 +10,10 @@ ABlockBase::ABlockBase()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Types.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
+	Types.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
+
+	Ignores.Add(this);
 }
 
 void ABlockBase::ApplyHeatEnergy(float heat)
@@ -21,7 +25,9 @@ void ABlockBase::ApplyHeatEnergy(float heat)
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		auto spawned = GetWorld()->SpawnActor<AActor>(m_MeltingClass, this->GetActorLocation(), this->GetActorRotation(), SpawnParams);
 
-		dynamic_cast<ABlockBase*>(spawned)->temperature = temperature;
+		
+
+		Cast<ABlockBase>(spawned)->temperature = temperature;
 		this->Destroy();
 	}
 	else if (temperature < FreezingPoint && m_FreezingClass != NULL)
@@ -30,7 +36,7 @@ void ABlockBase::ApplyHeatEnergy(float heat)
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		auto spawned = GetWorld()->SpawnActor<AActor>(m_FreezingClass, this->GetActorLocation(), this->GetActorRotation(), SpawnParams);
 
-		dynamic_cast<ABlockBase*>(spawned)->temperature = temperature;
+		Cast<ABlockBase>(spawned)->temperature = temperature;
 		this->Destroy();
 	}
 }
@@ -39,7 +45,7 @@ void ABlockBase::ApplyHeatEnergy(float heat)
 void ABlockBase::BeginPlay()
 {
 	Super::BeginPlay();
-	if (ApplyHeatEnergy)
+	if (ApplyHeatNearBlocks)
 	{
 		this->SetActorTickEnabled(true);
 	}
@@ -50,15 +56,6 @@ void ABlockBase::BeginPlay()
 void ABlockBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	TArray<TEnumAsByte<EObjectTypeQuery>> Types;
-	TArray<AActor*> Ignores;
-	TArray<AActor*> Actors;
-
-	Types.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
-	Types.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
-
-	Ignores.Add(this);
-
 
 	if (ApplyHeatNearBlocks)
 	{
@@ -66,7 +63,7 @@ void ABlockBase::Tick(float DeltaTime)
 
 		for (AActor* actor : Actors)
 		{
-			auto picked = dynamic_cast<ABlockBase*>(actor);
+			auto picked = Cast<ABlockBase>(actor);
 			if (picked != NULL)
 			{
 				if (picked->ApplyStateChange)
