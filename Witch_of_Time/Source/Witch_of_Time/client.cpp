@@ -6,121 +6,93 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
 #define SERVERIP "127.0.0.1"
 #define SERVERPORT 9000
 #define BUFSIZE 512
 
-void err_display(const char* msg)
-{
-	LPVOID lpMsgBuf;
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, WSAGetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);
-	printf("[%s] %s", msg, (char*)lpMsgBuf);
-	LocalFree(lpMsgBuf);
-}
+//DWORD WINAPI SendThread(LPVOID lpData);
+//DWORD WINAPI RecvThread(LPVOID lpData);
 
-void err_quit(const char* msg)
-{
-	LPVOID lpMsgBuf;
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, WSAGetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);
-	MessageBox(NULL, (LPCTSTR)lpMsgBuf, (LPCTSTR)msg, MB_ICONERROR);
-	LocalFree(lpMsgBuf);
-	exit(1);
-}
+SOCKET sock;
 
-int recvn(SOCKET s, char* buf, int len, int flags)
-{
-	int received;
-	char* ptr = buf;
-	int left = len;
+char* SendResult;
+char RecvResult[1024];
 
-	while (left > 0)
-	{
-		received = recv(s, ptr, left, flags);
-		if (received == SOCKET_ERROR)
-			return SOCKET_ERROR;
-		else if (received == 0)
-			break;
-		left -= received;
-		ptr += received;
-	}
+const TCHAR* chars;
+const TCHAR* tempchars;
 
-	return (len - left);
-}
-
-
+float Elapsed_Time;
 // Sets default values
 Aclient::Aclient()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	//SetChat();
+	Elapsed_Time = 0;
+	////소켓 해제
+	//closesocket(sock);
 }
 
 // Called when the game starts or when spawned
 void Aclient::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetChat();
+
 	int retval;
 
-	WSADATA wsa;
-	WSAStartup(MAKEWORD(2, 2), &wsa);
+	TempSendStr = TEXT("STANDBY");
+	TempRecvStr = TEXT("TEST");
+	chars = *TempSendStr;
 
-	SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock == INVALID_SOCKET) err_quit("socket()");
+	WSADATA wsaData;
+	int token = WSAStartup(WINSOCK_VERSION, &wsaData);
+
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+
+	u_long on = 1;
+	retval = ioctlsocket(sock, FIONBIO, &on);
+
+	int optval = 10;
+	retval = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
 
 	SOCKADDR_IN serveraddr;
-	ZeroMemory(&serveraddr, sizeof(serveraddr));
+	//ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
 	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
 	serveraddr.sin_port = htons(SERVERPORT);
-	retval = connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
-	if (retval == SOCKET_ERROR) err_quit("connect()");
+	connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 
-	char buf[BUFSIZE + 1] = "Hello World";
-	int len;
-	printf("[TCP 클라이언트] %d바이트를 보냈습니다. \n", retval);
-	for (int i = 0; i < 1; i++)
-	{
-		printf("\n[보낼 데이터]");
-		//if (fgets(buf, BUFSIZE + 1, stdin) == NULL)
-		//	break;
-		len = strlen(buf);
-		if (buf[len - 1] == '\n')
-			buf[len - 1] = '\0';
-		if (buf[len - 1] == 0)
-			break;
+	//CreateThread(NULL, 0, SendThread, (void*)sock, 0, NULL);
 
-		retval = send(sock, buf, strlen(buf), 0);
-		if (retval == SOCKET_ERROR)
-		{
-			err_display("send()");
-			break;
-		}
+	// 전송 & 수신 루푸
+	//while (1)
+	//{
+	//	int len = recv(sock, RecvResult, sizeof(RecvResult), 0);
+	//	TempRecvStr = FString(ANSI_TO_TCHAR(RecvResult));
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TempRecvStr);
+	//	if (len <= 0)
+	//	{
+	//		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "OUT");
+	//		break;
+	//	}
+	//}
+}
 
-		//retval = recvn(sock, buf, retval, 0);
-		//if (retval == SOCKET_ERROR)
-		//{
-		//	err_display("recv()");
-		//	break;
-		//}
-		//else if (retval == 0)
-		//	break;
-
-		buf[retval] = '\0';
-	}
-
-	closesocket(sock);
-
-	WSACleanup();
-
+DWORD WINAPI SendThread(void* lpData)
+{
+	SOCKET socket_client = (SOCKET)lpData;
+	//while (1)
+	//if (tempchars != "DEL")
+	//{
+		//char text[1024] = { 0 };
+		//send(socket_client, text, strlen(text), 0);
+		SendResult = TCHAR_TO_ANSI(chars);
+		send(sock, SendResult, strlen(SendResult), 0);
+	//}
+	return 0;
 }
 
 // Called every frame
@@ -128,5 +100,44 @@ void Aclient::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Elapsed_Time += DeltaTime;
+
+
+	tempchars = *TempSendStr;
+
+
+	if (TempSendStr != "DEL")
+	{
+		//보내기	
+		SendResult = TCHAR_TO_ANSI(*TempSendStr);
+		send(sock, SendResult, strlen(SendResult), 0);
+	}
+
+	if (Elapsed_Time > 0.1f)
+	{
+
+		recv(sock, RecvResult, sizeof(RecvResult), 0);
+		TempRecvStr = FString(ANSI_TO_TCHAR(RecvResult));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TempRecvStr);
+
+		memset(RecvResult, 0, sizeof(RecvResult));
+		Elapsed_Time = 0.f;
+	}
+	//////받기
+	////RecvResult = TCHAR_TO_ANSI(*TempRecvStr);
+	//recv(sock, RecvResult, sizeof(RecvResult), 0);
+	//TempRecvStr = FString(ANSI_TO_TCHAR(RecvResult));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TempRecvStr);
+
+
+
+
 }
 
+void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	closesocket(sock);
+	WSACleanup();
+}

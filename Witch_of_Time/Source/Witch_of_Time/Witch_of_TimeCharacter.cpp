@@ -16,6 +16,8 @@
 
 AWitch_of_TimeCharacter::AWitch_of_TimeCharacter()
 {
+	Player_name = TEXT("Player");
+
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
