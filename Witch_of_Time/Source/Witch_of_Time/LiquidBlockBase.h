@@ -18,16 +18,26 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float m_height = 1.0f;
 
+	int DestroyCount = 0;
+
 	ALiquidBlockBase* ParentBlock;
+	ALiquidBlockBase* GrandParentBlock;
+
+	TArray <ALiquidBlockBase*> ChildBlocks;
 
 	UFUNCTION(BlueprintCallable, Category = "Placing")
-	void SetHeight(float height);
+	void SetHeight(float height, bool IsFlow);
+
 	UFUNCTION(BlueprintCallable, Category = "Placing")
 	float GetHeight();
 
 	void SetParant(ALiquidBlockBase* Parent);
 
-	void PlaceDummy(FVector location);
+	UFUNCTION(BlueprintCallable, Category = "Placing")
+	void SetGrandParant(ALiquidBlockBase* Parent);
+
+	bool PlaceDummy(FVector location, bool IsFlow);
+
 
 public:
 	UPROPERTY(EditAnywhere)

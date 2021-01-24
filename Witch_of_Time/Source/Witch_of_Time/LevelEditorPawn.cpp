@@ -4,6 +4,8 @@
 #include "LevelEditorPawn.h"
 #include <Runtime/Engine/Public/DrawDebugHelpers.h>
 #include "math.h"
+#include "BlockBase.h"
+#include "CommandBlockBase.h"
 
 ALevelEditorPawn::ALevelEditorPawn()
 {
@@ -27,63 +29,100 @@ void ALevelEditorPawn::BeginPlay()
 
 void ALevelEditorPawn::PlaceBlock()
 {
-	FVector CLocation = this->GetActorLocation();
-	FVector CForwardVector = this->GetActorForwardVector();
+	auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
 
-	FHitResult hitResult;
-
-	FCollisionQueryParams collisionParams;
-
-	collisionParams.AddIgnoredActor(this);
-	collisionParams.AddIgnoredActor(DummyBlock);
-
-	FRotator Rotator = { 0,0,0 };
-	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+	if (BlockClass != NULL)
 	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		FVector Location = hitResult.GetComponent()->GetComponentLocation();
+		FVector CLocation = this->GetActorLocation();
+		FVector CForwardVector = this->GetActorForwardVector();
 
-		Location -= (FVector)hitResult.Location;
+		FHitResult hitResult;
 
-		if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
-		{
-			hitResult.Location.X -= Location.X;
-		}
-		else
-		{
-			hitResult.Location.X = hitResult.GetComponent()->GetComponentLocation().X;
-		}
+		FCollisionQueryParams collisionParams;
 
-		if (fabsf(Location.Y - 100.f) < 0.01f || fabsf(Location.Y + 100.f) < 0.01f)
+		collisionParams.AddIgnoredActor(this);
+		collisionParams.AddIgnoredActor(DummyBlock);
+
+		FRotator Rotator = { 0,0,0 };
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
 		{
-			hitResult.Location.Y -= Location.Y;
-		}
-		else
-		{
-			hitResult.Location.Y = hitResult.GetComponent()->GetComponentLocation().Y;
-		}
-		
-		if (fabsf(Location.Z + 200.f) < 0.01f || fabsf(Location.Z) < 0.01f)
-		{
-			if (fabsf(Location.Z + 200.f) < 0.01f)
-				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z + 200.f;
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			FVector Location = hitResult.GetComponent()->GetComponentLocation();
+
+			Location -= (FVector)hitResult.Location;
+
+			if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
+			{
+				hitResult.Location.X -= Location.X;
+			}
 			else
-				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z - 200.f;
-		}
-		else
-		{
-			hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
-		}
+			{
+				hitResult.Location.X = hitResult.GetComponent()->GetComponentLocation().X;
+			}
 
-		auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor,(FVector)hitResult.Location, Rotator, SpawnParams);
-		TArray<AActor*> overlapped;
-		spawned->GetOverlappingActors(overlapped);
-		for (AActor* actor : overlapped)
-		{
-			actor->Destroy();
+			if (fabsf(Location.Y - 100.f) < 0.01f || fabsf(Location.Y + 100.f) < 0.01f)
+			{
+				hitResult.Location.Y -= Location.Y;
+			}
+			else
+			{
+				hitResult.Location.Y = hitResult.GetComponent()->GetComponentLocation().Y;
+			}
+
+			if (fabsf(Location.Z + 200.f) < 0.01f || fabsf(Location.Z) < 0.01f)
+			{
+				if (fabsf(Location.Z + 200.f) < 0.01f)
+					hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z + 200.f;
+				else
+					hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z - 200.f;
+			}
+			else
+			{
+				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
+			}
+
+			auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
+			TArray<AActor*> overlapped;
+			spawned->GetOverlappingActors(overlapped);
+			for (AActor* actor : overlapped)
+			{
+				actor->Destroy();
+			}
 		}
 	}
+	else
+	{
+		FVector CLocation = this->GetActorLocation();
+		FVector CForwardVector = this->GetActorForwardVector();
+
+		FHitResult hitResult;
+
+		FCollisionQueryParams collisionParams;
+
+		collisionParams.AddIgnoredActor(this);
+		collisionParams.AddIgnoredActor(DummyBlock);
+
+		FRotator Rotator = { 0,0,0 };
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+		{
+			FVector Location = hitResult.GetActor()->GetActorLocation();
+			auto target = hitResult.GetActor();
+			auto casted = Cast<ABlockBase>(target);
+			if (casted != NULL)
+			{
+				if (casted->GetApplyCommandBlocks())
+				{
+					casted->ApplyMove();
+				}
+
+			}
+
+		}
+	}
+
+	
+	
 }
 
 void ALevelEditorPawn::DestroyBlock()
@@ -109,60 +148,161 @@ void ALevelEditorPawn::DestroyBlock()
 
 void ALevelEditorPawn::DrawDummyBlock(float value)
 {
-	FVector CLocation = this->GetActorLocation();
-	FVector CForwardVector = this->GetActorForwardVector();
+	auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
 
-	FHitResult hitResult;
-
-	FCollisionQueryParams collisionParams;
-
-	collisionParams.AddIgnoredActor(this);
-	collisionParams.AddIgnoredActor(DummyBlock);
-
-	FRotator Rotator = { 0,0,0 };
-	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+	if (BlockClass != NULL)
 	{
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		FVector Location = hitResult.GetComponent()->GetComponentLocation();
+		FVector CLocation = this->GetActorLocation();
+		FVector CForwardVector = this->GetActorForwardVector();
 
-		Location -= (FVector)hitResult.Location;
+		FHitResult hitResult;
 
-		if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
-		{
-			hitResult.Location.X -= Location.X;
-		}
-		else
-		{
-			hitResult.Location.X = hitResult.GetComponent()->GetComponentLocation().X;
-		}
+		FCollisionQueryParams collisionParams;
 
-		if (fabsf(Location.Y - 100.f) < 0.01f || fabsf(Location.Y + 100.f) < 0.01f)
-		{
-			hitResult.Location.Y -= Location.Y;
-		}
-		else
-		{
-			hitResult.Location.Y = hitResult.GetComponent()->GetComponentLocation().Y;
-		}
+		collisionParams.AddIgnoredActor(this);
+		collisionParams.AddIgnoredActor(DummyBlock);
 
-		if (fabsf(Location.Z + 200.f) < 0.01f || fabsf(Location.Z) < 0.01f)
+		FRotator Rotator = { 0,0,0 };
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
 		{
-			if (fabsf(Location.Z + 200.f) < 0.01f)
-				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z + 200.f;
+			FVector Location = hitResult.GetComponent()->GetComponentLocation();
+
+			Location -= (FVector)hitResult.Location;
+
+			if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
+			{
+				hitResult.Location.X -= Location.X;
+			}
 			else
-				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z - 200.f;
+			{
+				hitResult.Location.X = hitResult.GetComponent()->GetComponentLocation().X;
+			}
+
+			if (fabsf(Location.Y - 100.f) < 0.01f || fabsf(Location.Y + 100.f) < 0.01f)
+			{
+				hitResult.Location.Y -= Location.Y;
+			}
+			else
+			{
+				hitResult.Location.Y = hitResult.GetComponent()->GetComponentLocation().Y;
+			}
+
+			if (fabsf(Location.Z + 200.f) < 0.01f || fabsf(Location.Z) < 0.01f)
+			{
+				if (fabsf(Location.Z + 200.f) < 0.01f)
+					hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z + 200.f;
+				else
+					hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z - 200.f;
+			}
+			else
+			{
+				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
+			}
+
+
+			DummyBlock->SetActorLocation(hitResult.Location);
+			DummyBlock->SetActorHiddenInGame(false);
+
 		}
 		else
 		{
-			hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
+			DummyBlock->SetActorHiddenInGame(true);
 		}
+	}
+	else
+	{
+		FVector CLocation = this->GetActorLocation();
+		FVector CForwardVector = this->GetActorForwardVector();
 
+		FHitResult hitResult;
 
-		DummyBlock->SetActorLocation(hitResult.Location);
+		FCollisionQueryParams collisionParams;
+
+		collisionParams.AddIgnoredActor(this);
+		collisionParams.AddIgnoredActor(DummyBlock);
+
+		FRotator Rotator = { 0,0,0 };
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+		{
+			FVector Location = hitResult.GetActor()->GetActorLocation();
+			auto target = hitResult.GetActor();
+			auto casted = Cast<ABlockBase>(target);
+			if (casted != NULL)
+			{
+				if (casted->GetApplyCommandBlocks())
+				{
+					DummyBlock->SetActorLocation(Location);
+					DummyBlock->SetActorHiddenInGame(false);
+				}
+			
+			}
+			else
+			{
+				DummyBlock->SetActorHiddenInGame(true);
+			}
+		}
+		else
+		{
+			DummyBlock->SetActorHiddenInGame(true);
+		}
 	}
 }
 
+void ALevelEditorPawn::SaveGame()
+{
+	USaveEditorLevel* Instance = Cast<USaveEditorLevel>(UGameplayStatics::CreateSaveGameObject(USaveEditorLevel::StaticClass()));
+
+	TArray<AActor*> actors;
+
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), "Saveable", actors);
+
+	for (auto target : actors)
+	{
+		Fblockinfo temp;
+		auto casted = Cast<ABlockBase>(target);
+		if (casted)
+		{
+			temp.location = casted->GetOrigin();
+		}
+		else
+			temp.location = target->GetActorLocation();
+
+		temp.blockclass = target->GetClass();
+
+		Instance->blockarray.Add(temp);
+	}
+
+	UGameplayStatics::SaveGameToSlot(Instance, Instance->SaveSlotName, Instance->UserIndex);
+}
+
+void ALevelEditorPawn::LoadGame()
+{
+	USaveEditorLevel* LoadGameInstance = Cast<USaveEditorLevel>(UGameplayStatics::CreateSaveGameObject(USaveEditorLevel::StaticClass()));
+	if (LoadGameInstance)
+	{
+		TArray<AActor*> actors;
+		UGameplayStatics::GetAllActorsWithTag(GetWorld(), "Removable", actors);
+		for (auto target : actors)
+		{
+			target->Destroy();
+		}
+
+		FRotator Rotator = { 0,0,0 };
+
+		LoadGameInstance = Cast<USaveEditorLevel>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->SaveSlotName, LoadGameInstance->UserIndex));
+
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		for (auto block : LoadGameInstance->blockarray)
+		{
+			GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
+		}
+		
+
+	}
+	
+}
 
 void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -174,6 +314,9 @@ void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// ÁÂÅ¬¸¯
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ALevelEditorPawn::DestroyBlock);
 
+	PlayerInputComponent->BindAction("SaveGame", IE_Pressed, this, &ALevelEditorPawn::SaveGame);
+
+	PlayerInputComponent->BindAction("LoadGame", IE_Pressed, this, &ALevelEditorPawn::LoadGame);
 
 
 	PlayerInputComponent->BindAxis("Turn", this, &ALevelEditorPawn::DrawDummyBlock);
@@ -193,3 +336,6 @@ UClass* ALevelEditorPawn::GetPlaceActor()
 {
 	return PlaceActor;
 }
+
+
+

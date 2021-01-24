@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/DefaultPawn.h"
+#include "SaveEditorLevel.h"
+#include "Kismet/GameplayStatics.h"
 #include "LevelEditorPawn.generated.h"
+
+
 
 /**
  * 
@@ -41,5 +45,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Placing")
 	UClass* GetPlaceActor();
 
+	void SaveGame();
+	void LoadGame();
 	
 };
