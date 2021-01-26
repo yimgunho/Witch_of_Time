@@ -263,11 +263,14 @@ void ALevelEditorPawn::SaveGame()
 		if (casted)
 		{
 			temp.location = casted->GetOrigin();
+			casted->GetMovement(temp.Move_MaxCount, temp.Move_Speed);
 		}
 		else
 			temp.location = target->GetActorLocation();
 
 		temp.blockclass = target->GetClass();
+
+	
 
 		Instance->blockarray.Add(temp);
 	}
@@ -296,7 +299,14 @@ void ALevelEditorPawn::LoadGame()
 
 		for (auto block : LoadGameInstance->blockarray)
 		{
-			GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
+			auto spawned = GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
+
+			auto casted = Cast<ABlockBase>(spawned);
+
+			if (casted)
+			{
+				casted->ApplyMoves(block.Move_MaxCount);
+			}
 		}
 		
 

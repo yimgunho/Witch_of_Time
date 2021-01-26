@@ -50,6 +50,13 @@ void ABlockBase::ApplyMove()
 	Move_Speed += 50;
 }
 
+void ABlockBase::ApplyMoves(int Count)
+{
+	this->SetActorTickEnabled(true);
+	Move_MaxCount += Count;
+	Move_Speed += 50 * Count;
+}
+
 FVector ABlockBase::GetOrigin()
 {
 	return OriginLocation;
@@ -58,6 +65,13 @@ FVector ABlockBase::GetOrigin()
 bool ABlockBase::GetIsMovable()
 {
 	return IsMovable;
+}
+
+void ABlockBase::GetMovement(int& maxcount, float& speed)
+{
+	maxcount = Move_MaxCount;
+	speed = Move_Speed;
+
 }
 
 bool ABlockBase::GetApplyCommandBlocks()

@@ -17,6 +17,12 @@ struct Fblockinfo {
 	FVector location;
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	UClass* blockclass;
+
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	int Move_MaxCount = 0;
+
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	float Move_Speed = 100;
 };
 
 UCLASS()

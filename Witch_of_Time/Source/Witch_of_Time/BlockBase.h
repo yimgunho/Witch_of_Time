@@ -20,9 +20,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ApplyMove();
 
+	UFUNCTION(BlueprintCallable)
+	void ApplyMoves(int Count);
+
 	FVector GetOrigin();
 
 	bool GetIsMovable();
+
+	void GetMovement(int& maxcount, float& speed);
 
 	bool GetApplyCommandBlocks();
 protected:
