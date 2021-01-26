@@ -12,10 +12,18 @@ ALiquidBlockBase::ALiquidBlockBase()
 	Ignores.Add(this);
 }
 
-void ALiquidBlockBase::SetHeight(float height)
+void ALiquidBlockBase::SetHeight(float height, bool IsFlow)
 {
-	m_height = height;
-	SetActorScale3D(FVector(0.99, 0.99, m_height));
+	if (!IsFlow)
+	{
+		m_height = height;
+		SetActorScale3D(FVector(0.99, 0.99, m_height));
+	}
+	else
+	{
+		m_height = std::min(m_height, 0.99f);
+		SetActorScale3D(FVector(0.99, 0.99, 0.99));
+	}
 }
 
 float ALiquidBlockBase::GetHeight()
@@ -28,9 +36,17 @@ void ALiquidBlockBase::SetParant(ALiquidBlockBase* Parent)
 	ParentBlock = Parent;
 }
 
-void ALiquidBlockBase::PlaceDummy(FVector location)
+void ALiquidBlockBase::SetGrandParant(ALiquidBlockBase* Parent)
 {
+	GrandParentBlock = Parent;
+}
+
+bool ALiquidBlockBase::PlaceDummy(FVector location, bool IsFlow)
+{
+	if (location.X < 0.f || location.Y < 0.f)
+		return false;
 	FRotator Rotator = { 0,0,0 };
+	int spawncount = 0;
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
@@ -38,28 +54,76 @@ void ALiquidBlockBase::PlaceDummy(FVector location)
 	
 	auto PlacedActor = GetWorld()->SpawnActor<AActor>(Place, location, Rotator, SpawnParams);
 	auto casted = Cast<ALiquidBlockBase>(PlacedActor);
-	if (casted != NULL)
+	if (IsFlow == false)
 	{
-		casted->SetHeight(m_height - 0.2f);
-		casted->SetParant(this);
+		if (casted != NULL)
+		{
+			casted->SetHeight(m_height - 0.2f,false);
+			casted->SetParant(this);
+			casted->SetGrandParant(GrandParentBlock);
+			ChildBlocks.Add(casted);
+			spawncount++;
+		}
+		else
+		{
+			UKismetSystemLibrary::SphereOverlapActors(GetWorld(), location, 100.f, Types, NULL, Ignores, Actors);
+			for (AActor* Actor : Actors)
+			{
+				casted = Cast<ALiquidBlockBase>(Actor);
+				if (casted != NULL)
+				{
+					if (casted->m_height < m_height - 0.2f)
+					{
+						casted->SetHeight(m_height - 0.2f, false);
+						casted->SetParant(this);
+						casted->SetGrandParant(GrandParentBlock);
+						ChildBlocks.Add(casted);
+						spawncount++;
+					}
+				}
+
+			}
+		}
 	}
 	else
 	{
-		UKismetSystemLibrary::SphereOverlapActors(GetWorld(), location, 100.f, Types, NULL, Ignores, Actors);
-		for (AActor* Actor : Actors)
+		
+
+		if (casted != NULL)
 		{
-			casted = Cast< ALiquidBlockBase>(Actor);
-			if (casted != NULL)
+			casted->SetHeight(m_height,true);
+			casted->SetParant(this);
+			casted->SetGrandParant(GrandParentBlock);
+			spawncount++;
+
+			for (auto actor : ChildBlocks)
 			{
-				if (casted->m_height < m_height - 0.2f)
+				actor->SetParant(NULL);
+				actor->SetGrandParant(NULL);
+			}
+		}
+		else
+		{
+			UKismetSystemLibrary::SphereOverlapActors(GetWorld(), location, 100.f, Types, NULL, Ignores, Actors);
+			for (AActor* Actor : Actors)
+			{
+				casted = Cast<ALiquidBlockBase>(Actor);
+				if (casted != NULL && (casted != casted->GrandParentBlock))
 				{
-					casted->SetHeight(m_height - 0.2f);
+					casted->SetHeight(m_height ,true);
 					casted->SetParant(this);
+					spawncount++;
+					
 				}
 			}
-
 		}
 	}
+	
+
+	if (spawncount > 0)
+		return true;
+	else
+		return false;
 }
 
 void ALiquidBlockBase::BeginPlay()
@@ -76,23 +140,37 @@ void ALiquidBlockBase::Tick(float DeltaTime)
 	ABlockBase::Tick(DeltaTime);
 
 	Elapsed_Time += DeltaTime;
-	if (Elapsed_Time > 1.f)
+	if (Elapsed_Time > 0.6f)
 	{
-		if (m_height > 0.3f)
-		{
-			FVector Location = this->GetActorLocation();
-
-			PlaceDummy(Location - FVector(200, 0, -1));
-			PlaceDummy(Location + FVector(200, 0, 1));
-			PlaceDummy(Location - FVector(0, 200, -1));
-			PlaceDummy(Location + FVector(0, 200, 1));
-
-		}
-
 		if (m_height != 1.f && !IsValid(ParentBlock))
 		{
 			this->Destroy();
 		}
+		if (!IsValid(GrandParentBlock))
+		{
+			DestroyCount++;
+			if (DestroyCount > 5)
+			{
+				this->Destroy();
+			}
+		}
+
+		FVector Location = this->GetActorLocation();
+		auto flow = PlaceDummy(Location - FVector(0, 0, 199), true);
+
+		if (!flow)
+		{
+			if (m_height > 0.3f)
+			{
+				PlaceDummy(Location - FVector(200, 0, -1), false);
+				PlaceDummy(Location + FVector(200, 0, 1), false);
+				PlaceDummy(Location - FVector(0, 200, -1), false);
+				PlaceDummy(Location + FVector(0, 200, 1), false);
+
+			}
+		}
+
+		
 		Elapsed_Time = 0.f;
 	}
 	

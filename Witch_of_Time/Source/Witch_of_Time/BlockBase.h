@@ -17,6 +17,19 @@ public:
 
 	void ApplyHeatEnergy(float heat);
 
+	UFUNCTION(BlueprintCallable)
+	void ApplyMove();
+
+	UFUNCTION(BlueprintCallable)
+	void ApplyMoves(int Count);
+
+	FVector GetOrigin();
+
+	bool GetIsMovable();
+
+	void GetMovement(int& maxcount, float& speed);
+
+	bool GetApplyCommandBlocks();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -24,6 +37,8 @@ protected:
 	TArray<TEnumAsByte<EObjectTypeQuery>> Types;
 	TArray<AActor*> Ignores;
 	TArray<AActor*> Actors;
+
+	FVector OriginLocation;
 
 
 	UPROPERTY(EditAnywhere)
@@ -49,6 +64,14 @@ protected:
 	bool ApplyCommandBlocks = false;
 
 	UPROPERTY(EditAnywhere)
+	bool IsMovable = true;
+
+	bool MoveChange = false;
+
+	int Move_MaxCount = 0;
+	float Move_Speed = 100;
+
+	UPROPERTY(EditAnywhere)
 	bool ApplyStateChange = false;
 
 	UPROPERTY(EditAnywhere)
@@ -59,6 +82,8 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UClass* m_MeltingClass = NULL;
+
+	float Elapsed_Time = 0.f;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
