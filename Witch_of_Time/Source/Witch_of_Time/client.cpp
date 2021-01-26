@@ -32,6 +32,8 @@ Aclient::Aclient()
 	Elapsed_Time = 0;
 	////소켓 해제
 	//closesocket(sock);
+	cnt = 0;
+	recv_cnt = 0;
 }
 
 // Called when the game starts or when spawned
@@ -106,18 +108,25 @@ void Aclient::Tick(float DeltaTime)
 	tempchars = *TempSendStr;
 
 
-	if (TempSendStr != "DEL")
+	if(cnt == 0)
 	{
 		//보내기	
 		SendResult = TCHAR_TO_ANSI(*TempSendStr);
 		send(sock, SendResult, strlen(SendResult), 0);
+		cnt++;
 	}
+
+
 
 	if (Elapsed_Time > 0.1f)
 	{
-
 		recv(sock, RecvResult, sizeof(RecvResult), 0);
+		
 		TempRecvStr = FString(ANSI_TO_TCHAR(RecvResult));
+		if (TempRecvStr != "")
+		{
+			recv_cnt = 0;
+		}
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TempRecvStr);
 
 		memset(RecvResult, 0, sizeof(RecvResult));
@@ -128,8 +137,6 @@ void Aclient::Tick(float DeltaTime)
 	//recv(sock, RecvResult, sizeof(RecvResult), 0);
 	//TempRecvStr = FString(ANSI_TO_TCHAR(RecvResult));
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TempRecvStr);
-
-
 
 
 }

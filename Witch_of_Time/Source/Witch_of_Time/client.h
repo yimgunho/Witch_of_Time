@@ -22,6 +22,16 @@ public:
 	int cnt;
 	UFUNCTION(BlueprintImplementableEvent, Category = Default)
 	void SetChat();
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	float position_x;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	float position_y;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	float position_z;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	int recv_cnt;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	int is_key_up;
 
 protected:
 	// Called when the game starts or when spawned
