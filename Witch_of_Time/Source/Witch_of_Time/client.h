@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -10,35 +8,60 @@ UCLASS()
 class WITCH_OF_TIME_API Aclient : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	Aclient();
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-	FString TempSendStr;
+		FString TempSendStr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-	FString TempRecvStr;
+		FString TempRecvStr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-	int cnt;
+		int cnt;
 	UFUNCTION(BlueprintImplementableEvent, Category = Default)
-	void SetChat();
+		void SetChat();
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-	float position_x;
+		float position_x;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-	float position_y;
+		float position_y;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-	float position_z;
+		float position_z;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-	int recv_cnt;
+		float angle_x;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-	int is_key_up;
+		float angle_y;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+		float angle_z;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+		int recv_cnt;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+		int is_key_up;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float position_x_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float position_y_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float position_z_2;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float angle_x_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float angle_y_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float angle_z_2;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int is_moving;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int is_moving_2;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	//static DWORD WINAPI SendThread(void* lpData);
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
