@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
-#define BUFSIZE 128
+#define BUFSIZE 512
 int main()
 {
 	// 소켓 라이브러리 초기화
@@ -131,11 +131,11 @@ int main()
 			char buffer[BUFSIZE] = { };
 
 			wsprintfA(buffer, "%d user : ", index);
-			if (buffer[0] == '0')
-			{
-				WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, strlen(buffer), &dwTmp, NULL);
-				printf("\n");
-			}
+			//if (buffer[0] == '0')
+			//{
+			//	WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, strlen(buffer), &dwTmp, NULL);
+			//	printf("\n");
+			//}
 
 
 			
@@ -154,16 +154,16 @@ int main()
 			}
 
 			// 메시지 출력
-			if (buffer[0] == '0')
-			{
-				WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, cnt, &dwTmp, NULL);
-				printf("\n");
-			}
+			//if (buffer[0] == '0')
+			//{
+			//	WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, cnt, &dwTmp, NULL);
+			//	printf("\n");
+			//}
 
 			// 애코 처리
 			char send_buffer[BUFSIZE] = {};
 			//wsprintfA(send_buffer, "%d user(SEND) : %s", index, buffer);
-			printf("%d user(SEND) : ", index);
+			//printf("%d user(SEND) : ", index);
 			strcpy_s(send_buffer, buffer);
 
 			//if (send_buffer[0] == '0')
@@ -175,8 +175,8 @@ int main()
 						// 수신받은 클라이언트 제외 하고 애코 처리
 
 						auto i = send(socket_arry[c], send_buffer, strlen(send_buffer), 0);
-						WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), send_buffer, strlen(send_buffer), &dwTmp, NULL);
-						printf("\n");
+						//WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), send_buffer, strlen(send_buffer), &dwTmp, NULL);
+						//printf("\n");
 
 					}
 				}

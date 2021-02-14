@@ -10,7 +10,7 @@ using namespace std;
 
 #define SERVERIP "127.0.0.1"
 #define SERVERPORT 9000
-#define BUFSIZE 128
+#define BUFSIZE 512
 
 //DWORD WINAPI SendThread(LPVOID lpData);
 //DWORD WINAPI RecvThread(LPVOID lpData);
@@ -36,6 +36,9 @@ const TCHAR* chars;
 const TCHAR* tempchars;
 
 float Elapsed_Time;
+
+int PositionCnt;
+
 // Sets default values
 Aclient::Aclient()
 {
@@ -63,6 +66,8 @@ void Aclient::BeginPlay()
 	TempSendStr = TEXT("STANDBY");
 	TempRecvStr = TEXT("TEST");
 	chars = *TempSendStr;
+
+	PositionCnt = 0;
 
 	WSADATA wsaData;
 	int token = WSAStartup(WINSOCK_VERSION, &wsaData);
@@ -123,9 +128,8 @@ void Aclient::Tick(float DeltaTime)
 
 	char SendChatID[BUFSIZE] = "0";
 	char SendPositionID[BUFSIZE] = " ";
-	if (Elapsed_Time > 0.4f)
-	{
-		if (cnt == 0)
+
+		if (PositionCnt != 0 && cnt == 0)
 		{
 			//º¸³»±â	
 			SendResult = TCHAR_TO_ANSI(*TempSendStr);
@@ -137,7 +141,8 @@ void Aclient::Tick(float DeltaTime)
 
 			cnt++;
 		}
-		else
+
+		else if (Elapsed_Time > 0.1f && (PositionCnt == 0 || is_moving == 1))
 		{
 
 			//ÁÂÇ¥¸¦ char·Î ¹Ù²Þ
@@ -172,9 +177,14 @@ void Aclient::Tick(float DeltaTime)
 			//memset(PositionPacket, 0, sizeof(PositionPacket));
 
 
-		}
 		Elapsed_Time = 0.f;
-	}
+		if (PositionCnt == 0)
+		{
+			PositionCnt++;
+		}
+
+		}
+	
 	memset(ChatPacket, 0, sizeof(ChatPacket));
 	memset(PositionPacket, 0, sizeof(PositionPacket));
 
