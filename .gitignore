@@ -36,6 +36,4 @@ Server/.vs/Server/v16/.suo
 *.recipe
 *.suo
 *.db
-Witch_of_Time/Content/Myclient.uasset
-Witch_of_Time/Content/Level/nemo_level.umap
-Witch_of_Time/Config/DefaultInput.ini
+
