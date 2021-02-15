@@ -23,6 +23,7 @@ struct Fblockinfo {
 
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	float Move_Speed = 100;
+
 };
 
 UCLASS()
@@ -36,6 +37,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	uint32 UserIndex;
+
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	FDateTime Savetime;
 
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	TArray<Fblockinfo> blockarray;

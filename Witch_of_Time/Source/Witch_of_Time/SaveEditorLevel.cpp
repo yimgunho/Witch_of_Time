@@ -5,6 +5,6 @@
 
 USaveEditorLevel::USaveEditorLevel()
 {
-	SaveSlotName = TEXT("EditorTestSlot");
+	SaveSlotName = TEXT("QuickSave");
 	UserIndex = 0;
 }

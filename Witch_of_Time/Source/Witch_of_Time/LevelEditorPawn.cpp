@@ -275,6 +275,8 @@ void ALevelEditorPawn::SaveGame()
 		Instance->blockarray.Add(temp);
 	}
 
+	Instance->Savetime = FDateTime::Now();
+
 	UGameplayStatics::SaveGameToSlot(Instance, Instance->SaveSlotName, Instance->UserIndex);
 }
 
@@ -293,7 +295,10 @@ void ALevelEditorPawn::LoadGame()
 		FRotator Rotator = { 0,0,0 };
 
 		LoadGameInstance = Cast<USaveEditorLevel>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->SaveSlotName, LoadGameInstance->UserIndex));
-
+		if (!IsValid(LoadGameInstance))
+		{
+			return;
+		}
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
