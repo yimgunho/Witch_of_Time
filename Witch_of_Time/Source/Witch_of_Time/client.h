@@ -34,6 +34,13 @@ public:
 		float angle_z;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+		float block_position_x;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+		float block_position_y;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+		float block_position_z;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
 		int recv_cnt;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
 		int is_key_up;
@@ -56,6 +63,19 @@ public:
 		int is_moving;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int is_moving_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int is_set;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int is_set_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float block_position_x_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float block_position_y_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float block_position_z_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		AActor* ToDestroyBlock_CL;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

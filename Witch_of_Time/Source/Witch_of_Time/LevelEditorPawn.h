@@ -21,13 +21,47 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 	UPROPERTY(EditAnywhere)
 	UClass* PlaceActor;
 
+
+
 	UPROPERTY(EditAnywhere)
 	UClass* DummyActor;
 
 	AActor* DummyBlock;
 
+
+
+
+
 public:
 	ALevelEditorPawn();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int cnt_for_blocktype;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UClass* TempPlaceActor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float location_x;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float location_y;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float location_z;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float temp_location_x;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float temp_location_y;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float temp_location_z;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	AActor* ToDestroyBlock;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -48,4 +82,6 @@ protected:
 	void SaveGame();
 	void LoadGame();
 	
+public:
+	virtual void Tick(float DeltaTime) override;
 };

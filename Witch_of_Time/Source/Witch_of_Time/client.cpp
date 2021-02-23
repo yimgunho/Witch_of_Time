@@ -21,6 +21,8 @@ char* SendResult;
 char RecvResult[BUFSIZE];
 char ChatPacket[BUFSIZE] = {};
 char PositionPacket[BUFSIZE] = {};
+char BlockPositionPacket[BUFSIZE] = {};
+
 
 char Angle_x_char[BUFSIZE] = {};
 char Angle_y_char[BUFSIZE] = {};
@@ -30,6 +32,9 @@ char Position_y_char[BUFSIZE] = {};
 char Position_z_char[BUFSIZE] = {};
 char is_moving_char[BUFSIZE] = {};
 
+char Block_Position_x_char[BUFSIZE] = {};
+char Block_Position_y_char[BUFSIZE] = {};
+char Block_Position_z_char[BUFSIZE] = {};
 
 
 const TCHAR* chars;
@@ -38,6 +43,8 @@ const TCHAR* tempchars;
 float Elapsed_Time;
 
 int PositionCnt;
+
+int BlockPositionCnt;
 
 // Sets default values
 Aclient::Aclient()
@@ -68,6 +75,7 @@ void Aclient::BeginPlay()
 	chars = *TempSendStr;
 
 	PositionCnt = 0;
+	BlockPositionCnt = 0;
 
 	WSADATA wsaData;
 	int token = WSAStartup(WINSOCK_VERSION, &wsaData);
@@ -126,55 +134,56 @@ void Aclient::Tick(float DeltaTime)
 
 	tempchars = *TempSendStr;
 
-	char SendChatID[BUFSIZE] = "0";
+	char SendChatID[BUFSIZE] = "1";
 	char SendPositionID[BUFSIZE] = " ";
+	char SendBlockPositionID[BUFSIZE] = "0";
 
-		if (PositionCnt != 0 && cnt == 0)
-		{
-			//º¸³»±â	
-			SendResult = TCHAR_TO_ANSI(*TempSendStr);
-			strcat(SendChatID, SendResult);
-			strcpy_s(ChatPacket, SendChatID);
-			send(sock, ChatPacket, strlen(ChatPacket), 0);
-			//send(sock, SendResult, strlen(SendResult), 0);
-			//memset(ChatPacket, 0, sizeof(ChatPacket));
+	if (PositionCnt != 0 && cnt == 0)
+	{
+		//º¸³»±â	
+		SendResult = TCHAR_TO_ANSI(*TempSendStr);
+		strcat(SendChatID, SendResult);
+		strcpy_s(ChatPacket, SendChatID);
+		send(sock, ChatPacket, strlen(ChatPacket), 0);
+		//send(sock, SendResult, strlen(SendResult), 0);
+		//memset(ChatPacket, 0, sizeof(ChatPacket));
 
-			cnt++;
-		}
+		cnt++;
+	}
 
-		else if (Elapsed_Time > 0.1f && (PositionCnt == 0 || is_moving == 1))
-		{
+	else if (Elapsed_Time > 0.1f && (PositionCnt == 0 || is_moving == 1))
+	{
 
-			//ÁÂÇ¥¸¦ char·Î ¹Ù²Þ
-			sprintf(Angle_x_char, "%f", angle_x);
-			sprintf(Angle_y_char, "%f", angle_y);
-			sprintf(Angle_z_char, "%f", angle_z);
-			sprintf(Position_x_char, "%f", position_x);
-			sprintf(Position_y_char, "%f", position_y);
-			sprintf(Position_z_char, "%f", position_z);
-			sprintf(is_moving_char, "%d", is_moving);
+		//ÁÂÇ¥¸¦ char·Î ¹Ù²Þ
+		sprintf(Angle_x_char, "%f", angle_x);
+		sprintf(Angle_y_char, "%f", angle_y);
+		sprintf(Angle_z_char, "%f", angle_z);
+		sprintf(Position_x_char, "%f", position_x);
+		sprintf(Position_y_char, "%f", position_y);
+		sprintf(Position_z_char, "%f", position_z);
+		sprintf(is_moving_char, "%d", is_moving);
 
-			//¾Õ¿¡ ÁÂÇ¥¸¦ º¸³Â´Ù´Â ID¸¦ ºÙÈû
-			strcat(SendPositionID, Angle_x_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Angle_y_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Angle_z_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Position_x_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Position_y_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Position_z_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, is_moving_char);
+		//¾Õ¿¡ ÁÂÇ¥¸¦ º¸³Â´Ù´Â ID¸¦ ºÙÈû
+		strcat(SendPositionID, Angle_x_char);
+		strcat(SendPositionID, ",");
+		strcat(SendPositionID, Angle_y_char);
+		strcat(SendPositionID, ",");
+		strcat(SendPositionID, Angle_z_char);
+		strcat(SendPositionID, ",");
+		strcat(SendPositionID, Position_x_char);
+		strcat(SendPositionID, ",");
+		strcat(SendPositionID, Position_y_char);
+		strcat(SendPositionID, ",");
+		strcat(SendPositionID, Position_z_char);
+		strcat(SendPositionID, ",");
+		strcat(SendPositionID, is_moving_char);
 
-			//ÁÂÇ¥ ÆÐÅ¶¿¡ º¹»ç
-			strcpy_s(PositionPacket, SendPositionID);
-			//º¸³¿
-			send(sock, PositionPacket, strlen(PositionPacket), 0);
+		//ÁÂÇ¥ ÆÐÅ¶¿¡ º¹»ç
+		strcpy_s(PositionPacket, SendPositionID);
+		//º¸³¿
+		send(sock, PositionPacket, strlen(PositionPacket), 0);
 
-			//memset(PositionPacket, 0, sizeof(PositionPacket));
+		//memset(PositionPacket, 0, sizeof(PositionPacket));
 
 
 		Elapsed_Time = 0.f;
@@ -183,20 +192,42 @@ void Aclient::Tick(float DeltaTime)
 			PositionCnt++;
 		}
 
+	}
+
+	else if (Elapsed_Time > 0.1f)
+		{
+			sprintf(Block_Position_x_char, "%f", block_position_x);
+			sprintf(Block_Position_y_char, "%f", block_position_y);
+			sprintf(Block_Position_z_char, "%f", block_position_z);
+
+			strcat(SendBlockPositionID, Block_Position_x_char);
+			strcat(SendBlockPositionID, ",");
+			strcat(SendBlockPositionID, Block_Position_y_char);
+			strcat(SendBlockPositionID, ",");
+			strcat(SendBlockPositionID, Block_Position_z_char);
+
+			//ÁÂÇ¥ ÆÐÅ¶¿¡ º¹»ç
+			strcpy_s(BlockPositionPacket, SendBlockPositionID);
+
+			send(sock, BlockPositionPacket, strlen(BlockPositionPacket), 0);
+
+			Elapsed_Time = 0.f;
 		}
+
 	
 	memset(ChatPacket, 0, sizeof(ChatPacket));
 	memset(PositionPacket, 0, sizeof(PositionPacket));
+	memset(BlockPositionPacket, 0, sizeof(BlockPositionPacket));
 
 	recv(sock, RecvResult, sizeof(RecvResult), 0);
 
-	if(RecvResult[0] == '0')
+	if(RecvResult[0] == '1')
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, RecvResult);
 
 		RecvResult[0] = ' ';
 		TempRecvStr = FString(ANSI_TO_TCHAR(RecvResult));
-		if (TempRecvStr != "0" || TempRecvStr != "0 ")
+		if (TempRecvStr != "1" || TempRecvStr != "1 ")
 		{
 			recv_cnt = 0;
 		}
@@ -204,6 +235,27 @@ void Aclient::Tick(float DeltaTime)
 
 		//memset(RecvResult, 0, sizeof(RecvResult));
 		//Elapsed_Time = 0.f;
+	}
+
+	else if (RecvResult[0] == '0')
+	{
+		string a(RecvResult);
+		istringstream ss(a);
+		string stringbuffer;
+		vector<string> x;
+		x.clear();
+
+		while (getline(ss, stringbuffer, ','))
+		{
+			x.push_back(stringbuffer);
+			cout << stringbuffer << " ";
+		}
+
+		block_position_x_2 = stof(x[0]);
+		block_position_y_2 = stof(x[1]);
+		block_position_z_2 = stof(x[2]);
+
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, RecvResult);
 	}
 
 	else if (RecvResult[0] == ' ')
@@ -239,6 +291,8 @@ void Aclient::Tick(float DeltaTime)
 
 		//memset(RecvResult, 0, sizeof(RecvResult));
 	}
+
+
 
 	memset(RecvResult, 0, sizeof(RecvResult));
 	
