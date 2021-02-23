@@ -79,7 +79,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Placing")
 	UClass* GetPlaceActor();
 
+	UFUNCTION(BlueprintCallable, Category = "SaveLoad")
 	void SaveGame();
+	UFUNCTION(BlueprintCallable, Category = "SaveLoad")
 	void LoadGame();
 	
 public:
