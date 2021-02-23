@@ -26,9 +26,6 @@ Server/.vs/Server/v16/.suo
 *.tlog
 *.manifest
 *.idb
-*.user
-*.filters
-*.vcxproj
 *.obj
 *.cache
 *.log
@@ -37,3 +34,6 @@ Server/.vs/Server/v16/.suo
 *.suo
 *.db
 
+Server/.vs/Server/v16/Browse.VC.opendb
+Server/.vs/Server/v16/Browse.VC.db-wal
+Server/.vs/Server/v16/Browse.VC.db-shm

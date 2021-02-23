@@ -7,6 +7,10 @@
 #include "BlockBase.h"
 #include "CommandBlockBase.h"
 
+float old_location_x;
+float old_location_y;
+float old_location_z;
+FVector location_to_FVector;
 ALevelEditorPawn::ALevelEditorPawn()
 {
 	bUseControllerRotationPitch = true;
@@ -24,8 +28,39 @@ void ALevelEditorPawn::BeginPlay()
 	FRotator Rotator = { 0,0,0 };
 
 	DummyBlock = GetWorld()->SpawnActor<AActor>(DummyActor, (FVector)(0,0,0) , Rotator, SpawnParams);
+
+	old_location_x = 0;
+	old_location_y = 0;
+	old_location_z = 0;
 }
 
+void ALevelEditorPawn::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	location_to_FVector = { temp_location_x, temp_location_y, temp_location_z };
+
+	if ((temp_location_x != old_location_x) || (temp_location_y != old_location_y) || (temp_location_z != old_location_z))
+	{
+		FRotator Rotator = { 0,0,0 };
+
+		FActorSpawnParameters SpawnParams;
+
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+		auto spawned2 = GetWorld()->SpawnActor<AActor>(PlaceActor, location_to_FVector, Rotator, SpawnParams);
+		old_location_x = temp_location_x;
+		old_location_y = temp_location_y;
+		old_location_z = temp_location_z;
+		FString temptempx = FString::SanitizeFloat(temp_location_x);
+		FString temptempy = FString::SanitizeFloat(temp_location_y);
+		FString temptempz = FString::SanitizeFloat(temp_location_z);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, temptempx + temptempy + temptempz);
+	}
+
+	//ToDestroyBlock->Destroy();
+}
 
 void ALevelEditorPawn::PlaceBlock()
 {
@@ -83,8 +118,15 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
+
+			location_x = hitResult.Location.X;
+			location_y = hitResult.Location.Y;
+			location_z = hitResult.Location.Z;
+
+
 			TArray<AActor*> overlapped;
 			spawned->GetOverlappingActors(overlapped);
+
 			for (AActor* actor : overlapped)
 			{
 				actor->Destroy();
@@ -142,7 +184,9 @@ void ALevelEditorPawn::DestroyBlock()
 
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
 	{
+		ToDestroyBlock = hitResult.GetActor();
 		hitResult.GetActor()->Destroy();
+
 	}
 }
 
