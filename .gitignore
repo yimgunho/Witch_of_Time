@@ -26,9 +26,6 @@ Server/.vs/Server/v16/.suo
 *.tlog
 *.manifest
 *.idb
-*.user
-*.filters
-*.vcxproj
 *.obj
 *.cache
 *.log
