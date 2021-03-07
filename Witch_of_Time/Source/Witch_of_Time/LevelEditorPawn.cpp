@@ -34,6 +34,34 @@ void ALevelEditorPawn::BeginPlay()
 	old_location_z = 0;
 }
 
+void ALevelEditorPawn::LeftMouseFunc(bool flag)
+{
+	LeftMousePressed = flag;
+	if (flag)
+	{
+		DestroyBlock();
+		GetWorld()->GetTimerManager().SetTimer(LeftButtonTimer, this, &ALevelEditorPawn::DestroyBlock, 0.33f, true);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(LeftButtonTimer);
+	}
+}
+
+void ALevelEditorPawn::RightMouseFunc(bool flag)
+{
+	RightMousePressed = flag;
+	if (flag)
+	{
+		PlaceBlock();
+		GetWorld()->GetTimerManager().SetTimer(RightButtonTimer, this, &ALevelEditorPawn::PlaceBlock, 0.33f, true);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(RightButtonTimer);
+	}
+}
+
 void ALevelEditorPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -58,6 +86,8 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 		FString temptempz = FString::SanitizeFloat(temp_location_z);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, temptempx + temptempy + temptempz);
 	}
+
+	
 
 	//ToDestroyBlock->Destroy();
 }
@@ -179,9 +209,6 @@ void ALevelEditorPawn::DestroyBlock()
 	collisionParams.AddIgnoredActor(this);
 	collisionParams.AddIgnoredActor(DummyBlock);
 
-	// 디버깅용 라인
-	//DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
-
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
 	{
 		ToDestroyBlock = hitResult.GetActor();
@@ -193,92 +220,61 @@ void ALevelEditorPawn::DestroyBlock()
 void ALevelEditorPawn::DrawDummyBlock(float value)
 {
 	auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
-
-	if (BlockClass != NULL)
+	if (VisibleFlag)
 	{
-		FVector CLocation = this->GetActorLocation();
-		FVector CForwardVector = this->GetActorForwardVector();
-
-		FHitResult hitResult;
-
-		FCollisionQueryParams collisionParams;
-
-		collisionParams.AddIgnoredActor(this);
-		collisionParams.AddIgnoredActor(DummyBlock);
-
-		FRotator Rotator = { 0,0,0 };
-		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+		if (BlockClass != NULL)
 		{
-			FVector Location = hitResult.GetComponent()->GetComponentLocation();
+			FVector CLocation = this->GetActorLocation();
+			FVector CForwardVector = this->GetActorForwardVector();
 
-			Location -= (FVector)hitResult.Location;
+			FHitResult hitResult;
 
-			if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
+			FCollisionQueryParams collisionParams;
+
+			collisionParams.AddIgnoredActor(this);
+			collisionParams.AddIgnoredActor(DummyBlock);
+
+			FRotator Rotator = { 0,0,0 };
+			if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
 			{
-				hitResult.Location.X -= Location.X;
-			}
-			else
-			{
-				hitResult.Location.X = hitResult.GetComponent()->GetComponentLocation().X;
-			}
+				FVector Location = hitResult.GetComponent()->GetComponentLocation();
 
-			if (fabsf(Location.Y - 100.f) < 0.01f || fabsf(Location.Y + 100.f) < 0.01f)
-			{
-				hitResult.Location.Y -= Location.Y;
-			}
-			else
-			{
-				hitResult.Location.Y = hitResult.GetComponent()->GetComponentLocation().Y;
-			}
+				Location -= (FVector)hitResult.Location;
 
-			if (fabsf(Location.Z + 200.f) < 0.01f || fabsf(Location.Z) < 0.01f)
-			{
-				if (fabsf(Location.Z + 200.f) < 0.01f)
-					hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z + 200.f;
-				else
-					hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z - 200.f;
-			}
-			else
-			{
-				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
-			}
-
-
-			DummyBlock->SetActorLocation(hitResult.Location);
-			DummyBlock->SetActorHiddenInGame(false);
-
-		}
-		else
-		{
-			DummyBlock->SetActorHiddenInGame(true);
-		}
-	}
-	else
-	{
-		FVector CLocation = this->GetActorLocation();
-		FVector CForwardVector = this->GetActorForwardVector();
-
-		FHitResult hitResult;
-
-		FCollisionQueryParams collisionParams;
-
-		collisionParams.AddIgnoredActor(this);
-		collisionParams.AddIgnoredActor(DummyBlock);
-
-		FRotator Rotator = { 0,0,0 };
-		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
-		{
-			FVector Location = hitResult.GetActor()->GetActorLocation();
-			auto target = hitResult.GetActor();
-			auto casted = Cast<ABlockBase>(target);
-			if (casted != NULL)
-			{
-				if (casted->GetApplyCommandBlocks())
+				if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
 				{
-					DummyBlock->SetActorLocation(Location);
-					DummyBlock->SetActorHiddenInGame(false);
+					hitResult.Location.X -= Location.X;
 				}
-			
+				else
+				{
+					hitResult.Location.X = hitResult.GetComponent()->GetComponentLocation().X;
+				}
+
+				if (fabsf(Location.Y - 100.f) < 0.01f || fabsf(Location.Y + 100.f) < 0.01f)
+				{
+					hitResult.Location.Y -= Location.Y;
+				}
+				else
+				{
+					hitResult.Location.Y = hitResult.GetComponent()->GetComponentLocation().Y;
+				}
+
+				if (fabsf(Location.Z + 200.f) < 0.01f || fabsf(Location.Z) < 0.01f)
+				{
+					if (fabsf(Location.Z + 200.f) < 0.01f)
+						hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z + 200.f;
+					else
+						hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z - 200.f;
+				}
+				else
+				{
+					hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
+				}
+
+
+				DummyBlock->SetActorLocation(hitResult.Location);
+				DummyBlock->SetActorHiddenInGame(false);
+
 			}
 			else
 			{
@@ -287,9 +283,44 @@ void ALevelEditorPawn::DrawDummyBlock(float value)
 		}
 		else
 		{
-			DummyBlock->SetActorHiddenInGame(true);
+			FVector CLocation = this->GetActorLocation();
+			FVector CForwardVector = this->GetActorForwardVector();
+
+			FHitResult hitResult;
+
+			FCollisionQueryParams collisionParams;
+
+			collisionParams.AddIgnoredActor(this);
+			collisionParams.AddIgnoredActor(DummyBlock);
+
+			FRotator Rotator = { 0,0,0 };
+			if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+			{
+				FVector Location = hitResult.GetActor()->GetActorLocation();
+				auto target = hitResult.GetActor();
+				auto casted = Cast<ABlockBase>(target);
+				if (casted != NULL)
+				{
+					if (casted->GetApplyCommandBlocks())
+					{
+						DummyBlock->SetActorLocation(Location);
+						DummyBlock->SetActorHiddenInGame(false);
+					}
+
+				}
+				else
+				{
+					DummyBlock->SetActorHiddenInGame(true);
+				}
+			}
+			else
+			{
+				DummyBlock->SetActorHiddenInGame(true);
+			}
 		}
 	}
+
+	
 }
 
 void ALevelEditorPawn::SaveGame()
@@ -367,21 +398,36 @@ void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	ADefaultPawn::SetupPlayerInputComponent(PlayerInputComponent);
 
-	// 우클릭
-	PlayerInputComponent->BindAction("PickTarget", IE_Pressed, this, &ALevelEditorPawn::PlaceBlock);
-
-	// 좌클릭
-	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ALevelEditorPawn::DestroyBlock);
 
 	PlayerInputComponent->BindAction("SaveGame", IE_Pressed, this, &ALevelEditorPawn::SaveGame);
 
 	PlayerInputComponent->BindAction("LoadGame", IE_Pressed, this, &ALevelEditorPawn::LoadGame);
 
+	
+	// 우클릭
+	PlayerInputComponent->BindAction<OneParamBool>("PickTarget", IE_Pressed, this,&ALevelEditorPawn::RightMouseFunc, true);
+	// 좌클릭
+	PlayerInputComponent->BindAction<OneParamBool>("Attack", IE_Pressed, this, &ALevelEditorPawn::LeftMouseFunc, true);
+
+	// 우클릭
+	PlayerInputComponent->BindAction<OneParamBool>("PickTarget", IE_Released, this, &ALevelEditorPawn::RightMouseFunc, false);
+	// 좌클릭
+	PlayerInputComponent->BindAction<OneParamBool>("Attack", IE_Released, this, &ALevelEditorPawn::LeftMouseFunc, false);
+
+	// 우클릭
+	//PlayerInputComponent->BindAction("PickTarget", IE_Pressed, this, &ALevelEditorPawn::PlaceBlock);
+	// 좌클릭
+	//PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ALevelEditorPawn::DestroyBlock);
 
 	PlayerInputComponent->BindAxis("Turn", this, &ALevelEditorPawn::DrawDummyBlock);
 
 	PlayerInputComponent->BindAxis("LookUp", this, &ALevelEditorPawn::DrawDummyBlock);
 
+}
+
+void ALevelEditorPawn::SetVisibleFlag(bool flag)
+{
+	VisibleFlag = flag;
 }
 
 
@@ -394,6 +440,11 @@ void ALevelEditorPawn::SetPlaceActor(UClass* Actor)
 UClass* ALevelEditorPawn::GetPlaceActor()
 {
 	return PlaceActor;
+}
+
+AActor* ALevelEditorPawn::GetDummyBlock()
+{
+	return DummyBlock;
 }
 
 

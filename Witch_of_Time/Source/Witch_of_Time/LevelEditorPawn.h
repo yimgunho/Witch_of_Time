@@ -29,8 +29,11 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 	AActor* DummyBlock;
 
 
+	DECLARE_DELEGATE_OneParam(OneParamBool, bool);
 
+	FTimerHandle LeftButtonTimer;
 
+	FTimerHandle RightButtonTimer;
 
 public:
 	ALevelEditorPawn();
@@ -62,9 +65,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	AActor* ToDestroyBlock;
 
+	bool LeftMousePressed = false;
+	bool RightMousePressed = false;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool VisibleFlag = true;
 
 protected:
 	virtual void BeginPlay() override;
+
+	void LeftMouseFunc(bool flag);
+	void RightMouseFunc(bool flag);
 
 	void PlaceBlock();
 	void DestroyBlock();
@@ -74,10 +85,16 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Placing")
+	void SetVisibleFlag(bool flag);
+
+	UFUNCTION(BlueprintCallable, Category = "Placing")
 	void SetPlaceActor(UClass* Actor);
 
 	UFUNCTION(BlueprintCallable, Category = "Placing")
 	UClass* GetPlaceActor();
+
+	UFUNCTION(BlueprintCallable, Category = "Placing")
+	AActor* GetDummyBlock();
 
 	UFUNCTION(BlueprintCallable, Category = "SaveLoad")
 	void SaveGame();
