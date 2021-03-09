@@ -65,6 +65,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	AActor* ToDestroyBlock;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MinPlaceTime = 0.33f;
+
 	bool LeftMousePressed = false;
 	bool RightMousePressed = false;
 

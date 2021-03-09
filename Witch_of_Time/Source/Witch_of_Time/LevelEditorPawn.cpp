@@ -40,7 +40,7 @@ void ALevelEditorPawn::LeftMouseFunc(bool flag)
 	if (flag)
 	{
 		DestroyBlock();
-		GetWorld()->GetTimerManager().SetTimer(LeftButtonTimer, this, &ALevelEditorPawn::DestroyBlock, 0.33f, true);
+		GetWorld()->GetTimerManager().SetTimer(LeftButtonTimer, this, &ALevelEditorPawn::DestroyBlock, MinPlaceTime, true);
 	}
 	else
 	{
@@ -54,7 +54,7 @@ void ALevelEditorPawn::RightMouseFunc(bool flag)
 	if (flag)
 	{
 		PlaceBlock();
-		GetWorld()->GetTimerManager().SetTimer(RightButtonTimer, this, &ALevelEditorPawn::PlaceBlock, 0.33f, true);
+		GetWorld()->GetTimerManager().SetTimer(RightButtonTimer, this, &ALevelEditorPawn::PlaceBlock, MinPlaceTime, true);
 	}
 	else
 	{
