@@ -11,8 +11,8 @@ void UWidget_Settings::NativeConstruct()
 
 	LoadButton = Cast<UButton>(GetWidgetFromName(TEXT("Load")));
 
-	SaveButton->OnClicked.AddDynamic(this, &UWidget_Settings::OnSaveButtonClicked);
-	LoadButton->OnClicked.AddDynamic(this, &UWidget_Settings::OnLoadButtonClicked);
+	if (SaveButton != nullptr)	SaveButton->OnClicked.AddDynamic(this, &UWidget_Settings::OnSaveButtonClicked);
+	if (LoadButton != nullptr)	LoadButton->OnClicked.AddDynamic(this, &UWidget_Settings::OnLoadButtonClicked);
 }
 
 void UWidget_Settings::SetWidget(UWidget_SaveLoad* Widget)
