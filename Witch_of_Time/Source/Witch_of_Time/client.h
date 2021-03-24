@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "client.generated.h"
@@ -34,13 +35,6 @@ public:
 		float angle_z;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-		float block_position_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-		float block_position_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-		float block_position_z;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
 		int recv_cnt;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
 		int is_key_up;
@@ -63,6 +57,8 @@ public:
 		int is_moving;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int is_moving_2;
+<<<<<<< Updated upstream
+=======
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int is_set;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -75,7 +71,16 @@ public:
 		float block_position_z_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		AActor* ToDestroyBlock_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int ToDestroyBlock_cnt = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FString ToDestroyBlockName_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FString ToDestroyBlockName_CL_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int Block_cnt = 0;
 
+>>>>>>> Stashed changes
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -86,3 +91,51 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 };
+
+typedef struct ChattingPacket
+{
+	int id = 1;
+	char chatting[64] = "none";
+}ChattingPacket;
+
+typedef struct BlockPacket
+{
+	int id = 2;
+	float blocklocation_x = 0;
+	float blocklocation_y = 0;
+	float blocklocation_z = 0;
+
+}BlockPacket;
+
+typedef struct DestroyPacket
+{
+	int id = 3;
+	char todestroyblock[64] = "none";
+}DestroyPacket;
+
+typedef struct PlayerPacket
+{
+	int id = 4;
+	float angle_x = 0;
+	float angle_y = 0;
+	float angle_z = 0;
+	float playerlocation_x = 0;
+	float playerlocation_y = 0;
+	float playerlocation_z = 0;
+}PlayerPacket;
+
+typedef struct RecvPacket
+{
+	int id = 0;
+	float angle_x = 0;
+	float angle_y = 0;
+	float angle_z = 0;
+	float playerlocation_x = 0;
+	float playerlocation_y = 0;
+	float playerlocation_z = 0;
+	float blocklocation_x = 0;
+	float blocklocation_y = 0;
+	float blocklocation_z = 0;
+	char todestroyblock[64] = "none";
+	char chatting[64] = "none";
+}RecvPacket;
