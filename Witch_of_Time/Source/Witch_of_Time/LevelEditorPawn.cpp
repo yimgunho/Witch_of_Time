@@ -24,8 +24,84 @@ void ALevelEditorPawn::BeginPlay()
 	FRotator Rotator = { 0,0,0 };
 
 	DummyBlock = GetWorld()->SpawnActor<AActor>(DummyActor, (FVector)(0,0,0) , Rotator, SpawnParams);
+<<<<<<< Updated upstream
 }
 
+=======
+
+	old_location_x = 0;
+	old_location_y = 0;
+	old_location_z = 0;
+	ToDestroyBlockName = "none";
+}
+
+void ALevelEditorPawn::LeftMouseFunc(bool flag)
+{
+	LeftMousePressed = flag;
+	if (flag)
+	{
+		DestroyBlock();
+		GetWorld()->GetTimerManager().SetTimer(LeftButtonTimer, this, &ALevelEditorPawn::DestroyBlock, MinPlaceTime, true);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(LeftButtonTimer);
+	}
+}
+
+void ALevelEditorPawn::RightMouseFunc(bool flag)
+{
+	RightMousePressed = flag;
+	if (flag)
+	{
+		PlaceBlock();
+		GetWorld()->GetTimerManager().SetTimer(RightButtonTimer, this, &ALevelEditorPawn::PlaceBlock, MinPlaceTime, true);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(RightButtonTimer);
+	}
+}
+
+void ALevelEditorPawn::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	location_to_FVector = { temp_location_x, temp_location_y, temp_location_z };
+
+	if (!(temp_location_x == 0 && temp_location_y == 0 && temp_location_z == 0) && (temp_location_x > 0 && temp_location_y > 0 && temp_location_z > 0))
+	{
+		FRotator Rotator = { 0,0,0 };
+
+		FActorSpawnParameters SpawnParams;
+
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+
+		auto spawned_by_server = GetWorld()->SpawnActor<AActor>(PlaceActor, location_to_FVector, Rotator, SpawnParams);
+		old_location_x = temp_location_x;
+		old_location_y = temp_location_y;
+		old_location_z = temp_location_z;
+		location_x = 0;
+		location_y = 0;
+		location_z = 0;
+		temp_location_x = 0;
+		temp_location_y = 0;
+		temp_location_z = 0;
+		FString temptempx = FString::SanitizeFloat(temp_location_x);
+		FString temptempy = FString::SanitizeFloat(temp_location_y);
+		FString temptempz = FString::SanitizeFloat(temp_location_z);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, temptempx + temptempy + temptempz);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
+
+
+	}
+
+	
+
+	//ToDestroyBlock->Destroy();
+}
+>>>>>>> Stashed changes
 
 void ALevelEditorPawn::PlaceBlock()
 {
@@ -89,6 +165,9 @@ void ALevelEditorPawn::PlaceBlock()
 			{
 				actor->Destroy();
 			}
+
+			BlockName = spawned->GetName();
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 		}
 	}
 	else
@@ -142,6 +221,11 @@ void ALevelEditorPawn::DestroyBlock()
 
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
 	{
+<<<<<<< Updated upstream
+=======
+		ToDestroyBlock = hitResult.GetActor();
+		ToDestroyBlockName = hitResult.GetActor()->GetName();
+>>>>>>> Stashed changes
 		hitResult.GetActor()->Destroy();
 	}
 }
