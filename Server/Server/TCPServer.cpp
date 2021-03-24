@@ -5,9 +5,6 @@
 #include <iostream>
 
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
-<<<<<<< Updated upstream
-#define BUFSIZE 128
-=======
 #define BUFSIZE 64
 
 BlockPacket recv_Block(SOCKET sock) {
@@ -48,7 +45,6 @@ DestroyPacket recv_Destroy(SOCKET sock) {
 	return *destroypacket;
 }
 
->>>>>>> Stashed changes
 int main()
 {
 	// 소켓 라이브러리 초기화
@@ -181,11 +177,11 @@ int main()
 			char buffer[BUFSIZE] = { };
 
 			wsprintfA(buffer, "%d user : ", index);
-			if (buffer[0] == '0')
-			{
-				WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, strlen(buffer), &dwTmp, NULL);
-				printf("\n");
-			}
+			//if (buffer[0] == '0')
+			//{
+			//	WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, strlen(buffer), &dwTmp, NULL);
+			//	printf("\n");
+			//}
 
 
 			
@@ -244,20 +240,15 @@ int main()
 			//std::cout << recvpacket.id << ", " << recvpacket.blocklocation_x << ", " << recvpacket.blocklocation_y << ", " << recvpacket.blocklocation_z << ", " << recvpacket.todestroyblock << std::endl;
 
 			// 메시지 출력
-			if (buffer[0] == '0')
-			{
-				WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, cnt, &dwTmp, NULL);
-				printf("\n");
-			}
+			//if (buffer[0] == '0')
+			//{
+			//	WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, cnt, &dwTmp, NULL);
+			//	printf("\n");
+			//}
 
 			// 애코 처리
 			//wsprintfA(send_buffer, "%d user(SEND) : %s", index, buffer);
-<<<<<<< Updated upstream
-			printf("%d user(SEND) : ", index);
-			strcpy_s(send_buffer, buffer);
-=======
 			//printf("%d user(SEND) : ", index);
->>>>>>> Stashed changes
 
 
 			if (recvpacket.id == 1)
@@ -271,18 +262,12 @@ int main()
 					{
 						//send(socket_arry[c], (const char*)&chattingpacket, sizeof(ChattingPacket), 0);
 
-<<<<<<< Updated upstream
-						auto i = send(socket_arry[c], send_buffer, strlen(send_buffer), 0);
-						WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), send_buffer, strlen(send_buffer), &dwTmp, NULL);
-						printf("\n");
-=======
 						send(socket_arry[c], (char*)&chattingpacket.id, sizeof(ChattingPacket), 0);
 						send(socket_arry[c], (char*)&chattingpacket.chatting, sizeof(ChattingPacket), 0);
 						std::cout << "send_chat" << std::endl;
 					}
 				}
 			}
->>>>>>> Stashed changes
 
 			else if (recvpacket.id == 2)
 			{

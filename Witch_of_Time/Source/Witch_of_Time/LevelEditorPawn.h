@@ -21,16 +21,23 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 	UPROPERTY(EditAnywhere)
 	UClass* PlaceActor;
 
+
+
 	UPROPERTY(EditAnywhere)
 	UClass* DummyActor;
 
 	AActor* DummyBlock;
 
+
+	DECLARE_DELEGATE_OneParam(OneParamBool, bool);
+
+	FTimerHandle LeftButtonTimer;
+
+	FTimerHandle RightButtonTimer;
+
 public:
 	ALevelEditorPawn();
 
-<<<<<<< Updated upstream
-=======
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int cnt_for_blocktype;
 
@@ -75,9 +82,11 @@ public:
 
 
 
->>>>>>> Stashed changes
 protected:
 	virtual void BeginPlay() override;
+
+	void LeftMouseFunc(bool flag);
+	void RightMouseFunc(bool flag);
 
 	void PlaceBlock();
 	void DestroyBlock();
@@ -87,12 +96,22 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable, Category = "Placing")
+	void SetVisibleFlag(bool flag);
+
+	UFUNCTION(BlueprintCallable, Category = "Placing")
 	void SetPlaceActor(UClass* Actor);
 
 	UFUNCTION(BlueprintCallable, Category = "Placing")
 	UClass* GetPlaceActor();
 
+	UFUNCTION(BlueprintCallable, Category = "Placing")
+	AActor* GetDummyBlock();
+
+	UFUNCTION(BlueprintCallable, Category = "SaveLoad")
 	void SaveGame();
+	UFUNCTION(BlueprintCallable, Category = "SaveLoad")
 	void LoadGame();
 	
+public:
+	virtual void Tick(float DeltaTime) override;
 };

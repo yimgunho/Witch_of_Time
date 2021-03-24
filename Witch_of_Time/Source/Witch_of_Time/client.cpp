@@ -9,11 +9,7 @@
 
 #define SERVERIP "127.0.0.1"
 #define SERVERPORT 9000
-<<<<<<< Updated upstream
-#define BUFSIZE 128
-=======
 #define BUFSIZE 64
->>>>>>> Stashed changes
 
 //DWORD WINAPI SendThread(LPVOID lpData);
 //DWORD WINAPI RecvThread(LPVOID lpData);
@@ -24,12 +20,9 @@ char* SendResult;
 char RecvResult[BUFSIZE];
 char ChatPacket[BUFSIZE] = {};
 char PositionPacket[BUFSIZE] = {};
-<<<<<<< Updated upstream
-=======
 char BlockPositionPacket[BUFSIZE] = {};
 char ToDestroyBlockPacket[BUFSIZE] = {};
 
->>>>>>> Stashed changes
 
 char Angle_x_char[BUFSIZE] = {};
 char Angle_y_char[BUFSIZE] = {};
@@ -39,6 +32,9 @@ char Position_y_char[BUFSIZE] = {};
 char Position_z_char[BUFSIZE] = {};
 char is_moving_char[BUFSIZE] = {};
 
+char Block_Position_x_char[BUFSIZE] = {};
+char Block_Position_y_char[BUFSIZE] = {};
+char Block_Position_z_char[BUFSIZE] = {};
 
 char To_Destroy_Block_Name[BUFSIZE] = {};
 
@@ -48,8 +44,6 @@ const TCHAR* chars;
 const TCHAR* tempchars;
 
 float Elapsed_Time;
-<<<<<<< Updated upstream
-=======
 
 int PositionCnt;
 
@@ -76,7 +70,6 @@ int recvn(SOCKET s, char* buf, int len, int flags)
 	return (len - left);
 }
 
->>>>>>> Stashed changes
 // Sets default values
 Aclient::Aclient()
 {
@@ -104,8 +97,6 @@ void Aclient::BeginPlay()
 	TempRecvStr = TEXT("TEST");
 	chars = *TempSendStr;
 
-<<<<<<< Updated upstream
-=======
 	PositionCnt = 0;
 	BlockPositionCnt = 0;
 
@@ -113,7 +104,6 @@ void Aclient::BeginPlay()
 	ToDestroyBlockName_CL_2 = "none";
 	ToDestroyBlock_cnt = 0;
 
->>>>>>> Stashed changes
 	WSADATA wsaData;
 	int token = WSAStartup(WINSOCK_VERSION, &wsaData);
 
@@ -183,64 +173,6 @@ void Aclient::Tick(float DeltaTime)
 
 	tempchars = *TempSendStr;
 
-<<<<<<< Updated upstream
-	char SendChatID[BUFSIZE] = "0";
-	char SendPositionID[BUFSIZE] = " ";
-	if (Elapsed_Time > 0.4f)
-	{
-		if (cnt == 0)
-		{
-			//º¸³»±â	
-			SendResult = TCHAR_TO_ANSI(*TempSendStr);
-			strcat(SendChatID, SendResult);
-			strcpy_s(ChatPacket, SendChatID);
-			send(sock, ChatPacket, strlen(ChatPacket), 0);
-			//send(sock, SendResult, strlen(SendResult), 0);
-			//memset(ChatPacket, 0, sizeof(ChatPacket));
-
-			cnt++;
-		}
-		else
-		{
-
-			//ÁÂÇ¥¸¦ char·Î ¹Ù²Þ
-			sprintf(Angle_x_char, "%f", angle_x);
-			sprintf(Angle_y_char, "%f", angle_y);
-			sprintf(Angle_z_char, "%f", angle_z);
-			sprintf(Position_x_char, "%f", position_x);
-			sprintf(Position_y_char, "%f", position_y);
-			sprintf(Position_z_char, "%f", position_z);
-			sprintf(is_moving_char, "%d", is_moving);
-
-			//¾Õ¿¡ ÁÂÇ¥¸¦ º¸³Â´Ù´Â ID¸¦ ºÙÈû
-			strcat(SendPositionID, Angle_x_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Angle_y_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Angle_z_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Position_x_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Position_y_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, Position_z_char);
-			strcat(SendPositionID, ",");
-			strcat(SendPositionID, is_moving_char);
-
-			//ÁÂÇ¥ ÆÐÅ¶¿¡ º¹»ç
-			strcpy_s(PositionPacket, SendPositionID);
-			//º¸³¿
-			send(sock, PositionPacket, strlen(PositionPacket), 0);
-
-			//memset(PositionPacket, 0, sizeof(PositionPacket));
-
-
-		}
-		Elapsed_Time = 0.f;
-	}
-	memset(ChatPacket, 0, sizeof(ChatPacket));
-	memset(PositionPacket, 0, sizeof(PositionPacket));
-=======
 	char SendChatID[BUFSIZE] = "1";
 	char SendPositionID[BUFSIZE] = "  ";
 	char SendBlockPositionID[BUFSIZE] = "0";
@@ -447,24 +379,11 @@ void Aclient::Tick(float DeltaTime)
 	//		recv_cnt = 0;
 	//	}
 	//	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TempRecvStr);
->>>>>>> Stashed changes
 
 	//	//memset(RecvResult, 0, sizeof(RecvResult));
 	//	//Elapsed_Time = 0.f;
 	//}
 
-<<<<<<< Updated upstream
-	if(RecvResult[0] == '0')
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, RecvResult);
-
-		RecvResult[0] = ' ';
-		TempRecvStr = FString(ANSI_TO_TCHAR(RecvResult));
-		if (TempRecvStr != "0" || TempRecvStr != "0 ")
-		{
-			recv_cnt = 0;
-		}
-=======
 	if (recvpacket.id == 1)
 	{
 		recv(sock, (char*)&recvpacket.chatting, BUFSIZE, 0);
@@ -474,17 +393,12 @@ void Aclient::Tick(float DeltaTime)
 		TempRecvStr = Chatting_FString;
 		recv_cnt = 0;
 
->>>>>>> Stashed changes
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TempRecvStr);
 
 		//memset(RecvResult, 0, sizeof(RecvResult));
 		//Elapsed_Time = 0.f;
 	}
 
-<<<<<<< Updated upstream
-	else if (RecvResult[0] == ' ')
-	{
-=======
 	//else if (RecvResult[0] == '0')
 	//{
 	//	string a(RecvResult);
@@ -524,7 +438,6 @@ void Aclient::Tick(float DeltaTime)
 
 	}
 
->>>>>>> Stashed changes
 
 	//else if (RecvResult[0] == ' '/* && RecvResult[1] == ' '*/)
 	//{
@@ -560,10 +473,6 @@ void Aclient::Tick(float DeltaTime)
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Destroy recv");
 	}
 
-<<<<<<< Updated upstream
-	memset(RecvResult, 0, sizeof(RecvResult));
-	
-=======
 
 
 	//else if (RecvResult[0] == ' ' && RecvResult[1] != ' ')
@@ -618,7 +527,6 @@ void Aclient::Tick(float DeltaTime)
 		//is_moving_2 = ;
 	}
 
->>>>>>> Stashed changes
 
 	//////¹Þ±â
 	////RecvResult = TCHAR_TO_ANSI(*TempRecvStr);

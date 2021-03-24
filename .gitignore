@@ -26,9 +26,6 @@ Server/.vs/Server/v16/.suo
 *.tlog
 *.manifest
 *.idb
-*.user
-*.filters
-*.vcxproj
 *.obj
 *.cache
 *.log
@@ -36,9 +33,7 @@ Server/.vs/Server/v16/.suo
 *.recipe
 *.suo
 *.db
-*.uasset
-*.uasset
-*.uasset
-Witch_of_Time/Content/Myclient.uasset
-Witch_of_Time/Content/Level/nemo_level.umap
-Witch_of_Time/Config/DefaultInput.ini
+
+Server/.vs/Server/v16/Browse.VC.opendb
+Server/.vs/Server/v16/Browse.VC.db-wal
+Server/.vs/Server/v16/Browse.VC.db-shm
