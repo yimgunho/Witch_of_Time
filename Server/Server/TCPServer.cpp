@@ -1,54 +1,9 @@
 #include <winsock2.h>
-#include "TCPServer.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <iostream>
 
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
-<<<<<<< Updated upstream
-#define BUFSIZE 128
-=======
-#define BUFSIZE 64
-
-BlockPacket recv_Block(SOCKET sock) {
-	int retval;
-	int len;
-
-	recv(sock, (char*)&len, sizeof(int), 0); // 데이터 받기(고정 길이)
-
-
-	int GetSize;
-	char suBuffer[BUFSIZE];
-	BlockPacket* blockpacket;
-	recv(sock, suBuffer, len, 0);
-
-
-	suBuffer[GetSize] = '\0';
-	blockpacket = (BlockPacket*)suBuffer;
-
-	return *blockpacket;
-}
-
-DestroyPacket recv_Destroy(SOCKET sock) {
-	int retval;
-	int len;
-
-	recv(sock, (char*)&len, sizeof(int), 0); // 데이터 받기(고정 길이)
-
-
-	int GetSize;
-	char suBuffer[BUFSIZE];
-	DestroyPacket* destroypacket;
-	recv(sock, suBuffer, len, 0);
-
-
-	suBuffer[GetSize] = '\0';
-	destroypacket = (DestroyPacket*)suBuffer;
-
-	return *destroypacket;
-}
-
->>>>>>> Stashed changes
+#define BUFSIZE 512
 int main()
 {
 	// 소켓 라이브러리 초기화
@@ -121,11 +76,6 @@ int main()
 	// 접속 루푸
 	while (1)
 	{
-		ChattingPacket chattingpacket;
-		BlockPacket blockpacket;
-		DestroyPacket destroypacket;
-		PlayerPacket playerpacket;
-		RecvPacket recvpacket;
 		// 소켓 접속 대기
 		DWORD dwObject = WaitForMultipleObjectsEx(client, hEvent_arry, FALSE, INFINITE, 0);
 		if (dwObject == INFINITE) continue;
@@ -181,174 +131,72 @@ int main()
 			char buffer[BUFSIZE] = { };
 
 			wsprintfA(buffer, "%d user : ", index);
-			if (buffer[0] == '0')
-			{
-				WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, strlen(buffer), &dwTmp, NULL);
-				printf("\n");
-			}
+			//if (buffer[0] == '0')
+			//{
+			//	WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, strlen(buffer), &dwTmp, NULL);
+			//	printf("\n");
+			//}
 
 
 			
 			// 메시지 수신
 			memset(buffer, 0, sizeof(buffer));
-			//int cnt = recv(socket_arry[index], buffer, sizeof(buffer), 0);
-			recv(socket_arry[index], (char*)&recvpacket.id, sizeof(recvpacket.id), 0);
-
-			//recv(socket_arry[index], (char*)&recvpacket, sizeof(RecvPacket), 0);
-
-			//printf("%d\n", cnt);
-			//if (cnt <= 0)
-			//{
-			//	// 클라이언트 접속 종료
-			//	closesocket(socket_arry[index]);
-			//	printf("클라이언트 접속 종료..\n");
-
-			//	// 배열에 소켓 제거
-			//	socket_arry[index] = 0;
-			//	continue;
-			//}
-
-			if (recvpacket.id == 1)
+			int cnt = recv(socket_arry[index], buffer, sizeof(buffer), 0);
+			if (cnt <= 0)
 			{
-				recv(socket_arry[index], (char*)&recvpacket.chatting, sizeof(recvpacket.chatting), 0);
-			}
+				// 클라이언트 접속 종료
+				closesocket(socket_arry[index]);
+				printf("클라이언트 접속 종료..\n");
 
-			else if (recvpacket.id == 2)
-			{
-				recv(socket_arry[index], (char*)&recvpacket.blocklocation_x, sizeof(recvpacket.blocklocation_x), 0);
-				recv(socket_arry[index], (char*)&recvpacket.blocklocation_y, sizeof(recvpacket.blocklocation_y), 0);
-				recv(socket_arry[index], (char*)&recvpacket.blocklocation_z, sizeof(recvpacket.blocklocation_z), 0);
-
-				//printf("%f, %f, %f\n", recvpacket.blocklocation_x, recvpacket.blocklocation_y, recvpacket.blocklocation_z);
+				// 배열에 소켓 제거
+				socket_arry[index] = 0;
+				continue;
 			}
-			
-			else if (recvpacket.id == 3)
-			{
-				recv(socket_arry[index], (char*)&recvpacket.todestroyblock, BUFSIZE, 0);
-				std::string fordebug(recvpacket.todestroyblock);
-				//printf("%s\n", fordebug);
-				//std::cout << fordebug << std::endl;
-			}
-			
-			else if (recvpacket.id == 4)
-			{
-				recv(socket_arry[index], (char*)&recvpacket.angle_x, sizeof(recvpacket.angle_x), 0);
-				recv(socket_arry[index], (char*)&recvpacket.angle_y, sizeof(recvpacket.angle_y), 0);
-				recv(socket_arry[index], (char*)&recvpacket.angle_z, sizeof(recvpacket.angle_z), 0);
-				recv(socket_arry[index], (char*)&recvpacket.playerlocation_x, sizeof(recvpacket.playerlocation_x), 0);
-				recv(socket_arry[index], (char*)&recvpacket.playerlocation_y, sizeof(recvpacket.playerlocation_y), 0);
-				recv(socket_arry[index], (char*)&recvpacket.playerlocation_z, sizeof(recvpacket.playerlocation_z), 0);
-			}
-
-			//std::cout << recvpacket.id << ", " << recvpacket.blocklocation_x << ", " << recvpacket.blocklocation_y << ", " << recvpacket.blocklocation_z << ", " << recvpacket.todestroyblock << std::endl;
-			//std::cout << recvpacket.id << ", " << recvpacket.blocklocation_x << ", " << recvpacket.blocklocation_y << ", " << recvpacket.blocklocation_z << ", " << recvpacket.todestroyblock << std::endl;
 
 			// 메시지 출력
-			if (buffer[0] == '0')
-			{
-				WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, cnt, &dwTmp, NULL);
-				printf("\n");
-			}
+			//if (buffer[0] == '0')
+			//{
+			//	WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, cnt, &dwTmp, NULL);
+			//	printf("\n");
+			//}
 
 			// 애코 처리
+			char send_buffer[BUFSIZE] = {};
 			//wsprintfA(send_buffer, "%d user(SEND) : %s", index, buffer);
-<<<<<<< Updated upstream
-			printf("%d user(SEND) : ", index);
-			strcpy_s(send_buffer, buffer);
-=======
 			//printf("%d user(SEND) : ", index);
->>>>>>> Stashed changes
+			strcpy_s(send_buffer, buffer);
 
-
-			if (recvpacket.id == 1)
-			{
+			//if (send_buffer[0] == '0')
+			//{
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
-					//chattingpacket.chatting = recvpacket.chatting;
-					strcpy_s(chattingpacket.chatting, recvpacket.chatting);
-
 					if (socket_arry[c] != 0 && c != index)
 					{
-						//send(socket_arry[c], (const char*)&chattingpacket, sizeof(ChattingPacket), 0);
+						// 수신받은 클라이언트 제외 하고 애코 처리
 
-<<<<<<< Updated upstream
 						auto i = send(socket_arry[c], send_buffer, strlen(send_buffer), 0);
-						WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), send_buffer, strlen(send_buffer), &dwTmp, NULL);
-						printf("\n");
-=======
-						send(socket_arry[c], (char*)&chattingpacket.id, sizeof(ChattingPacket), 0);
-						send(socket_arry[c], (char*)&chattingpacket.chatting, sizeof(ChattingPacket), 0);
-						std::cout << "send_chat" << std::endl;
+						//WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), send_buffer, strlen(send_buffer), &dwTmp, NULL);
+						//printf("\n");
+
 					}
 				}
-			}
->>>>>>> Stashed changes
+			//}
 
-			else if (recvpacket.id == 2)
-			{
-				for (int c = 1; c < MAX_SOCKET; c++)
-				{
-					blockpacket.blocklocation_x = recvpacket.blocklocation_x;
-					blockpacket.blocklocation_y = recvpacket.blocklocation_y;
-					blockpacket.blocklocation_z = recvpacket.blocklocation_z;
+			//else if (buffer[0] == '1')
+			//{
+			//	for (int c = 1; c < MAX_SOCKET; c++)
+			//	{
+			//		if (socket_arry[c] != 0 && c != index)
+			//		{
+			//			// 수신받은 클라이언트 제외 하고 애코 처리
 
-					if (socket_arry[c] != 0 && c != index)
-					{
-						//send(socket_arry[c], (const char*)&blockpacket, sizeof(BlockPacket), 0);
+			//			auto i = send(socket_arry[c], send_buffer, strlen(send_buffer), 0);
+			//			WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), send_buffer, strlen(send_buffer), &dwTmp, NULL);
+			//			printf("\n");
 
-						send(socket_arry[c], (char*)&blockpacket.id, sizeof(BlockPacket), 0);
-						send(socket_arry[c], (char*)&blockpacket.blocklocation_x, sizeof(blockpacket.blocklocation_x), 0);
-						send(socket_arry[c], (char*)&blockpacket.blocklocation_y, sizeof(blockpacket.blocklocation_y), 0);
-						send(socket_arry[c], (char*)&blockpacket.blocklocation_z, sizeof(blockpacket.blocklocation_z), 0);
-						std::cout << blockpacket.blocklocation_x << ", " << blockpacket.blocklocation_y << ", " << blockpacket.blocklocation_z << ", " << "send_block" << std::endl;
-					}
-				}
-			}
-
-			else if (recvpacket.id == 3)
-			{
-				for (int c = 1; c < MAX_SOCKET; c++)
-				{
-					//destroypacket.todestroyblock = recvpacket.todestroyblock;
-					strcpy_s(destroypacket.todestroyblock, recvpacket.todestroyblock);
-
-					if (socket_arry[c] != 0 && c != index)
-					{
-						//send(socket_arry[c], (const char*)&destroypacket, sizeof(DestroyPacket), 0);
-
-						send(socket_arry[c], (char*)&destroypacket.id, sizeof(destroypacket.id), 0);
-						send(socket_arry[c], (char*)&destroypacket.todestroyblock, sizeof(destroypacket.todestroyblock), 0);
-						std::cout << "send_destroy" << std::endl;
-					}
-				}
-			}
-
-			else if (recvpacket.id == 4)
-			{
-				for (int c = 1; c < MAX_SOCKET; c++)
-				{
-					playerpacket.angle_x = recvpacket.angle_x;
-					playerpacket.angle_y = recvpacket.angle_y;
-					playerpacket.angle_z = recvpacket.angle_z;
-					playerpacket.playerlocation_x = recvpacket.playerlocation_x;
-					playerpacket.playerlocation_y = recvpacket.playerlocation_y;
-					playerpacket.playerlocation_z = recvpacket.playerlocation_z;
-
-					if (socket_arry[c] != 0 && c != index)
-					{
-						//send(socket_arry[c], (const char*)&playerpacket, sizeof(PlayerPacket), 0);
-
-						send(socket_arry[c], (char*)&playerpacket.id, sizeof(PlayerPacket), 0);
-						send(socket_arry[c], (char*)&playerpacket.angle_x, sizeof(PlayerPacket), 0);
-						send(socket_arry[c], (char*)&playerpacket.angle_y, sizeof(PlayerPacket), 0);
-						send(socket_arry[c], (char*)&playerpacket.angle_z, sizeof(PlayerPacket), 0);
-						send(socket_arry[c], (char*)&playerpacket.playerlocation_x, sizeof(PlayerPacket), 0);
-						send(socket_arry[c], (char*)&playerpacket.playerlocation_y, sizeof(PlayerPacket), 0);
-						send(socket_arry[c], (char*)&playerpacket.playerlocation_z, sizeof(PlayerPacket), 0);
-						std::cout << "send_player" << std::endl;
-					}
-				}
-			}
+			//		}
+			//	}
+			//}
 
 		}//
 
