@@ -12,57 +12,44 @@ class WITCH_OF_TIME_API Aclient : public AActor
 
 public:
 	// Sets default values for this actor's properties
+	//전역 변수로 선언하지 말고 여기 선언하고 변수이름 좀더 잘 알아볼수 있게 만들기
 	Aclient();
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempSendStr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempRecvStr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int cnt;
-	UFUNCTION(BlueprintImplementableEvent, Category = Default)
-		void SetChat();
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float position_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float position_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float position_z;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float angle_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float angle_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float angle_z;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int recv_cnt;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Default)
-		int is_key_up;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float position_x_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float position_y_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float position_z_2;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float angle_x_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float angle_y_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float angle_z_2;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int is_moving;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int is_moving_2;
-<<<<<<< Updated upstream
-=======
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int is_set;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int is_set_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float block_position_x_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -80,7 +67,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int Block_cnt = 0;
 
->>>>>>> Stashed changes
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -92,6 +78,7 @@ public:
 
 };
 
+//헤더파일 TCPServer.h로 통일할것
 typedef struct ChattingPacket
 {
 	int id = 1;
