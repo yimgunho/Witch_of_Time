@@ -1,15 +1,19 @@
 #pragma once
 #include <string>
-#define BUFSIZE 64
+#define BUFSIZE 1024
+enum PacketId
+{
+	RECV, CHATTING, BLOCK, DESTROY, PLAYER
+};
 typedef struct ChattingPacket
 {
-	int id = 1;
+	int id = CHATTING;
 	char chatting[BUFSIZE] = "none";
 }ChattingPacket;
 
 typedef struct BlockPacket
 {
-	int id = 2;
+	int id = BLOCK;
 	float blocklocation_x = 0;
 	float blocklocation_y = 0;
 	float blocklocation_z = 0;
@@ -18,13 +22,13 @@ typedef struct BlockPacket
 
 typedef struct DestroyPacket
 {
-	int id = 3;
+	int id = DESTROY;
 	char todestroyblock[BUFSIZE] = "none";
 }DestroyPacket;
 
 typedef struct PlayerPacket
 {
-	int id = 4;
+	int id = PLAYER;
 	float angle_x = 0;
 	float angle_y = 0;
 	float angle_z = 0;
@@ -35,7 +39,7 @@ typedef struct PlayerPacket
 
 typedef struct RecvPacket
 {
-	int id = 0;
+	int id = RECV;
 	float angle_x = 0;
 	float angle_y = 0;
 	float angle_z = 0;
