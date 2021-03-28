@@ -41,7 +41,7 @@ public:
 	int blockindex;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	int cnt_for_blocktype;
+	int blockid;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UClass* TempPlaceActor;
@@ -88,6 +88,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UClass* ClassOfPlacedBlock;
 
+	int dummycnt = 0;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -125,6 +127,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetClassOfPlacedBlock(UClass* blockclass);
 	
+	UFUNCTION(BlueprintCallable)
+	AActor* SpawnDummyActor(UClass* blockclass);
+
 public:
 	virtual void Tick(float DeltaTime) override;
 };
