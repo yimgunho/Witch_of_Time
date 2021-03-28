@@ -78,7 +78,8 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 
-		auto spawned_by_server = GetWorld()->SpawnActor<AActor>(PlaceActor, location_to_FVector, Rotator, SpawnParams);
+		auto spawned_by_server = GetWorld()->SpawnActor<AActor>(ClassOfPlacedBlock, location_to_FVector, Rotator, SpawnParams);
+		
 		old_location_x = temp_location_x;
 		old_location_y = temp_location_y;
 		old_location_z = temp_location_z;
@@ -158,6 +159,7 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
+
 
 			location_x = hitResult.Location.X;
 			location_y = hitResult.Location.Y;
@@ -406,6 +408,16 @@ void ALevelEditorPawn::LoadGame()
 
 	}
 	
+}
+
+int ALevelEditorPawn::GetBlockIndex()
+{
+	return blockindex;
+}
+
+void ALevelEditorPawn::SetClassOfPlacedBlock(UClass* blockclass)
+{
+	ClassOfPlacedBlock = blockclass;
 }
 
 void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

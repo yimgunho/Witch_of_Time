@@ -58,7 +58,7 @@ int main()
 
 	unsigned long noblock = 1;
 	int nRet = ioctlsocket(socket_arry[0], FIONBIO, &noblock);
-
+	char buffer[BUFSIZE];
 
 	// 메인 루프
 	while (1)
@@ -79,6 +79,7 @@ int main()
 
 			// 빈 배열 검색
 			int index = -1;
+
 			for (int c = 1; c < MAX_SOCKET; c++)
 			{
 				if (socket_arry[c] == 0)
@@ -105,123 +106,80 @@ int main()
 
 		// 메시지 수신
 		for (int index = 1; index < MAX_SOCKET; ++index) {
-			int ret = recv(socket_arry[index], (char*)&recvpacket.id, sizeof(recvpacket.id), 0);
-			if (SOCKET_ERROR == ret) continue;
-
-			if (recvpacket.id == 1)
+			if (socket_arry[index] == 0) continue;
+			
+			char buffer[BUFSIZE];
+			memset(buffer, 0, sizeof(buffer));
+			recv(socket_arry[index], &buffer[0], sizeof(char) + sizeof(int), 0);
+			
+			switch (buffer[0])
 			{
-				recv_all(socket_arry[index], (char*)&recvpacket.chatting, sizeof(recvpacket.chatting), 0);
-			}
-
-			else if (recvpacket.id == 2)
+			case CHATTING:
 			{
-				recv_all(socket_arry[index], (char*)&recvpacket.blocklocation_x, sizeof(recvpacket.blocklocation_x), 0);
-				recv_all(socket_arry[index], (char*)&recvpacket.blocklocation_y, sizeof(recvpacket.blocklocation_y), 0);
-				recv_all(socket_arry[index], (char*)&recvpacket.blocklocation_z, sizeof(recvpacket.blocklocation_z), 0);
+				recv_all(socket_arry[index], buffer + 5, sizeof(ChattingPacket) - 5, 0);
+				auto cast = reinterpret_cast<ChattingPacket*>(buffer);
 
-				//printf("%f, %f, %f\n", recvpacket.blocklocation_x, recvpacket.blocklocation_y, recvpacket.blocklocation_z);
-			}
-
-			else if (recvpacket.id == 3)
-			{
-				recv_all(socket_arry[index], (char*)&recvpacket.todestroyblock, BUFSIZE, 0);
-				std::string fordebug(recvpacket.todestroyblock);
-				//printf("%s\n", fordebug);
-				//std::cout << fordebug << std::endl;
-			}
-
-			else if (recvpacket.id == 4)
-			{
-				recv_all(socket_arry[index], (char*)&recvpacket.angle_x, sizeof(recvpacket.angle_x), 0);
-				recv_all(socket_arry[index], (char*)&recvpacket.angle_y, sizeof(recvpacket.angle_y), 0);
-				recv_all(socket_arry[index], (char*)&recvpacket.angle_z, sizeof(recvpacket.angle_z), 0);
-				recv_all(socket_arry[index], (char*)&recvpacket.playerlocation_x, sizeof(recvpacket.playerlocation_x), 0);
-				recv_all(socket_arry[index], (char*)&recvpacket.playerlocation_y, sizeof(recvpacket.playerlocation_y), 0);
-				recv_all(socket_arry[index], (char*)&recvpacket.playerlocation_z, sizeof(recvpacket.playerlocation_z), 0);
-			}
-
-
-
-			printf("%d user(SEND) : ", index);
-
-			if (recvpacket.id == 1)
-			{
-				strcpy_s(chattingpacket.chatting, recvpacket.chatting);
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
 					if (c == index) continue;
 					if (0 == socket_arry[c]) continue;
 
-					send(socket_arry[c], (char*)&chattingpacket.id, sizeof(chattingpacket.id), 0);
-					send(socket_arry[c], (char*)&chattingpacket.chatting, sizeof(chattingpacket.chatting), 0);
+					send(socket_arry[c], buffer, sizeof(ChattingPacket), 0);
 					std::cout << "send_chat" << std::endl;
 
 				}
 			}
-
-			else if (recvpacket.id == 2)
+				break;
+			case BLOCK:
 			{
-				blockpacket.blocklocation_x = recvpacket.blocklocation_x;
-				blockpacket.blocklocation_y = recvpacket.blocklocation_y;
-				blockpacket.blocklocation_z = recvpacket.blocklocation_z;
+				recv_all(socket_arry[index], buffer + 5, sizeof(BlockPacket) - 5, 0);
+				//std::cout << buffer << std::endl;
+				auto cast = reinterpret_cast<BlockPacket*>(buffer);
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
 					if (c == index) continue;
 					if (0 == socket_arry[c]) continue;
 
+					send(socket_arry[c], buffer, sizeof(BlockPacket), 0);
+					std::cout << "send_block" << std::endl;
 
-					send(socket_arry[c], (char*)&blockpacket.id, sizeof(BlockPacket), 0);
-					send(socket_arry[c], (char*)&blockpacket.blocklocation_x, sizeof(blockpacket.blocklocation_x), 0);
-					send(socket_arry[c], (char*)&blockpacket.blocklocation_y, sizeof(blockpacket.blocklocation_y), 0);
-					send(socket_arry[c], (char*)&blockpacket.blocklocation_z, sizeof(blockpacket.blocklocation_z), 0);
-					std::cout << blockpacket.blocklocation_x << ", " << blockpacket.blocklocation_y << ", " << blockpacket.blocklocation_z << ", " << "send_block" << std::endl;
 				}
 			}
-
-			else if (recvpacket.id == 3)
+				break;
+			case DESTROY:
 			{
-				strcpy_s(destroypacket.todestroyblock, recvpacket.todestroyblock);
+				recv_all(socket_arry[index], buffer + 5, sizeof(DestroyPacket) - 5, 0);
+				auto cast = reinterpret_cast<DestroyPacket*>(buffer);
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
-
 					if (c == index) continue;
 					if (0 == socket_arry[c]) continue;
 
-
-					//send(socket_arry[c], (const char*)&destroypacket, sizeof(DestroyPacket), 0);
-
-					send(socket_arry[c], (char*)&destroypacket.id, sizeof(destroypacket.id), 0);
-					send(socket_arry[c], (char*)&destroypacket.todestroyblock, sizeof(destroypacket.todestroyblock), 0);
+					send(socket_arry[c], buffer, sizeof(DestroyPacket), 0);
 					std::cout << "send_destroy" << std::endl;
 
 				}
 			}
-
-			else if (recvpacket.id == 4)
+				break;
+			case PLAYER:
 			{
-				playerpacket.angle_x = recvpacket.angle_x;
-				playerpacket.angle_y = recvpacket.angle_y;
-				playerpacket.angle_z = recvpacket.angle_z;
-				playerpacket.playerlocation_x = recvpacket.playerlocation_x;
-				playerpacket.playerlocation_y = recvpacket.playerlocation_y;
-				playerpacket.playerlocation_z = recvpacket.playerlocation_z;
+				recv_all(socket_arry[index], buffer + 5, sizeof(PlayerPacket) - 5, 0);
+				auto cast = reinterpret_cast<PlayerPacket*>(buffer);
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
 					if (c == index) continue;
 					if (0 == socket_arry[c]) continue;
 
-
-					send(socket_arry[c], (char*)&playerpacket.id, sizeof(PlayerPacket), 0);
-					send(socket_arry[c], (char*)&playerpacket.angle_x, sizeof(PlayerPacket), 0);
-					send(socket_arry[c], (char*)&playerpacket.angle_y, sizeof(PlayerPacket), 0);
-					send(socket_arry[c], (char*)&playerpacket.angle_z, sizeof(PlayerPacket), 0);
-					send(socket_arry[c], (char*)&playerpacket.playerlocation_x, sizeof(PlayerPacket), 0);
-					send(socket_arry[c], (char*)&playerpacket.playerlocation_y, sizeof(PlayerPacket), 0);
-					send(socket_arry[c], (char*)&playerpacket.playerlocation_z, sizeof(PlayerPacket), 0);
+					send(socket_arry[c], buffer, sizeof(PlayerPacket), 0);
 					std::cout << "send_player" << std::endl;
 
 				}
 			}
+				break;
+			default:
+				break;
+			}
+
 		}
 	}
 	// 서버 소켓 해제
