@@ -39,6 +39,9 @@ public:
 	uint32 UserIndex;
 
 	UPROPERTY(VisibleAnywhere, Category = Basic)
+	FString SaveVersion;
+
+	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FDateTime Savetime;
 
 	UPROPERTY(VisibleAnywhere, Category = Basic)

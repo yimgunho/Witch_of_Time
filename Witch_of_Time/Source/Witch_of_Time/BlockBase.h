@@ -6,6 +6,22 @@
 #include "GameFramework/Actor.h"
 #include "BlockBase.generated.h"
 
+#define MAX_COMMANDBLOCK_COUNT 50
+
+
+USTRUCT(BlueprintType)
+struct FCommandBlockInfo {
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
+		int index;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
+		FString data;
+};
+
+
+
 UCLASS()
 class WITCH_OF_TIME_API ABlockBase : public AActor
 {
@@ -30,6 +46,9 @@ public:
 	void GetMovement(int& maxcount, float& speed);
 
 	bool GetApplyCommandBlocks();
+
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -40,6 +59,8 @@ protected:
 
 	FVector OriginLocation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<FCommandBlockInfo> CommandBlockArray;
 
 	UPROPERTY(EditAnywhere)
 	float temperature = 20.f;
