@@ -149,7 +149,7 @@ void UWidget_SaveLoad::SaveGame(int saveslot)
 		if (casted)
 		{
 			temp.location = casted->GetOrigin();
-			casted->GetMovement(temp.Move_MaxCount, temp.Move_Speed);
+			temp.CommandArray = casted->CommandBlockArray;
 		}
 		else
 			temp.location = target->GetActorLocation();
@@ -225,7 +225,7 @@ void UWidget_SaveLoad::LoadGame(int saveslot)
 
 			if (casted)
 			{
-				casted->ApplyMoves(block.Move_MaxCount);
+				casted->CommandBlockArray = block.CommandArray;
 			}
 		}
 

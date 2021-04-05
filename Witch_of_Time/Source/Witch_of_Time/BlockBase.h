@@ -48,6 +48,9 @@ public:
 	bool GetApplyCommandBlocks();
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<FCommandBlockInfo> CommandBlockArray;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -59,8 +62,6 @@ protected:
 
 	FVector OriginLocation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FCommandBlockInfo> CommandBlockArray;
 
 	UPROPERTY(EditAnywhere)
 	float temperature = 20.f;

@@ -340,7 +340,7 @@ void ALevelEditorPawn::SaveGame()
 		if (casted)
 		{
 			temp.location = casted->GetOrigin();
-			casted->GetMovement(temp.Move_MaxCount, temp.Move_Speed);
+			temp.CommandArray = casted->CommandBlockArray;
 		}
 		else
 			temp.location = target->GetActorLocation();
@@ -387,7 +387,7 @@ void ALevelEditorPawn::LoadGame()
 
 			if (casted)
 			{
-				casted->ApplyMoves(block.Move_MaxCount);
+				casted->CommandBlockArray = block.CommandArray;
 			}
 		}
 		
