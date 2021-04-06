@@ -17,7 +17,7 @@ struct FCommandBlockInfo {
 		int index;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
-		FString data;
+		TArray<int32> data;
 };
 
 
@@ -47,9 +47,15 @@ public:
 
 	bool GetApplyCommandBlocks();
 
+	UFUNCTION(BlueprintCallable)
+	void ResetBlock();
+
+	void ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<FCommandBlockInfo> CommandBlockArray;
+
+	int CurrentCommandBlock = 0;
 
 
 protected:
@@ -60,7 +66,13 @@ protected:
 	TArray<AActor*> Ignores;
 	TArray<AActor*> Actors;
 
+	bool CommandBlockInitailized = false;
+
 	FVector OriginLocation;
+	// 이동 함수 구현을 위한 변수
+	FVector TargetLocation;
+	FVector DirectionVector;
+	float TargetDistance;
 
 
 	UPROPERTY(EditAnywhere)

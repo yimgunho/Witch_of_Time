@@ -67,11 +67,62 @@ bool ABlockBase::GetIsMovable()
 	return IsMovable;
 }
 
+void ABlockBase::ResetBlock()
+{
+	this->SetActorLocation(OriginLocation);
+	CommandBlockInitailized = false;
+	CurrentCommandBlock = 0;
+	this->SetActorTickEnabled(true);
+}
+
 void ABlockBase::GetMovement(int& maxcount, float& speed)
 {
 	maxcount = Move_MaxCount;
 	speed = Move_Speed;
 
+}
+
+void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
+{
+	switch (block.index)
+	{
+	case 0: // MoveBlock
+	{
+		FVector location = this->GetActorLocation();
+		if (!CommandBlockInitailized)
+		{
+			TargetLocation = FVector(location.X + block.data[0] * 200, location.Y + block.data[1] * 200, location.Z + block.data[2] * 200);
+			DirectionVector = (FVector(block.data[0] * 200, block.data[1] * 200, block.data[2] * 200));
+			TargetDistance = DirectionVector.Size();
+			DirectionVector.Normalize();
+			CommandBlockInitailized = true;
+		}
+
+		float temp = 100 * DeltaTime;
+		if (temp >= TargetDistance)
+		{
+			this->SetActorLocation(TargetLocation);
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitailized = false;
+				CurrentCommandBlock++;
+			}
+		}
+		else
+		{
+			this->SetActorLocation(location + DirectionVector * temp);
+			TargetDistance -= temp;
+		}
+
+	}
+		break;
+	case 1:
+		CurrentCommandBlock = 0;
+		break;
+	case 2:
+		ResetBlock();
+		break;
+	}
 }
 
 bool ABlockBase::GetApplyCommandBlocks()
@@ -119,6 +170,14 @@ void ABlockBase::Tick(float DeltaTime)
 		
 	}
 
+	if (CommandBlockArray.Num() != 0)
+	{
+		ExecuteCommandBlock(CommandBlockArray[CurrentCommandBlock], DeltaTime);
+	}
+
+
+	/*
+	* move ¿´´ø°Í
 	if (IsMovable && Move_MaxCount != 0)
 	{
 		if (MoveChange)
@@ -209,6 +268,6 @@ void ABlockBase::Tick(float DeltaTime)
 
 		
 	}
-
+	*/
 }
 
