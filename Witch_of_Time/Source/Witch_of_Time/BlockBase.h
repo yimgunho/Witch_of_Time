@@ -66,6 +66,7 @@ protected:
 	TArray<AActor*> Ignores;
 	TArray<AActor*> Actors;
 
+	// 커맨드 블럭의 실행 초기 변수 설정용 플래그
 	bool CommandBlockInitailized = false;
 
 	FVector OriginLocation;

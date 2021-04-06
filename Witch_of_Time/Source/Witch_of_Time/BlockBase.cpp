@@ -116,11 +116,18 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 
 	}
 		break;
-	case 1:
+	case 1: // 반복
 		CurrentCommandBlock = 0;
 		break;
-	case 2:
+	case 2: // 블럭 초기화
 		ResetBlock();
+		break;
+	default:
+		if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+		{
+			CommandBlockInitailized = false;
+			CurrentCommandBlock++;
+		}
 		break;
 	}
 }
@@ -174,6 +181,7 @@ void ABlockBase::Tick(float DeltaTime)
 	{
 		ExecuteCommandBlock(CommandBlockArray[CurrentCommandBlock], DeltaTime);
 	}
+
 
 
 	/*

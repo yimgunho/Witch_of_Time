@@ -10,6 +10,7 @@ ALiquidBlockBase::ALiquidBlockBase()
 	Types.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
 
 	Ignores.Add(this);
+	OriginLocation = this->GetActorLocation();
 }
 
 void ALiquidBlockBase::SetHeight(float height, bool IsFlow)
