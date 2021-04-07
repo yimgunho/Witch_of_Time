@@ -67,13 +67,15 @@ protected:
 	TArray<AActor*> Actors;
 
 	// 커맨드 블럭의 실행 초기 변수 설정용 플래그
-	bool CommandBlockInitailized = false;
+	bool CommandBlockInitialized = false;
 
 	FVector OriginLocation;
 	// 이동 함수 구현을 위한 변수
 	FVector TargetLocation;
 	FVector DirectionVector;
 	float TargetDistance;
+
+	float Waited_Time = 0.f;
 
 
 	UPROPERTY(EditAnywhere)

@@ -70,7 +70,7 @@ bool ABlockBase::GetIsMovable()
 void ABlockBase::ResetBlock()
 {
 	this->SetActorLocation(OriginLocation);
-	CommandBlockInitailized = false;
+	CommandBlockInitialized = false;
 	CurrentCommandBlock = 0;
 	this->SetActorTickEnabled(true);
 }
@@ -89,13 +89,20 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 	case 0: // MoveBlock
 	{
 		FVector location = this->GetActorLocation();
-		if (!CommandBlockInitailized)
+		if (!CommandBlockInitialized)
 		{
+			if (!block.data.IsValidIndex(0) || !block.data.IsValidIndex(1) || !block.data.IsValidIndex(2))
+			{
+				block.data.Empty();
+				block.data.Add(0);
+				block.data.Add(0);
+				block.data.Add(0);
+			}
 			TargetLocation = FVector(location.X + block.data[0] * 200, location.Y + block.data[1] * 200, location.Z + block.data[2] * 200);
 			DirectionVector = (FVector(block.data[0] * 200, block.data[1] * 200, block.data[2] * 200));
 			TargetDistance = DirectionVector.Size();
 			DirectionVector.Normalize();
-			CommandBlockInitailized = true;
+			CommandBlockInitialized = true;
 		}
 
 		float temp = 100 * DeltaTime;
@@ -104,7 +111,7 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 			this->SetActorLocation(TargetLocation);
 			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 			{
-				CommandBlockInitailized = false;
+				CommandBlockInitialized = false;
 				CurrentCommandBlock++;
 			}
 		}
@@ -122,10 +129,28 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 	case 2: // 블럭 초기화
 		ResetBlock();
 		break;
+	case 3:
+		if (!CommandBlockInitialized)
+		{
+			Waited_Time = 0.f;
+			CommandBlockInitialized = true;
+		}
+
+		Waited_Time += DeltaTime;
+
+		if (Waited_Time > 2.f)
+		{
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+		}
+		break;
 	default:
 		if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 		{
-			CommandBlockInitailized = false;
+			CommandBlockInitialized = false;
 			CurrentCommandBlock++;
 		}
 		break;
