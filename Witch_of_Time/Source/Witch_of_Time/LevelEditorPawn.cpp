@@ -31,6 +31,10 @@ void ALevelEditorPawn::BeginPlay()
 	old_location_x = 0;
 	old_location_y = 0;
 	old_location_z = 0;
+
+	blockid = 0;
+	ToDestroyBlockName = "none";
+
 }
 
 void ALevelEditorPawn::LeftMouseFunc(bool flag)
@@ -81,7 +85,9 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 
-		auto spawned2 = GetWorld()->SpawnActor<AActor>(PlaceActor, location_to_FVector, Rotator, SpawnParams);
+		auto spawned_by_server = GetWorld()->SpawnActor<AActor>(ClassOfPlacedBlock, location_to_FVector, Rotator, SpawnParams);
+		blockid++;
+
 		old_location_x = temp_location_x;
 		old_location_y = temp_location_y;
 		old_location_z = temp_location_z;
@@ -120,6 +126,8 @@ void ALevelEditorPawn::PlaceBlock()
 
 			Location -= (FVector)hitResult.Location;
 
+			SpawnParams.NameMode = FActorSpawnParameters::ESpawnActorNameMode::Requested;
+
 			if (fabsf(Location.X - 100.f) < 0.01f || fabsf(Location.X + 100.f) < 0.01f)
 			{
 				hitResult.Location.X -= Location.X;
@@ -151,6 +159,8 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
+
+			blockid++;
 
 			location_x = hitResult.Location.X;
 			location_y = hitResult.Location.Y;
@@ -215,6 +225,8 @@ void ALevelEditorPawn::DestroyBlock()
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
 	{
 		ToDestroyBlock = hitResult.GetActor();
+		ToDestroyBlockName = hitResult.GetActor()->GetName();
+		//todestroyblockid = 0;
 		hitResult.GetActor()->Destroy();
 
 	}
@@ -225,6 +237,10 @@ void ALevelEditorPawn::DrawDummyBlock(float value)
 	if (VisibleFlag)
 	{
 		if (!CommandBlockMode)
+	//auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
+	//if (VisibleFlag)
+	//{
+	//	if (BlockClass != NULL)
 		{
 			FVector CLocation = this->GetActorLocation();
 			FVector CForwardVector = this->GetActorForwardVector();
@@ -396,10 +412,29 @@ void ALevelEditorPawn::LoadGame()
 	
 }
 
+int ALevelEditorPawn::GetBlockIndex()
+{
+	return blockindex;
+}
+
+void ALevelEditorPawn::SetClassOfPlacedBlock(UClass* blockclass)
+{
+	ClassOfPlacedBlock = blockclass;
+}
+
+AActor* ALevelEditorPawn::SpawnDummyActor(UClass* blockclass)
+{
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParams.Name = FName("DummyActor");
+	SpawnParams.NameMode = FActorSpawnParameters::ESpawnActorNameMode::Requested;
+	auto spawned = GetWorld()->SpawnActor<AActor>(blockclass, (FVector)(-10000, -10000, -10000), (FRotator)(0, 0, 0), SpawnParams);
+	return spawned;
+}
+
 void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	ADefaultPawn::SetupPlayerInputComponent(PlayerInputComponent);
-
 
 	PlayerInputComponent->BindAction("SaveGame", IE_Pressed, this, &ALevelEditorPawn::SaveGame);
 
@@ -418,7 +453,6 @@ void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	// ÅÇÅ°
 	PlayerInputComponent->BindAction("SwitchPlaceMode", IE_Pressed, this, &ALevelEditorPawn::SwitchPlaceMode);
-
 
 	// ¿ìÅ¬¸¯
 	//PlayerInputComponent->BindAction("PickTarget", IE_Pressed, this, &ALevelEditorPawn::PlaceBlock);

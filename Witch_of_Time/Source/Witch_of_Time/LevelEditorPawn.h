@@ -22,7 +22,6 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 	UPROPERTY(EditAnywhere)
 	UClass* PlaceActor;
 
-
 	UPROPERTY(EditAnywhere)
 	UClass* DummyActor;
 
@@ -37,30 +36,35 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 
 public:
 	ALevelEditorPawn();
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int blockindex;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	int cnt_for_blocktype;
+	int blockid;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UClass* TempPlaceActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float location_x;
+	FString type_of_block;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float location_y;
+	float location_x;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float location_z;
+	float location_y;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float temp_location_x;
+	float location_z;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float temp_location_y;
+	float temp_location_x;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float temp_location_z;
+	float temp_location_y;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	float temp_location_z;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	AActor* ToDestroyBlock;
@@ -76,6 +80,21 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool VisibleFlag = true;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	FString ToDestroyBlockName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UClass* ClassOfPlacedBlock;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int blockid_2 = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int todestroyblockid = 0;
+
+	int dummycnt = 0;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -110,8 +129,17 @@ protected:
 	void LoadGame();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "CommandBlock")
-		void OpenCommandList(ABlockBase* target);
+	void OpenCommandList(ABlockBase* target);
 	
+	UFUNCTION(BlueprintCallable)
+	int GetBlockIndex();
+
+	UFUNCTION(BlueprintCallable)
+	void SetClassOfPlacedBlock(UClass* blockclass);
+	
+	UFUNCTION(BlueprintCallable)
+	AActor* SpawnDummyActor(UClass* blockclass);
+
 public:
 	virtual void Tick(float DeltaTime) override;
 };

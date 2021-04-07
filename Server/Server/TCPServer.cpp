@@ -1,9 +1,23 @@
 #include <winsock2.h>
+#include "TCPServer.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
 
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
-#define BUFSIZE 512
+
+void recv_all(SOCKET sock, char* buf, size_t len, int flag)
+{
+	int total_received = 0;
+	while (total_received != len) {
+		int ret = recv(sock, buf + total_received, len - total_received, flag);
+		total_received += ret;
+	}
+}
+
 int main()
 {
 	// 소켓 라이브러리 초기화
@@ -14,8 +28,6 @@ int main()
 
 	// 소켓 배열   다중 클라이언트 접속을 하기위해 배열을 사용.
 	SOCKET socket_arry[MAX_SOCKET] = { 0 };   //최대값은 위에서 정의해줌.
-	HANDLE hEvent_arry[MAX_SOCKET] = { 0 };
-	char Packet[BUFSIZE] = {};
 
 	// 대기용 소켓 생성
 	socket_arry[0] = socket(AF_INET, SOCK_STREAM, 0);
@@ -27,7 +39,7 @@ int main()
 	SOCKADDR_IN servAddr;
 	servAddr.sin_family = AF_INET;
 	servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	servAddr.sin_port = htons(atoi("9000")); // 포트 번호를 받아서 사용.
+	servAddr.sin_port = htons(9000); // 포트 번호를 받아서 사용.
 
 	// 소켓 바인드
 	if (bind(socket_arry[0], (sockaddr*)&servAddr, sizeof(servAddr)) == SOCKET_ERROR)
@@ -44,51 +56,36 @@ int main()
 		return -1;
 	}
 
-	// 이벤트 핸들 생성
-	for (int i = 0; i < MAX_SOCKET; i++)
-	{
-		hEvent_arry[i] = CreateEvent(NULL, FALSE, FALSE, NULL);
-		if (hEvent_arry[i] == INVALID_HANDLE_VALUE)
-		{
-			closesocket(socket_arry[0]);
-			printf("서버 이벤트 생성 실패");
-			return SOCKET_ERROR;
-		}
-	}
-
-	// 대기 소켓 이벤트 핸들 설정
-	if (WSAEventSelect(socket_arry[0], hEvent_arry[0], FD_ACCEPT) == SOCKET_ERROR)
-	{
-		closesocket(socket_arry[0]);
-		CloseHandle(hEvent_arry[0]);
-		printf("서버 이벤트 설정 실패");
-		return SOCKET_ERROR;
-	}
-
-	// 상태 출력
-	DWORD dwTmp;
 	//char* pText = "클라이언트 접속을 기다리고 있습니다.\n";
 	printf("클라이언트 접속을 기다리고 있습니다.\n");
 
-	// 설정된 이벤트 핸들 갯수
-	int client = 1;
+	unsigned long noblock = 1;
+	int nRet = ioctlsocket(socket_arry[0], FIONBIO, &noblock);
+	char buffer[BUFSIZE];
 
-	// 접속 루푸
+	std::vector<BlockListPacket> v;
+	BlockListPacket blocklistpacket;
+
+	// 메인 루프
 	while (1)
 	{
+		ChattingPacket chattingpacket;
+		BlockPacket blockpacket;
+		DestroyPacket destroypacket;
+		PlayerPacket playerpacket;
+		RecvPacket recvpacket;
 		// 소켓 접속 대기
-		DWORD dwObject = WaitForMultipleObjectsEx(client, hEvent_arry, FALSE, INFINITE, 0);
-		if (dwObject == INFINITE) continue;
 
-		if (dwObject == WAIT_OBJECT_0)
-		{
-			// 클라이언트 소켓 생성
-			SOCKADDR_IN clntAddr;
-			int clntLen = sizeof(clntAddr);
-			SOCKET socket_client = accept(socket_arry[0], (SOCKADDR*)&clntAddr, &clntLen);
+
+		SOCKADDR_IN clntAddr;
+		int clntLen = sizeof(clntAddr);
+		SOCKET socket_client = accept(socket_arry[0], (SOCKADDR*)&clntAddr, &clntLen);
+
+		if (INVALID_SOCKET != socket_client) {
 
 			// 빈 배열 검색
 			int index = -1;
+
 			for (int c = 1; c < MAX_SOCKET; c++)
 			{
 				if (socket_arry[c] == 0)
@@ -100,109 +97,98 @@ int main()
 
 			if (index > 0)  //하나라도 접속
 			{
-				// 클라이언트 이벤트 핸들 설정
-				if (WSAEventSelect(socket_client, hEvent_arry[index], FD_READ | FD_CLOSE) == SOCKET_ERROR)
-				{
-					DWORD dwTmp;
-					printf("클라이언트 이벤트 설정 실패 하였습니다.\n");
-					continue;
-				}
-
-				char buffer[BUFSIZE] = { 0 };
-
 				printf("%d번 -> 클라이언트 접속\n", index);
-
 				// 배열에 소켓 저장
 				socket_arry[index] = socket_client;
-				client = max(client, index + 1);
+				unsigned long noblock = 1;
+				int nRet = ioctlsocket(socket_arry[index], FIONBIO, &noblock);
 			}
 			else  //허용 소켓 초과
 			{
-				DWORD dwTmp;
 				printf("더이상 서버에 접속 할수 없습니다..\n");
 				closesocket(socket_client);
 			}
 		}
-		else
-		{
-			int index = (dwObject - WAIT_OBJECT_0);
 
-			DWORD dwTmp;
-			char buffer[BUFSIZE] = { };
-
-			wsprintfA(buffer, "%d user : ", index);
-			//if (buffer[0] == '0')
-			//{
-			//	WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, strlen(buffer), &dwTmp, NULL);
-			//	printf("\n");
-			//}
-
-
+		// 메시지 수신
+		for (int index = 1; index < MAX_SOCKET; ++index) {
+			if (socket_arry[index] == 0) continue;
 			
-			// 메시지 수신
+			char buffer[BUFSIZE];
 			memset(buffer, 0, sizeof(buffer));
-			int cnt = recv(socket_arry[index], buffer, sizeof(buffer), 0);
-			if (cnt <= 0)
+			recv(socket_arry[index], &buffer[0], sizeof(char) + sizeof(int), 0);
+			
+			switch (buffer[0])
 			{
-				// 클라이언트 접속 종료
-				closesocket(socket_arry[index]);
-				printf("클라이언트 접속 종료..\n");
+			case CHATTING:
+			{
+				recv_all(socket_arry[index], buffer + 5, sizeof(ChattingPacket) - 5, 0);
+				auto cast = reinterpret_cast<ChattingPacket*>(buffer);
 
-				// 배열에 소켓 제거
-				socket_arry[index] = 0;
-				continue;
-			}
-
-			// 메시지 출력
-			//if (buffer[0] == '0')
-			//{
-			//	WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), buffer, cnt, &dwTmp, NULL);
-			//	printf("\n");
-			//}
-
-			// 애코 처리
-			char send_buffer[BUFSIZE] = {};
-			//wsprintfA(send_buffer, "%d user(SEND) : %s", index, buffer);
-			//printf("%d user(SEND) : ", index);
-			strcpy_s(send_buffer, buffer);
-
-			//if (send_buffer[0] == '0')
-			//{
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
-					if (socket_arry[c] != 0 && c != index)
-					{
-						// 수신받은 클라이언트 제외 하고 애코 처리
+					if (c == index) continue;
+					if (0 == socket_arry[c]) continue;
 
-						auto i = send(socket_arry[c], send_buffer, strlen(send_buffer), 0);
-						//WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), send_buffer, strlen(send_buffer), &dwTmp, NULL);
-						//printf("\n");
+					send(socket_arry[c], buffer, sizeof(ChattingPacket), 0);
+					std::cout << "send_chat" << std::endl;
 
-					}
 				}
-			//}
+			}
+				break;
+			case BLOCK:
+			{
+				recv_all(socket_arry[index], buffer + 5, sizeof(BlockPacket) - 5, 0);
+				//std::cout << buffer << std::endl;
+				auto cast = reinterpret_cast<BlockPacket*>(buffer);
+				for (int c = 1; c < MAX_SOCKET; c++)
+				{
+					if (c == index) continue;
+					if (0 == socket_arry[c]) continue;
 
-			//else if (buffer[0] == '1')
-			//{
-			//	for (int c = 1; c < MAX_SOCKET; c++)
-			//	{
-			//		if (socket_arry[c] != 0 && c != index)
-			//		{
-			//			// 수신받은 클라이언트 제외 하고 애코 처리
+					send(socket_arry[c], buffer, sizeof(BlockPacket), 0);
+					std::cout << "send_block" << std::endl;
 
-			//			auto i = send(socket_arry[c], send_buffer, strlen(send_buffer), 0);
-			//			WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), send_buffer, strlen(send_buffer), &dwTmp, NULL);
-			//			printf("\n");
+				}
+			}
+				break;
+			case DESTROY:
+			{
+				recv_all(socket_arry[index], buffer + 5, sizeof(DestroyPacket) - 5, 0);
+				auto cast = reinterpret_cast<DestroyPacket*>(buffer);
+				for (int c = 1; c < MAX_SOCKET; c++)
+				{
+					if (c == index) continue;
+					if (0 == socket_arry[c]) continue;
 
-			//		}
-			//	}
-			//}
+					send(socket_arry[c], buffer, sizeof(DestroyPacket), 0);
+					std::cout << "send_destroy" << std::endl;
 
-		}//
+				}
+			}
+				break;
+			case PLAYER:
+			{
+				recv_all(socket_arry[index], buffer + 5, sizeof(PlayerPacket) - 5, 0);
+				auto cast = reinterpret_cast<PlayerPacket*>(buffer);
+				for (int c = 1; c < MAX_SOCKET; c++)
+				{
+					if (c == index) continue;
+					if (0 == socket_arry[c]) continue;
 
+					send(socket_arry[c], buffer, sizeof(PlayerPacket), 0);
+					std::cout << "send_player" << std::endl;
+
+				}
+			}
+				break;
+			default:
+				break;
+			}
+
+		}
 	}
 	// 서버 소켓 해제
 	closesocket(socket_arry[0]);
-	CloseHandle(hEvent_arry[0]);
 	return 0;
 }
