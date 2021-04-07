@@ -4,7 +4,6 @@
 #include "LevelEditorPawn.h"
 #include <Runtime/Engine/Public/DrawDebugHelpers.h>
 #include "math.h"
-#include "BlockBase.h"
 #include "CommandBlockBase.h"
 
 float old_location_x;
@@ -62,6 +61,11 @@ void ALevelEditorPawn::RightMouseFunc(bool flag)
 	}
 }
 
+void ALevelEditorPawn::SwitchPlaceMode()
+{
+	CommandBlockMode = !CommandBlockMode;
+}
+
 void ALevelEditorPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -94,9 +98,8 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 
 void ALevelEditorPawn::PlaceBlock()
 {
-	auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
 
-	if (BlockClass != NULL)
+	if (!CommandBlockMode)
 	{
 		FVector CLocation = this->GetActorLocation();
 		FVector CForwardVector = this->GetActorForwardVector();
@@ -185,7 +188,7 @@ void ALevelEditorPawn::PlaceBlock()
 			{
 				if (casted->GetApplyCommandBlocks())
 				{
-					casted->ApplyMove();
+					OpenCommandList(casted);
 				}
 
 			}
@@ -219,10 +222,9 @@ void ALevelEditorPawn::DestroyBlock()
 
 void ALevelEditorPawn::DrawDummyBlock(float value)
 {
-	auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
 	if (VisibleFlag)
 	{
-		if (BlockClass != NULL)
+		if (!CommandBlockMode)
 		{
 			FVector CLocation = this->GetActorLocation();
 			FVector CForwardVector = this->GetActorForwardVector();
@@ -338,7 +340,7 @@ void ALevelEditorPawn::SaveGame()
 		if (casted)
 		{
 			temp.location = casted->GetOrigin();
-			casted->GetMovement(temp.Move_MaxCount, temp.Move_Speed);
+			temp.CommandArray = casted->CommandBlockArray;
 		}
 		else
 			temp.location = target->GetActorLocation();
@@ -385,7 +387,7 @@ void ALevelEditorPawn::LoadGame()
 
 			if (casted)
 			{
-				casted->ApplyMoves(block.Move_MaxCount);
+				casted->CommandBlockArray = block.CommandArray;
 			}
 		}
 		
@@ -413,6 +415,10 @@ void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction<OneParamBool>("PickTarget", IE_Released, this, &ALevelEditorPawn::RightMouseFunc, false);
 	// ÁÂÅ¬¸¯
 	PlayerInputComponent->BindAction<OneParamBool>("Attack", IE_Released, this, &ALevelEditorPawn::LeftMouseFunc, false);
+
+	// ÅÇÅ°
+	PlayerInputComponent->BindAction("SwitchPlaceMode", IE_Pressed, this, &ALevelEditorPawn::SwitchPlaceMode);
+
 
 	// ¿ìÅ¬¸¯
 	//PlayerInputComponent->BindAction("PickTarget", IE_Pressed, this, &ALevelEditorPawn::PlaceBlock);

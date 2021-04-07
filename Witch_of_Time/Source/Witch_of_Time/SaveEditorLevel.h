@@ -4,7 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "BlockBase.h"
 #include "SaveEditorLevel.generated.h"
+
+// 세이브파일 버전에 따라 로드 함수 다르게 쓸것!
+constexpr char* Version = "0.1";
 
 /**
  * 
@@ -24,6 +28,9 @@ struct Fblockinfo {
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	float Move_Speed = 100;
 
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	TArray<FCommandBlockInfo> CommandArray;
+
 };
 
 UCLASS()
@@ -32,6 +39,9 @@ class WITCH_OF_TIME_API USaveEditorLevel : public USaveGame
 	GENERATED_BODY()
 	
 public:
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	FString SaveVersion;
+
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FString SaveSlotName;
 

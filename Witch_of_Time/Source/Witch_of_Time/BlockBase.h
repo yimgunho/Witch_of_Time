@@ -6,6 +6,22 @@
 #include "GameFramework/Actor.h"
 #include "BlockBase.generated.h"
 
+#define MAX_COMMANDBLOCK_COUNT 50
+
+
+USTRUCT(BlueprintType)
+struct FCommandBlockInfo {
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
+		int index;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
+		TArray<int32> data;
+};
+
+
+
 UCLASS()
 class WITCH_OF_TIME_API ABlockBase : public AActor
 {
@@ -30,6 +46,18 @@ public:
 	void GetMovement(int& maxcount, float& speed);
 
 	bool GetApplyCommandBlocks();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetBlock();
+
+	void ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<FCommandBlockInfo> CommandBlockArray;
+
+	int CurrentCommandBlock = 0;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,7 +66,16 @@ protected:
 	TArray<AActor*> Ignores;
 	TArray<AActor*> Actors;
 
+	// 커맨드 블럭의 실행 초기 변수 설정용 플래그
+	bool CommandBlockInitialized = false;
+
 	FVector OriginLocation;
+	// 이동 함수 구현을 위한 변수
+	FVector TargetLocation;
+	FVector DirectionVector;
+	float TargetDistance;
+
+	float Waited_Time = 0.f;
 
 
 	UPROPERTY(EditAnywhere)

@@ -67,11 +67,94 @@ bool ABlockBase::GetIsMovable()
 	return IsMovable;
 }
 
+void ABlockBase::ResetBlock()
+{
+	this->SetActorLocation(OriginLocation);
+	CommandBlockInitialized = false;
+	CurrentCommandBlock = 0;
+	this->SetActorTickEnabled(true);
+}
+
 void ABlockBase::GetMovement(int& maxcount, float& speed)
 {
 	maxcount = Move_MaxCount;
 	speed = Move_Speed;
 
+}
+
+void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
+{
+	switch (block.index)
+	{
+	case 0: // MoveBlock
+	{
+		FVector location = this->GetActorLocation();
+		if (!CommandBlockInitialized)
+		{
+			if (!block.data.IsValidIndex(0) || !block.data.IsValidIndex(1) || !block.data.IsValidIndex(2))
+			{
+				block.data.Empty();
+				block.data.Add(0);
+				block.data.Add(0);
+				block.data.Add(0);
+			}
+			TargetLocation = FVector(location.X + block.data[0] * 200, location.Y + block.data[1] * 200, location.Z + block.data[2] * 200);
+			DirectionVector = (FVector(block.data[0] * 200, block.data[1] * 200, block.data[2] * 200));
+			TargetDistance = DirectionVector.Size();
+			DirectionVector.Normalize();
+			CommandBlockInitialized = true;
+		}
+
+		float temp = 100 * DeltaTime;
+		if (temp >= TargetDistance)
+		{
+			this->SetActorLocation(TargetLocation);
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+		}
+		else
+		{
+			this->SetActorLocation(location + DirectionVector * temp);
+			TargetDistance -= temp;
+		}
+
+	}
+		break;
+	case 1: // 반복
+		CurrentCommandBlock = 0;
+		break;
+	case 2: // 블럭 초기화
+		ResetBlock();
+		break;
+	case 3:
+		if (!CommandBlockInitialized)
+		{
+			Waited_Time = 0.f;
+			CommandBlockInitialized = true;
+		}
+
+		Waited_Time += DeltaTime;
+
+		if (Waited_Time > 2.f)
+		{
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+		}
+		break;
+	default:
+		if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+		{
+			CommandBlockInitialized = false;
+			CurrentCommandBlock++;
+		}
+		break;
+	}
 }
 
 bool ABlockBase::GetApplyCommandBlocks()
@@ -119,6 +202,15 @@ void ABlockBase::Tick(float DeltaTime)
 		
 	}
 
+	if (CommandBlockArray.Num() != 0)
+	{
+		ExecuteCommandBlock(CommandBlockArray[CurrentCommandBlock], DeltaTime);
+	}
+
+
+
+	/*
+	* move 였던것
 	if (IsMovable && Move_MaxCount != 0)
 	{
 		if (MoveChange)
@@ -209,6 +301,6 @@ void ABlockBase::Tick(float DeltaTime)
 
 		
 	}
-
+	*/
 }
 
