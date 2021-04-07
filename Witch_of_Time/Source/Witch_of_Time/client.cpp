@@ -87,6 +87,9 @@ void Aclient::BeginPlay()
 	ToDestroyBlockName_CL_2 = "none";
 	ToDestroyBlock_cnt = 0;
 
+	todestroyblockid = -1;
+	todestroyblockid_2 = -1;
+
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
 
@@ -141,17 +144,20 @@ void Aclient::Tick(float DeltaTime)
 	//{
 	else if (ToDestroyBlock_cnt != 0)
 	{
-		std::string ToDestroyBlockName_CL_String(TCHAR_TO_UTF8(*ToDestroyBlockName_CL));
-		strcpy_s(destroypacket.todestroyblock, ToDestroyBlockName_CL_String.c_str());
+		//std::string ToDestroyBlockName_CL_String(TCHAR_TO_UTF8(*ToDestroyBlockName_CL));
+		//strcpy_s(destroypacket.todestroyblock, ToDestroyBlockName_CL_String.c_str());
+		destroypacket.block_id = todestroyblockid;
 		
 		////2
 		send(sock, (char*)&destroypacket, sizeof(destroypacket), 0);
 
 
-		std::string testdes_str(destroypacket.todestroyblock);
-		FString testdes(testdes_str.c_str());
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, testdes);
+		//std::string testdes_str(destroypacket.todestroyblock);
+		//FString testdes(testdes_str.c_str());
+		FString todestroyblockid_FString = FString::FromInt(todestroyblockid);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Send " + todestroyblockid_FString);
 
+		//todestroyblockid = 0;
 		ToDestroyBlockName_CL = "none";
 		ToDestroyBlock_cnt = 0;
 	}
@@ -218,10 +224,15 @@ void Aclient::Tick(float DeltaTime)
 	{
 		recv_all(sock, buffer + 5, sizeof(DestroyPacket) - 5, 0);
 		auto cast = reinterpret_cast<DestroyPacket*>(buffer);
-		std::string todestroyblock_String(cast->todestroyblock);
-		FString todestroyblock_FString(todestroyblock_String.c_str());
-		ToDestroyBlockName_CL_2 = todestroyblock_FString;
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Destroy recv");
+		//std::string todestroyblock_String(cast->todestroyblock);
+		int todestroyblockid_recv(cast->block_id);
+		todestroyblockid_2 = todestroyblockid_recv;
+
+		FString todestroyblockid_2_FString = FString::FromInt(todestroyblockid_2);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Recv " + todestroyblockid_2_FString);
+		//FString todestroyblock_FString(todestroyblock_String.c_str());
+		//ToDestroyBlockName_CL_2 = todestroyblock_FString;
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Destroy recv");
 	}
 	break;
 	case PLAYER:
@@ -239,64 +250,6 @@ void Aclient::Tick(float DeltaTime)
 	default:
 		break;
 	}
-
-	//if (recvpacket.id == 1)
-	//{
-	//	recv_all(sock, )
-
-	//	std::string Chatting_String(recvpacket.todestroyblock);
-	//	FString Chatting_FString(Chatting_String.c_str());
-	//	TempRecvStr = Chatting_FString;
-	//	recv_cnt = 0;
-
-	//	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TempRecvStr);
-	//	//Elapsed_Time = 0.f;
-	//}
-
-
-	//else if (recvpacket.id == 2)
-	//{
-
-	//	
-
-	//	block_position_x_2 = recvpacket.blocklocation_x;
-	//	block_position_y_2 = recvpacket.blocklocation_y;
-	//	block_position_z_2 = recvpacket.blocklocation_z;
-
-	//	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::SanitizeFloat(recvpacket.blocklocation_x) + FString::SanitizeFloat(recvpacket.blocklocation_y) + FString::SanitizeFloat(recvpacket.blocklocation_z) + "Block recv");
-
-	//}
-
-	//else if (recvpacket.id == 3)
-	//{
-	//	recv(sock, (char*)&recvpacket.todestroyblock, sizeof(recvpacket.todestroyblock), 0);
-
-	//	std::string todestroyblock_String(recvpacket.todestroyblock);
-	//	FString todestroyblock_FString(todestroyblock_String.c_str());
-	//	ToDestroyBlockName_CL_2 = todestroyblock_FString;
-	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Destroy recv");
-	//}
-
-	//
-
-	//else if (recvpacket.id == 4)
-	//{
-	//	recv(sock, (char*)&recvpacket.angle_x, sizeof(recvpacket.angle_x), 0);
-	//	recv(sock, (char*)&recvpacket.angle_y, sizeof(recvpacket.angle_y), 0);
-	//	recv(sock, (char*)&recvpacket.angle_z, sizeof(recvpacket.angle_z), 0);
-	//	recv(sock, (char*)&recvpacket.playerlocation_x, sizeof(recvpacket.playerlocation_x), 0);
-	//	recv(sock, (char*)&recvpacket.playerlocation_y, sizeof(recvpacket.playerlocation_y), 0);
-	//	recv(sock, (char*)&recvpacket.playerlocation_z, sizeof(recvpacket.playerlocation_z), 0);
-
-	//	angle_x_2 = recvpacket.angle_x;
-	//	angle_y_2 = recvpacket.angle_y;
-	//	angle_z_2 = recvpacket.angle_z;
-	//	position_x_2 = recvpacket.playerlocation_x;
-	//	position_y_2 = recvpacket.playerlocation_y;
-	//	position_z_2 = recvpacket.playerlocation_z;
-	//	//is_moving_2 = ;
-	//}
-
 
 }
 

@@ -88,6 +88,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UClass* ClassOfPlacedBlock;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int blockid_2 = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	int todestroyblockid = 0;
+
 	int dummycnt = 0;
 
 

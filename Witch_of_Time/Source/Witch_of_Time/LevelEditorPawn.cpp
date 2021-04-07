@@ -162,7 +162,7 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
-
+			blockid++;
 
 			location_x = hitResult.Location.X;
 			location_y = hitResult.Location.Y;
@@ -231,8 +231,8 @@ void ALevelEditorPawn::DestroyBlock()
 	{
 		ToDestroyBlock = hitResult.GetActor();
 		ToDestroyBlockName = hitResult.GetActor()->GetName();
+		//todestroyblockid = 0;
 		hitResult.GetActor()->Destroy();
-
 	}
 }
 

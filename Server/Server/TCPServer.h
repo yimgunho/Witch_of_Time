@@ -1,7 +1,9 @@
 #pragma once
 #pragma comment(lib,"ws2_32.lib")
 //#include <WinSock2.h>
+#include <vector>
 #include <string>
+#include <algorithm>
 #define BUFSIZE 1024
 #define CHATSIZE 256
 #define BLOCKSIZE 64
@@ -25,7 +27,7 @@ typedef struct BlockPacket
 	char id = BLOCK;
 	int packetsize = sizeof(BlockPacket);
 	int blockindex = 0;
-	float blocklocation_x = 0;;
+	float blocklocation_x = 0;
 	float blocklocation_y = 0;
 	float blocklocation_z = 0;
 
@@ -35,7 +37,8 @@ typedef struct DestroyPacket
 {
 	char id = DESTROY;
 	int packetsize = sizeof(DestroyPacket);
-	char todestroyblock[BLOCKSIZE] = "none";
+	int block_id = 0;
+	//char todestroyblock[BLOCKSIZE] = "none";
 }DestroyPacket;
 
 typedef struct PlayerPacket
@@ -49,6 +52,15 @@ typedef struct PlayerPacket
 	float playerlocation_y = 0;
 	float playerlocation_z = 0;
 }PlayerPacket;
+
+typedef struct BlockListPacket
+{
+	int block_id = 0;
+	float blocklocation_x = 0;
+	float blocklocation_y = 0;
+	float blocklocation_z = 0;
+
+}BlockListPacket;
 
 typedef struct RecvPacket
 {

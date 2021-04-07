@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
 
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
 
@@ -59,6 +62,9 @@ int main()
 	unsigned long noblock = 1;
 	int nRet = ioctlsocket(socket_arry[0], FIONBIO, &noblock);
 	char buffer[BUFSIZE];
+
+	std::vector<BlockListPacket> v;
+	BlockListPacket blocklistpacket;
 
 	// 메인 루프
 	while (1)
