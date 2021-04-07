@@ -4,7 +4,6 @@
 #include "LevelEditorPawn.h"
 #include <Runtime/Engine/Public/DrawDebugHelpers.h>
 #include "math.h"
-#include "BlockBase.h"
 #include "CommandBlockBase.h"
 
 float old_location_x;
@@ -64,13 +63,18 @@ void ALevelEditorPawn::RightMouseFunc(bool flag)
 	}
 }
 
+void ALevelEditorPawn::SwitchPlaceMode()
+{
+	CommandBlockMode = !CommandBlockMode;
+}
+
 void ALevelEditorPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	location_to_FVector = { temp_location_x, temp_location_y, temp_location_z };
 
-	if (!(temp_location_x == 0 && temp_location_y == 0 && temp_location_z == 0) && (temp_location_x > 0 && temp_location_y > 0 && temp_location_z > 0))
+	if ((temp_location_x != old_location_x) || (temp_location_y != old_location_y) || (temp_location_z != old_location_z))
 	{
 		FRotator Rotator = { 0,0,0 };
 
@@ -84,19 +88,10 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 		old_location_x = temp_location_x;
 		old_location_y = temp_location_y;
 		old_location_z = temp_location_z;
-		location_x = 0;
-		location_y = 0;
-		location_z = 0;
-		temp_location_x = 0;
-		temp_location_y = 0;
-		temp_location_z = 0;
 		FString temptempx = FString::SanitizeFloat(temp_location_x);
 		FString temptempy = FString::SanitizeFloat(temp_location_y);
 		FString temptempz = FString::SanitizeFloat(temp_location_z);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, temptempx + temptempy + temptempz);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
-
-
 	}
 
 	
@@ -106,9 +101,8 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 
 void ALevelEditorPawn::PlaceBlock()
 {
-	auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
 
-	if (BlockClass != NULL)
+	if (!CommandBlockMode)
 	{
 		FVector CLocation = this->GetActorLocation();
 		FVector CForwardVector = this->GetActorForwardVector();
@@ -162,7 +156,9 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
+
 			blockid++;
+
 
 			location_x = hitResult.Location.X;
 			location_y = hitResult.Location.Y;
@@ -176,9 +172,6 @@ void ALevelEditorPawn::PlaceBlock()
 			{
 				actor->Destroy();
 			}
-
-			BlockName = spawned->GetName();
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 		}
 	}
 	else
@@ -203,7 +196,7 @@ void ALevelEditorPawn::PlaceBlock()
 			{
 				if (casted->GetApplyCommandBlocks())
 				{
-					casted->ApplyMove();
+					OpenCommandList(casted);
 				}
 
 			}
@@ -232,16 +225,17 @@ void ALevelEditorPawn::DestroyBlock()
 		ToDestroyBlock = hitResult.GetActor();
 		ToDestroyBlockName = hitResult.GetActor()->GetName();
 		//todestroyblockid = 0;
+
 		hitResult.GetActor()->Destroy();
+
 	}
 }
 
 void ALevelEditorPawn::DrawDummyBlock(float value)
 {
-	auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
 	if (VisibleFlag)
 	{
-		if (BlockClass != NULL)
+		if (!CommandBlockMode)
 		{
 			FVector CLocation = this->GetActorLocation();
 			FVector CForwardVector = this->GetActorForwardVector();
@@ -357,7 +351,7 @@ void ALevelEditorPawn::SaveGame()
 		if (casted)
 		{
 			temp.location = casted->GetOrigin();
-			casted->GetMovement(temp.Move_MaxCount, temp.Move_Speed);
+			temp.CommandArray = casted->CommandBlockArray;
 		}
 		else
 			temp.location = target->GetActorLocation();
@@ -404,7 +398,7 @@ void ALevelEditorPawn::LoadGame()
 
 			if (casted)
 			{
-				casted->ApplyMoves(block.Move_MaxCount);
+				casted->CommandBlockArray = block.CommandArray;
 			}
 		}
 		
@@ -452,6 +446,10 @@ void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction<OneParamBool>("PickTarget", IE_Released, this, &ALevelEditorPawn::RightMouseFunc, false);
 	// 좌클릭
 	PlayerInputComponent->BindAction<OneParamBool>("Attack", IE_Released, this, &ALevelEditorPawn::LeftMouseFunc, false);
+
+	// R키
+	PlayerInputComponent->BindAction("SwitchPlaceMode", IE_Pressed, this, &ALevelEditorPawn::SwitchPlaceMode);
+
 
 	// 우클릭
 	//PlayerInputComponent->BindAction("PickTarget", IE_Pressed, this, &ALevelEditorPawn::PlaceBlock);

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/DefaultPawn.h"
+#include "BlockBase.h"
 #include "SaveEditorLevel.h"
 #include "Kismet/GameplayStatics.h"
 #include "LevelEditorPawn.generated.h"
@@ -20,8 +21,6 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 
 	UPROPERTY(EditAnywhere)
 	UClass* PlaceActor;
-
-
 
 	UPROPERTY(EditAnywhere)
 	UClass* DummyActor;
@@ -76,11 +75,8 @@ public:
 	bool LeftMousePressed = false;
 	bool RightMousePressed = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	bool VisibleFlag = true;
+	bool CommandBlockMode = false;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	FString BlockName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FString ToDestroyBlockName;
@@ -96,12 +92,16 @@ public:
 
 	int dummycnt = 0;
 
+	bool VisibleFlag = true;
+
 
 protected:
 	virtual void BeginPlay() override;
 
 	void LeftMouseFunc(bool flag);
 	void RightMouseFunc(bool flag);
+
+	void SwitchPlaceMode();
 
 	void PlaceBlock();
 	void DestroyBlock();
@@ -135,6 +135,10 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
 	AActor* SpawnDummyActor(UClass* blockclass);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "CommandBlock")
+		void OpenCommandList(ABlockBase* target);
+	
 
 public:
 	virtual void Tick(float DeltaTime) override;

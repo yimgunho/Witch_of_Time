@@ -1,8 +1,8 @@
 #pragma once
 
+#include "CoreMinimal.h"
 #include "../../../Server/Server/TCPServer.h"
 #include <string>
-#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "client.generated.h"
 

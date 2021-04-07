@@ -7,4 +7,5 @@ USaveEditorLevel::USaveEditorLevel()
 {
 	SaveSlotName = TEXT("QuickSave");
 	UserIndex = 0;
+	SaveVersion = Version;
 }
