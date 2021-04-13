@@ -76,7 +76,7 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 
 	location_to_FVector = { temp_location_x, temp_location_y, temp_location_z };
 
-	if ((temp_location_x != old_location_x) || (temp_location_y != old_location_y) || (temp_location_z != old_location_z))
+	if (!(temp_location_x == 0 && temp_location_y == 0 && temp_location_z == 0) && (temp_location_x > 0 && temp_location_y > 0 && temp_location_z > 0))
 	{
 		FRotator Rotator = { 0,0,0 };
 
@@ -91,10 +91,17 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 		old_location_x = temp_location_x;
 		old_location_y = temp_location_y;
 		old_location_z = temp_location_z;
+		location_x = 0;
+		location_y = 0;
+		location_z = 0;
+		temp_location_x = 0;
+		temp_location_y = 0;
+		temp_location_z = 0;
 		FString temptempx = FString::SanitizeFloat(temp_location_x);
 		FString temptempy = FString::SanitizeFloat(temp_location_y);
 		FString temptempz = FString::SanitizeFloat(temp_location_z);
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, temptempx + temptempy + temptempz);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 	}
 
 	
@@ -104,7 +111,6 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 
 void ALevelEditorPawn::PlaceBlock()
 {
-
 	if (!CommandBlockMode)
 	{
 		FVector CLocation = this->GetActorLocation();
@@ -174,6 +180,9 @@ void ALevelEditorPawn::PlaceBlock()
 			{
 				actor->Destroy();
 			}
+
+			BlockName = spawned->GetName();
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 		}
 	}
 	else

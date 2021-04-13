@@ -82,6 +82,9 @@ public:
 	bool VisibleFlag = true;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FString BlockName;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	FString ToDestroyBlockName;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
