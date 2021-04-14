@@ -124,8 +124,14 @@ int main()
 			
 			char buffer[BUFSIZE];
 			memset(buffer, 0, sizeof(buffer));
-			recv(socket_arry[index], &buffer[0], sizeof(char) + sizeof(int), 0);
-			
+			int ret = recv(socket_arry[index], &buffer[0], sizeof(char) + sizeof(int), 0);
+			if (ret == 0)
+			{
+				std::cout << index << "번 플레이어가 접속을 종료함" << std::endl;
+				closesocket(socket_arry[index]);
+				socket_arry[index] = 0;
+				continue;
+			}
 			switch (buffer[0])
 			{
 			case CHATTING:

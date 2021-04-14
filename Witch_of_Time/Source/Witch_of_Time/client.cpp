@@ -1,11 +1,11 @@
 #pragma warning (default : 4668)
+#include "client.h"
 #include <WinSock2.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include "client.h"
 
 #define SERVERIP "127.0.0.1"
 #define SERVERPORT 9000
