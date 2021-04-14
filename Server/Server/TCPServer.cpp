@@ -28,7 +28,7 @@ int main()
 
 	// 소켓 배열   다중 클라이언트 접속을 하기위해 배열을 사용.
 	SOCKET socket_arry[MAX_SOCKET] = { 0 };   //최대값은 위에서 정의해줌.
-
+	SOCKET socket_client;
 	// 대기용 소켓 생성
 	socket_arry[0] = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -61,11 +61,13 @@ int main()
 
 	unsigned long noblock = 1;
 	int nRet = ioctlsocket(socket_arry[0], FIONBIO, &noblock);
-	char buffer[BUFSIZE];
+	//char buffer[BUFSIZE];
 
-	std::vector<BlockListPacket> v;
-	BlockListPacket blocklistpacket;
+	//std::vector<BlockListPacket> blockvector;
+	//BlockListPacket blocklistpacket;
 
+	std::vector<BlockPacket> blockvector;
+	BlockPacket blocklistpacket;
 	// 메인 루프
 	while (1)
 	{
@@ -74,12 +76,11 @@ int main()
 		DestroyPacket destroypacket;
 		PlayerPacket playerpacket;
 		RecvPacket recvpacket;
+
 		// 소켓 접속 대기
-
-
 		SOCKADDR_IN clntAddr;
 		int clntLen = sizeof(clntAddr);
-		SOCKET socket_client = accept(socket_arry[0], (SOCKADDR*)&clntAddr, &clntLen);
+		socket_client = accept(socket_arry[0], (SOCKADDR*)&clntAddr, &clntLen);
 
 		if (INVALID_SOCKET != socket_client) {
 
@@ -102,6 +103,13 @@ int main()
 				socket_arry[index] = socket_client;
 				unsigned long noblock = 1;
 				int nRet = ioctlsocket(socket_arry[index], FIONBIO, &noblock);
+
+				for (int i = 0; i < blockvector.size(); ++i)
+				{
+					//auto cast = reinterpret_cast<BlockPacket*>(buffer);
+					send(socket_arry[index], (char*)&blockvector[i], sizeof(BlockPacket), 0);
+					std::cout << "작동 중" << std::endl;
+				}
 			}
 			else  //허용 소켓 초과
 			{
@@ -141,6 +149,29 @@ int main()
 				recv_all(socket_arry[index], buffer + 5, sizeof(BlockPacket) - 5, 0);
 				//std::cout << buffer << std::endl;
 				auto cast = reinterpret_cast<BlockPacket*>(buffer);
+
+				blocklistpacket.id = cast->id;
+				blocklistpacket.packetsize = cast->packetsize;
+				blocklistpacket.blockindex = cast->blockindex;
+				blocklistpacket.block_id = cast->block_id;
+				blocklistpacket.blocklocation_x = cast->blocklocation_x;
+				blocklistpacket.blocklocation_y = cast->blocklocation_y;
+				blocklistpacket.blocklocation_z = cast->blocklocation_z;
+				blockvector.push_back(blocklistpacket);
+
+				for (int i = 0; i < blockvector.size(); ++i)
+				{
+					std::cout << blockvector[i].id << " ";
+					std::cout << blockvector[i].packetsize << " ";
+					std::cout << blockvector[i].blockindex << " ";
+					std::cout << blockvector[i].block_id << " ";
+					std::cout << blockvector[i].blocklocation_x << " ";
+					std::cout << blockvector[i].blocklocation_y << " ";
+					std::cout << blockvector[i].blocklocation_z << " ";
+					std::cout << "/ ";
+				}
+				std::cout << std::endl;
+
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
 					if (c == index) continue;
@@ -156,6 +187,29 @@ int main()
 			{
 				recv_all(socket_arry[index], buffer + 5, sizeof(DestroyPacket) - 5, 0);
 				auto cast = reinterpret_cast<DestroyPacket*>(buffer);
+
+				for (int i = 0; i < blockvector.size(); ++i)
+				{
+					if (blockvector[i].block_id == cast->block_id)
+					{
+						blockvector.erase(blockvector.begin() + i);
+						break;
+					}
+				}
+
+				for (int i = 0; i < blockvector.size(); ++i)
+				{
+					std::cout << blockvector[i].id << " ";
+					std::cout << blockvector[i].packetsize << " ";
+					std::cout << blockvector[i].blockindex << " ";
+					std::cout << blockvector[i].block_id << " ";
+					std::cout << blockvector[i].blocklocation_x << " ";
+					std::cout << blockvector[i].blocklocation_y << " ";
+					std::cout << blockvector[i].blocklocation_z << " ";
+					std::cout << "/ ";
+				}
+				std::cout << std::endl;
+
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
 					if (c == index) continue;
@@ -187,8 +241,13 @@ int main()
 			}
 
 		}
+
+
 	}
 	// 서버 소켓 해제
 	closesocket(socket_arry[0]);
+	closesocket(socket_client);
+
+	WSACleanup();
 	return 0;
 }

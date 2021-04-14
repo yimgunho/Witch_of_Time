@@ -37,3 +37,5 @@ Server/.vs/Server/v16/.suo
 Server/.vs/Server/v16/Browse.VC.opendb
 Server/.vs/Server/v16/Browse.VC.db-wal
 Server/.vs/Server/v16/Browse.VC.db-shm
+Server/Debug/Server.exe
+Server/Server/Debug/Server.vcxproj.FileListAbsolute.txt

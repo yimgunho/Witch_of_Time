@@ -79,6 +79,8 @@ public:
 		int todestroyblockid;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int todestroyblockid_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int block_id_2;
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);
 

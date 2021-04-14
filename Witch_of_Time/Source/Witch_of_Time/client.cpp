@@ -23,8 +23,6 @@ void recv_all(SOCKET sock, char* buf, size_t len, int flag)
 
 SOCKET sock;
 
-
-
 const TCHAR* chars;
 const TCHAR* tempchars;
 
@@ -165,6 +163,7 @@ void Aclient::Tick(float DeltaTime)
 	else if (Block_cnt != 0)
 	{
 		blockpacket.blockindex = block_index;
+		blockpacket.block_id = block_id_2;
 		blockpacket.blocklocation_x = block_position_x;
 		blockpacket.blocklocation_y = block_position_y;
 		blockpacket.blocklocation_z = block_position_z;
@@ -250,7 +249,6 @@ void Aclient::Tick(float DeltaTime)
 	default:
 		break;
 	}
-
 }
 
 void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)
