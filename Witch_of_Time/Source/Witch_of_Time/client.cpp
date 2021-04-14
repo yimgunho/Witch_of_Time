@@ -163,7 +163,7 @@ void Aclient::Tick(float DeltaTime)
 	else if (Block_cnt != 0)
 	{
 		blockpacket.blockindex = block_index;
-		blockpacket.block_id = block_id_2;
+		blockpacket.block_id = block_id_CL;
 		blockpacket.blocklocation_x = block_position_x;
 		blockpacket.blocklocation_y = block_position_y;
 		blockpacket.blocklocation_z = block_position_z;
@@ -214,6 +214,7 @@ void Aclient::Tick(float DeltaTime)
 		recv_all(sock, buffer + 5, sizeof(BlockPacket) - 5, 0);
 		auto cast = reinterpret_cast<BlockPacket*>(buffer);
 		block_index = cast->blockindex;
+		block_id_CL_2 = cast->block_id;
 		block_position_x_2 = cast->blocklocation_x;
 		block_position_y_2 = cast->blocklocation_y;
 		block_position_z_2 = cast->blocklocation_z;
