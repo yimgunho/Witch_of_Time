@@ -21,6 +21,7 @@ protected:
 
 	void NativeConstruct() override;
 public:
+	UFUNCTION(BlueprintCallable, Category = "SaveLoad")
 	void SetMode(bool Mode);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

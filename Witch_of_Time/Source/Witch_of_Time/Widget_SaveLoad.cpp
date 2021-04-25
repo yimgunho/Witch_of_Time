@@ -56,6 +56,9 @@ TArray<FString> UWidget_SaveLoad::GetAllSaveGameSlotNames()
 
 void UWidget_SaveLoad::SetMode(bool Mode)
 {
+	MainText = Cast<UTextBlock>(GetWidgetFromName(TEXT("Title")));
+
+	SaveList = Cast<UScrollBox>(GetWidgetFromName(TEXT("SaveList")));
 	IsSaveMode = Mode;
 	if (Mode)
 	{
