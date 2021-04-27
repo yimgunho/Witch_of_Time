@@ -105,7 +105,7 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 			CommandBlockInitialized = true;
 		}
 
-		float temp = 100 * DeltaTime;
+		float temp = block.data[3] * 50 * DeltaTime;
 		if (temp >= TargetDistance)
 		{
 			this->SetActorLocation(TargetLocation);
@@ -138,7 +138,7 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 
 		Waited_Time += DeltaTime;
 
-		if (Waited_Time > 2.f)
+		if (Waited_Time > block.data[0])
 		{
 			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 			{
