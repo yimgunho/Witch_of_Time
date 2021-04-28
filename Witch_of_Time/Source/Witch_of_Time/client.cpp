@@ -6,6 +6,8 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <fstream>
+#include <string>
 
 #define SERVERIP "127.0.0.1"
 #define SERVERPORT 9000
@@ -19,6 +21,32 @@ void recv_all(SOCKET sock, char* buf, size_t len, int flag)
 		total_received += ret;
 	}
 
+}
+
+void err_quit(const char* msg)
+{
+	LPVOID lpMsgBuf;
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, WSAGetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf, 0, NULL);
+	MessageBox(NULL, (LPCTSTR)lpMsgBuf, (LPCWSTR)msg, MB_ICONERROR);
+	LocalFree(lpMsgBuf);
+	exit(1);
+}
+
+// 소켓 함수 오류 출력
+void err_display(const char* msg)
+{
+	LPVOID lpMsgBuf;
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, WSAGetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf, 0, NULL);
+	printf("[%s] %s", msg, (char*)lpMsgBuf);
+	LocalFree(lpMsgBuf);
 }
 
 SOCKET sock;
@@ -55,6 +83,59 @@ int BlockPositionCnt;
 
 
 
+//int main() 
+//{
+//	int retval;
+//
+//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "MAINTEST");
+//
+//	// 파일 열기
+//	FILE* fp = fopen("card10.png", "rb");
+//
+//	if (fp == NULL) {
+//		perror("fopen()");
+//		return 1;
+//	}
+//
+//	// 파일 이름 보내기(고정 길이+가변 길이)
+//	char filename[1024] = "card10.png";
+//	int length = strlen(filename) + 1;
+//
+//	retval = send(sock, (char*)&length, sizeof(int), 0); // 고정 길이
+//	if (retval == SOCKET_ERROR) err_quit("send()");
+//
+//	retval = send(sock, filename, length, 0);             // 가변 길이
+//	if (retval == SOCKET_ERROR) err_quit("send()");
+//
+//	// 파일 크기와 데이터 보내기(고정 길이+가변 길이)
+//
+//	//크기: 고정 길이
+//	fseek(fp, 0, SEEK_END);
+//	length = ftell(fp);
+//	retval = send(sock, (char*)&length, sizeof(int), 0);
+//	if (retval == SOCKET_ERROR) err_quit("send()");
+//	rewind(fp);
+//
+//	//데이터: 가변 길이
+//	char* buf = (char*)malloc(length);
+//	if (buf == NULL) {
+//		fprintf(stderr, "malloc() error!\n");
+//		exit(1);
+//	}
+//
+//	int nbytes = fread(buf, 1, length, fp);
+//	if (nbytes == length) {
+//		retval = send(sock, buf, nbytes, 0);
+//		if (retval == SOCKET_ERROR) err_quit("send()");
+//	}
+//	else {
+//		perror("fread()");
+//	}
+//	fclose(fp);
+//	return 0;
+//}
+
+
 Aclient::Aclient()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -73,6 +154,8 @@ void Aclient::SetBlockIndex(int index)
 void Aclient::BeginPlay()
 {
 	Super::BeginPlay();
+
+
 
 	TempSendStr = TEXT("STANDBY");
 	TempRecvStr = TEXT("TEST");
@@ -95,7 +178,7 @@ void Aclient::BeginPlay()
 
 	u_long on = 1;
 	ioctlsocket(sock, FIONBIO, &on);
-
+	
 	int optval = 0;
 	setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
 
@@ -105,7 +188,25 @@ void Aclient::BeginPlay()
 	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
 	serveraddr.sin_port = htons(SERVERPORT);
 	connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
+
+	//main();
+
+	//int sendBytes;
+	//int file_size;
+	//char buf[BUFSIZE];
+	//FILE* fp = fopen("card10.png", "rb"); //파일열기 
+	//fseek(fp, 0, SEEK_END); //끝으로가서 
+	//file_size = ftell(fp); //사이즈재고 
+	//fseek(fp, 0, SEEK_SET); //처음으로와서 
+	//snprintf(buf, sizeof(buf), "%d", file_size); //사이즈값을 buf에다가넣기 
+	//send(sock, buf, sizeof(buf), 0); //사이즈값전송 
+	//while ((sendBytes = fread(buf, sizeof(char), sizeof(buf), fp)) > 0) send(sock, buf, sendBytes, 0);
+	//파일이끝날때까지 읽고 보내고를 반복 
+	//fclose(fp);
+
 }
+
+
 
 // Called every frame
 void Aclient::Tick(float DeltaTime)
@@ -250,6 +351,8 @@ void Aclient::Tick(float DeltaTime)
 	default:
 		break;
 	}
+
+
 }
 
 void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -259,3 +362,6 @@ void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	closesocket(sock);
 	WSACleanup();
 }
+
+
+

@@ -18,11 +18,35 @@ void recv_all(SOCKET sock, char* buf, size_t len, int flag)
 	}
 }
 
+int myRecvn(SOCKET s, char* buf, int len, int flags)
+{
+	int received;
+	char* ptr = buf;
+	int left = len;
+
+	while (left > 0) {
+		received = recv(s, ptr, BUFSIZE, flags);
+		printf("받은 용량 : %d\n총 남은 용량 : %d\n", received, left);
+		if (received == SOCKET_ERROR)
+			return SOCKET_ERROR;
+		else if (received == 0)
+			break;
+
+		left -= received;
+		ptr += received;
+		printf(" -- 다운로드 중... %f %%\n\n", (float)((len - left) * 100.f / len));
+	}
+
+	return (len - left);
+}
+
 int main()
 {
 	// 소켓 라이브러리 초기화
 	WSADATA wsaData;
 	int token = WSAStartup(WINSOCK_VERSION, &wsaData);
+	char* filename;
+	int length;
 	//사용할 포트번호
 
 
@@ -104,6 +128,84 @@ int main()
 				unsigned long noblock = 1;
 				int nRet = ioctlsocket(socket_arry[index], FIONBIO, &noblock);
 
+				/////////////////////////////////////////////////////////////////
+				//recv_all(socket_client, (char*)&length, sizeof(int), 0);
+				////if (retval == SOCKET_ERROR) {
+				////	err_display("recv()");
+				////	break;
+				////}
+				////else if (retval == 0)
+				////	break;
+
+				//// 파일 이름 받기(가변 길이)
+				//filename = (char*)malloc(length);
+				//if (filename == NULL) {
+				//	fprintf(stderr, "malloc() error!\n");
+				//	break;
+				//}
+
+				//recv_all(socket_client, filename, length, 0);
+				////if (retval == SOCKET_ERROR) {
+				////	err_display("recv()");
+				////	break;
+				////}
+				//printf("-> 받을 파일 이름: %s\n", filename);
+
+				//// 파일 데이터 길이 받기(고정 길이)
+				//recv_all(socket_client, (char*)&length, sizeof(int), 0);
+				////if (retval == SOCKET_ERROR) {
+				////	err_display("recv()");
+				////	break;
+				////}
+				////else if (retval == 0)
+				////	break;
+
+				//printf("-> 받을 파일 크기: %d\n", length);
+
+				//// 파일 열기
+				//FILE* fp = fopen(filename, "wb");
+				//if (fp == NULL) {
+				//	perror("fopen()");
+				//	break;
+				//}
+
+				//// 파일 데이터 받기(가변 길이)
+				//char* buf = (char*)malloc(length);
+				//if (buf == NULL) {
+				//	fprintf(stderr, "malloc() error!\n");
+				//	exit(1);
+				//}
+
+				//myRecvn(socket_client, buf, length, 0);
+				////if (retval == SOCKET_ERROR) {
+				////	err_display("recv()");
+				////	break;
+				////}
+				////else if (retval == 0)
+				////	break;
+				/////////////////////////////////////////////////////////////////
+
+				//int totalBufferNum;
+				//int BufferNum = 0;
+				//int readBytes;
+				//int file_size;
+				//char buf[BUFSIZE];
+
+				//FILE* fp;
+				//fp = fopen("card10.png", "wb"); //파일열고 
+				//recv(socket_client, buf, BUFSIZE, 0); //파일사이즈받기 
+				//file_size = atol(buf); //char->long변환 
+				//totalBufferNum = file_size / BUFSIZE + 1;
+				////전체사이즈 = 파일전체사이즈 / 받고있는데이터
+				//while (BufferNum != totalBufferNum) {
+				//	readBytes = recv(socket_client, buf, BUFSIZE, 0);
+				//	//데이터와 데이터의크기 받기 
+				//	BufferNum++;
+				//	fwrite(buf, sizeof(char), readBytes, fp);
+				//	//데이터와 데이터의크기만큼 쓰기 
+				//}
+				////fclose(fp);
+
 				for (int i = 0; i < blockvector.size(); ++i)
 				{
 					//auto cast = reinterpret_cast<BlockPacket*>(buffer);
@@ -111,6 +213,7 @@ int main()
 					std::cout << "작동 중" << std::endl;
 				}
 			}
+
 			else  //허용 소켓 초과
 			{
 				printf("더이상 서버에 접속 할수 없습니다..\n");
@@ -132,6 +235,7 @@ int main()
 				socket_arry[index] = 0;
 				continue;
 			}
+
 			switch (buffer[0])
 			{
 			case CHATTING:
