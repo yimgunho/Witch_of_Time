@@ -406,6 +406,7 @@ void ALevelEditorPawn::LoadGame()
 
 		for (auto block : LoadGameInstance->blockarray)
 		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "LoadPlace");
 			auto spawned = GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
 
 			auto casted = Cast<ABlockBase>(spawned);
