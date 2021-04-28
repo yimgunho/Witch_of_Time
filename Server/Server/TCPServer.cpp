@@ -269,18 +269,18 @@ int main()
 				blocklistpacket.blocklocation_z = cast->blocklocation_z;
 				blockvector.push_back(blocklistpacket);
 
-				for (int i = 0; i < blockvector.size(); ++i)
-				{
-					std::cout << blockvector[i].id << " ";
-					std::cout << blockvector[i].packetsize << " ";
-					std::cout << blockvector[i].blockindex << " ";
-					std::cout << blockvector[i].block_id << " ";
-					std::cout << blockvector[i].blocklocation_x << " ";
-					std::cout << blockvector[i].blocklocation_y << " ";
-					std::cout << blockvector[i].blocklocation_z << " ";
-					std::cout << "/ ";
-				}
-				std::cout << std::endl;
+				//for (int i = 0; i < blockvector.size(); ++i)
+				//{
+				//	std::cout << blockvector[i].id << " ";
+				//	std::cout << blockvector[i].packetsize << " ";
+				//	std::cout << blockvector[i].blockindex << " ";
+				//	std::cout << blockvector[i].block_id << " ";
+				//	std::cout << blockvector[i].blocklocation_x << " ";
+				//	std::cout << blockvector[i].blocklocation_y << " ";
+				//	std::cout << blockvector[i].blocklocation_z << " ";
+				//	std::cout << "/ ";
+				//}
+				//std::cout << std::endl;
 
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
@@ -307,18 +307,18 @@ int main()
 					}
 				}
 
-				for (int i = 0; i < blockvector.size(); ++i)
-				{
-					std::cout << blockvector[i].id << " ";
-					std::cout << blockvector[i].packetsize << " ";
-					std::cout << blockvector[i].blockindex << " ";
-					std::cout << blockvector[i].block_id << " ";
-					std::cout << blockvector[i].blocklocation_x << " ";
-					std::cout << blockvector[i].blocklocation_y << " ";
-					std::cout << blockvector[i].blocklocation_z << " ";
-					std::cout << "/ ";
-				}
-				std::cout << std::endl;
+				//for (int i = 0; i < blockvector.size(); ++i)
+				//{
+				//	std::cout << blockvector[i].id << " ";
+				//	std::cout << blockvector[i].packetsize << " ";
+				//	std::cout << blockvector[i].blockindex << " ";
+				//	std::cout << blockvector[i].block_id << " ";
+				//	std::cout << blockvector[i].blocklocation_x << " ";
+				//	std::cout << blockvector[i].blocklocation_y << " ";
+				//	std::cout << blockvector[i].blocklocation_z << " ";
+				//	std::cout << "/ ";
+				//}
+				//std::cout << std::endl;
 
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
