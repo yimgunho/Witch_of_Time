@@ -254,7 +254,7 @@ void Aclient::Tick(float DeltaTime)
 		//std::string testdes_str(destroypacket.todestroyblock);
 		//FString testdes(testdes_str.c_str());
 		FString todestroyblockid_FString = FString::FromInt(todestroyblockid);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Send " + todestroyblockid_FString);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Send " + todestroyblockid_FString);
 
 		//todestroyblockid = 0;
 		ToDestroyBlockName_CL = "none";
@@ -273,7 +273,7 @@ void Aclient::Tick(float DeltaTime)
 		send(sock, (char*)&blockpacket, sizeof(blockpacket), 0);
 		Block_cnt = 0;
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::SanitizeFloat(blockpacket.blocklocation_x) + ", " + FString::SanitizeFloat(blockpacket.blocklocation_y) + ", " + FString::SanitizeFloat(blockpacket.blocklocation_z) + ", " + "Block Sent");
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::SanitizeFloat(blockpacket.blocklocation_x) + ", " + FString::SanitizeFloat(blockpacket.blocklocation_y) + ", " + FString::SanitizeFloat(blockpacket.blocklocation_z) + ", " + "Block Sent");
 	}
 
 	else if (is_moving != 0)
@@ -330,7 +330,7 @@ void Aclient::Tick(float DeltaTime)
 		todestroyblockid_2 = todestroyblockid_recv;
 
 		FString todestroyblockid_2_FString = FString::FromInt(todestroyblockid_2);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Recv " + todestroyblockid_2_FString);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Recv " + todestroyblockid_2_FString);
 		//FString todestroyblock_FString(todestroyblock_String.c_str());
 		//ToDestroyBlockName_CL_2 = todestroyblock_FString;
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Destroy recv");

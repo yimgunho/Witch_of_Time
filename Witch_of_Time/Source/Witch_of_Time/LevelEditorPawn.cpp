@@ -100,8 +100,8 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 		FString temptempx = FString::SanitizeFloat(temp_location_x);
 		FString temptempy = FString::SanitizeFloat(temp_location_y);
 		FString temptempz = FString::SanitizeFloat(temp_location_z);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, temptempx + temptempy + temptempz);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, temptempx + temptempy + temptempz);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 	}
 
 	
@@ -182,7 +182,7 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			BlockName = spawned->GetName();
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 		}
 	}
 	else
