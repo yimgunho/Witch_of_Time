@@ -93,6 +93,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int todestroyblockid = 0;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> id_arr_level;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> X_arr_level;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> Y_arr_level;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> Z_arr_level;
 	int dummycnt = 0;
 
 
