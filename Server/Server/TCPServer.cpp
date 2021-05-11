@@ -228,6 +228,7 @@ int main()
 			char buffer[BUFSIZE];
 			memset(buffer, 0, sizeof(buffer));
 			int ret = recv(socket_arry[index], &buffer[0], sizeof(char) + sizeof(int), 0);
+			
 			if (ret == 0)
 			{
 				std::cout << index << "번 플레이어가 접속을 종료함" << std::endl;
@@ -243,9 +244,16 @@ int main()
 				recv_all(socket_arry[index], buffer + 5, sizeof(ChattingPacket) - 5, 0);
 				auto cast = reinterpret_cast<ChattingPacket*>(buffer);
 
+				chattingpacket.id = cast->id;
+				chattingpacket.packetsize = cast->packetsize;
+				//chattingpacket.chatting = cast->chatting;
+				strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), cast->chatting);
+
+				std::cout << chattingpacket.chatting << std::endl;
+
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
-					if (c == index) continue;
+					//if (c == index) continue;
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(ChattingPacket), 0);

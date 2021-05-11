@@ -19,7 +19,8 @@ typedef struct ChattingPacket
 {
 	char id = CHATTING;
 	int packetsize = sizeof(ChattingPacket);
-	char chatting[CHATSIZE] = "none";
+	char chatting[CHATSIZE] = "";
+	//std::string chatting = "";
 }ChattingPacket;
 
 typedef struct BlockPacket

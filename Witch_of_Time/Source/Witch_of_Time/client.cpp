@@ -157,8 +157,8 @@ void Aclient::BeginPlay()
 
 
 
-	TempSendStr = TEXT("STANDBY");
-	TempRecvStr = TEXT("TEST");
+	TempSendStr = TEXT("");
+	TempRecvStr = TEXT("");
 	chars = *TempSendStr;
 
 	PositionCnt = 0;
@@ -226,17 +226,28 @@ void Aclient::Tick(float DeltaTime)
 	tempchars = *TempSendStr;
 
 
-	if (PositionCnt != 0 && cnt == 0)
+	if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
 	{
-		std::string Chatting_String(chattingpacket.chatting);
-		FString Chatting_FString(Chatting_String.c_str());
-		TempRecvStr = Chatting_FString;
-		recv_cnt = 0;
+		//std::string Chatting_String(chattingpacket.chatting);
+		//FString Chatting_FString(Chatting_String.c_str());
+		//TempRecvStr = Chatting_FString;
+
+		//chattingpacket.chatting = Chatting_String;
+
+		std::string TempSendString(TCHAR_TO_UTF8(*TempSendStr));
+		//chattingpacket.chatting = TempSendString;
+
+		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), TempSendString.c_str());
+		//FString HappyString(chattingpacket.chatting.c_str());
+
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, HappyString);
+		//recv_cnt = 0;
 
 		//2
 		send(sock, (char*)&chattingpacket, sizeof(chattingpacket), 0);
 
-		cnt++;
+		TempSendStr = "";
+		//cnt++;
 	}
 
 	//if (Elapsed_Time > 1.0f)
@@ -304,10 +315,17 @@ void Aclient::Tick(float DeltaTime)
 		recv_all(sock, buffer + 5, sizeof(ChattingPacket) - 5, 0);
 		auto cast = reinterpret_cast<ChattingPacket*>(buffer);
 		
-		std::string Chatting_String(cast->chatting);
-		FString Chatting_FString(Chatting_String.c_str());
-		TempRecvStr = Chatting_FString;
-		recv_cnt = 0;
+		std::string test(cast->chatting);
+		TempRecvStr = (test.c_str());
+		/*FString recv_chatting_FString(test.c_str());*/
+
+
+		//Chatting_FString = recv_chatting_FString;
+
+		//std::string Chatting_String(cast->chatting);
+		//FString Chatting_FString(Chatting_String.c_str());
+		//TempRecvStr = Chatting_FString;
+		//recv_cnt = 0;
 	}
 	break;
 	case BLOCK:
