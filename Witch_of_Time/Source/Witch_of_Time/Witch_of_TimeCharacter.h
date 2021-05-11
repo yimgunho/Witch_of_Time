@@ -68,6 +68,9 @@ protected:
 
 	void FastTime();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "TimeMagic")
+	void DrawBillboard(AActor* target);
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

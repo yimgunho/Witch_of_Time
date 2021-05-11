@@ -121,9 +121,7 @@ void AWitch_of_TimeCharacter::PickTarget()
 	{
 		PickedActor = hitResult.GetActor();
 
-		// 디버그 메시지 출력
-		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, PickedActor->GetName());
-
+		DrawBillboard(PickedActor);
 	}
 
 	
