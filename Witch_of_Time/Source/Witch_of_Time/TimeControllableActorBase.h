@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "BlockBase.h"
 #include "TimeControllableActorBase.generated.h"
 
 enum MeshIndex {
@@ -11,7 +11,7 @@ enum MeshIndex {
 };
 
 UCLASS()
-class WITCH_OF_TIME_API ATimeControllableActorBase : public AActor
+class WITCH_OF_TIME_API ATimeControllableActorBase : public ABlockBase
 {
 	GENERATED_BODY()
 	
@@ -19,7 +19,7 @@ public:
 	// Sets default values for this actor's properties
 	ATimeControllableActorBase();
 
-	UPROPERTY(VisibleAnywhere, Category = Mesh)
+	UPROPERTY(VisibleAnywhere, BluePrintReadWrite, Category = Mesh)
 		UStaticMeshComponent* m_CurrentMesh;
 
 	UPROPERTY(VisibleAnywhere, Category = Mesh)

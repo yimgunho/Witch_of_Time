@@ -64,18 +64,27 @@ void ATimeControllableActorBase::UpdateMesh()
 		m_PastMesh->SetVisibility(true);
 		m_CurrentMesh->SetVisibility(false);
 		m_FutureMesh->SetVisibility(false);
+		m_PastMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		m_CurrentMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		m_FutureMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 
 	case Current:
 		m_PastMesh->SetVisibility(false);
 		m_CurrentMesh->SetVisibility(true);
 		m_FutureMesh->SetVisibility(false);
+		m_PastMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		m_CurrentMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+		m_FutureMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		break;
 
 	case Future:
 		m_PastMesh->SetVisibility(false);
 		m_CurrentMesh->SetVisibility(false);
 		m_FutureMesh->SetVisibility(true);
+		m_PastMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		m_CurrentMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		m_FutureMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 		break;
 	}
 }

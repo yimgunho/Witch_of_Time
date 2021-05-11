@@ -246,10 +246,6 @@ void ALevelEditorPawn::DrawDummyBlock(float value)
 	if (VisibleFlag)
 	{
 		if (!CommandBlockMode)
-	//auto BlockClass = TSubclassOf<ABlockBase>(PlaceActor);
-	//if (VisibleFlag)
-	//{
-	//	if (BlockClass != NULL)
 		{
 			FVector CLocation = this->GetActorLocation();
 			FVector CForwardVector = this->GetActorForwardVector();
