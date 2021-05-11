@@ -75,6 +75,7 @@ public:
 	bool LeftMousePressed = false;
 	bool RightMousePressed = false;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	bool CommandBlockMode = false;
 
 

@@ -457,13 +457,8 @@ void ALevelEditorPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// ÁÂÅ¬¸¯
 	PlayerInputComponent->BindAction<OneParamBool>("Attack", IE_Released, this, &ALevelEditorPawn::LeftMouseFunc, false);
 
-	// ÅÇÅ°
+	// RÅ°
 	PlayerInputComponent->BindAction("SwitchPlaceMode", IE_Pressed, this, &ALevelEditorPawn::SwitchPlaceMode);
-
-	// ¿ìÅ¬¸¯
-	//PlayerInputComponent->BindAction("PickTarget", IE_Pressed, this, &ALevelEditorPawn::PlaceBlock);
-	// ÁÂÅ¬¸¯
-	//PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &ALevelEditorPawn::DestroyBlock);
 
 	PlayerInputComponent->BindAxis("Turn", this, &ALevelEditorPawn::DrawDummyBlock);
 
