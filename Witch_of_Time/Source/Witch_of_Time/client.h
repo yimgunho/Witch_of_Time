@@ -85,6 +85,8 @@ public:
 		int block_id_CL_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString Chatting_FString;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		bool is_changed_mode;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);

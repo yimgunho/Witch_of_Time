@@ -343,6 +343,17 @@ int main()
 			{
 				recv_all(socket_arry[index], buffer + 5, sizeof(PlayerPacket) - 5, 0);
 				auto cast = reinterpret_cast<PlayerPacket*>(buffer);
+
+				playerpacket.id = cast->id;
+				playerpacket.packetsize = cast->packetsize;
+				playerpacket.angle_x = cast->angle_x;
+				playerpacket.angle_y = cast->angle_y;
+				playerpacket.angle_z = cast->angle_z;
+				playerpacket.playerlocation_x = cast->playerlocation_x;
+				playerpacket.playerlocation_y = cast->playerlocation_y;
+				playerpacket.playerlocation_z = cast->playerlocation_z;
+
+
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
 					if (c == index) continue;

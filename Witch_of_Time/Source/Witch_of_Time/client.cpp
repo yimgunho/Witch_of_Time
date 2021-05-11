@@ -155,8 +155,6 @@ void Aclient::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-
 	TempSendStr = TEXT("");
 	TempRecvStr = TEXT("");
 	chars = *TempSendStr;
@@ -170,6 +168,7 @@ void Aclient::BeginPlay()
 
 	todestroyblockid = -1;
 	todestroyblockid_2 = -1;
+	is_changed_mode = false;
 
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
@@ -287,7 +286,7 @@ void Aclient::Tick(float DeltaTime)
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, FString::SanitizeFloat(blockpacket.blocklocation_x) + ", " + FString::SanitizeFloat(blockpacket.blocklocation_y) + ", " + FString::SanitizeFloat(blockpacket.blocklocation_z) + ", " + "Block Sent");
 	}
 
-	else if (is_moving != 0)
+	else if (is_moving != 0 || is_changed_mode == true)
 	{
 		playerpacket.angle_x = angle_x;
 		playerpacket.angle_y = angle_y;
@@ -299,6 +298,10 @@ void Aclient::Tick(float DeltaTime)
 		//4
 		send(sock, (char*)&playerpacket, sizeof(playerpacket), 0);
 
+		if (is_changed_mode == true)
+		{
+			is_changed_mode = false;
+		}
 	}
 
 
