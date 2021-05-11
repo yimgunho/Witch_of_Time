@@ -37,5 +37,6 @@ void UWidget_Settings::OnLoadButtonClicked()
 	SaveLoadWidget->SetMode(false);
 
 	RemoveFromParent();
+
 }
 
