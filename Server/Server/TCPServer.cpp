@@ -210,7 +210,7 @@ int main()
 				{
 					//auto cast = reinterpret_cast<BlockPacket*>(buffer);
 					send(socket_arry[index], (char*)&blockvector[i], sizeof(BlockPacket), 0);
-					std::cout << "작동 중" << std::endl;
+					//std::cout << "작동 중" << std::endl;
 				}
 			}
 
@@ -249,7 +249,6 @@ int main()
 				//chattingpacket.chatting = cast->chatting;
 				strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), cast->chatting);
 
-				std::cout << chattingpacket.chatting << std::endl;
 
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
@@ -257,7 +256,7 @@ int main()
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(ChattingPacket), 0);
-					std::cout << "send_chat" << std::endl;
+					//std::cout << "send_chat" << std::endl;
 
 				}
 			}
@@ -296,7 +295,7 @@ int main()
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(BlockPacket), 0);
-					std::cout << "send_block" << std::endl;
+					//std::cout << "send_block" << std::endl;
 
 				}
 			}
@@ -334,7 +333,7 @@ int main()
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(DestroyPacket), 0);
-					std::cout << "send_destroy" << std::endl;
+					//std::cout << "send_destroy" << std::endl;
 
 				}
 			}
@@ -360,7 +359,7 @@ int main()
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(PlayerPacket), 0);
-					std::cout << "send_player" << std::endl;
+					//std::cout << "send_player" << std::endl;
 
 				}
 			}
