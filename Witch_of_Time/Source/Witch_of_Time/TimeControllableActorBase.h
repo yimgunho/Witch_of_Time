@@ -22,16 +22,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BluePrintReadWrite, Category = Mesh)
 		UStaticMeshComponent* m_CurrentMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = Mesh)
+	UPROPERTY(VisibleAnywhere, BluePrintReadWrite, Category = Mesh)
 		UStaticMeshComponent* m_PastMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = Mesh)
+	UPROPERTY(VisibleAnywhere, BluePrintReadWrite, Category = Mesh)
 		UStaticMeshComponent* m_FutureMesh;
 
 	void ReturnTime();
 
 	void JumpTime();
 
+	UFUNCTION(BlueprintCallable, Category = "Mesh")
 	void UpdateMesh();
 
 protected:
@@ -39,7 +40,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int CurrentMesh = Current;
 
 public:	
