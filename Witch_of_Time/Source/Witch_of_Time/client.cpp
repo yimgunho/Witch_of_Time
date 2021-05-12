@@ -9,7 +9,7 @@
 #include <fstream>
 #include <string>
 
-#define SERVERIP "127.0.0.1"
+#define SERVERIP "192.168.60.64"
 #define SERVERPORT 9000
 
 
