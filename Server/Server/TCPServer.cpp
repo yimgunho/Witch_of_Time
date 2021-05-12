@@ -44,8 +44,6 @@ int main()
 	// 소켓 라이브러리 초기화
 	WSADATA wsaData;
 	int token = WSAStartup(WINSOCK_VERSION, &wsaData);
-	char* filename;
-	int length;
 	//사용할 포트번호
 
 
@@ -54,9 +52,6 @@ int main()
 	SOCKET socket_client;
 	// 대기용 소켓 생성
 	socket_arry[0] = socket(AF_INET, SOCK_STREAM, 0);
-
-	//printf("사용하려는 포트번호 : ");
-	//scanf("%s", &PORT);
 
 	// 소켓 주소 정보 작성
 	SOCKADDR_IN servAddr;
@@ -79,15 +74,10 @@ int main()
 		return -1;
 	}
 
-	//char* pText = "클라이언트 접속을 기다리고 있습니다.\n";
 	printf("클라이언트 접속을 기다리고 있습니다.\n");
 
 	unsigned long noblock = 1;
 	int nRet = ioctlsocket(socket_arry[0], FIONBIO, &noblock);
-	//char buffer[BUFSIZE];
-
-	//std::vector<BlockListPacket> blockvector;
-	//BlockListPacket blocklistpacket;
 
 	std::vector<BlockPacket> blockvector;
 	BlockPacket blocklistpacket;
@@ -127,89 +117,10 @@ int main()
 				unsigned long noblock = 1;
 				int nRet = ioctlsocket(socket_arry[index], FIONBIO, &noblock);
 
-				/////////////////////////////////////////////////////////////////
-				//recv_all(socket_client, (char*)&length, sizeof(int), 0);
-				////if (retval == SOCKET_ERROR) {
-				////	err_display("recv()");
-				////	break;
-				////}
-				////else if (retval == 0)
-				////	break;
-
-				//// 파일 이름 받기(가변 길이)
-				//filename = (char*)malloc(length);
-				//if (filename == NULL) {
-				//	fprintf(stderr, "malloc() error!\n");
-				//	break;
-				//}
-
-				//recv_all(socket_client, filename, length, 0);
-				////if (retval == SOCKET_ERROR) {
-				////	err_display("recv()");
-				////	break;
-				////}
-				//printf("-> 받을 파일 이름: %s\n", filename);
-
-				//// 파일 데이터 길이 받기(고정 길이)
-				//recv_all(socket_client, (char*)&length, sizeof(int), 0);
-				////if (retval == SOCKET_ERROR) {
-				////	err_display("recv()");
-				////	break;
-				////}
-				////else if (retval == 0)
-				////	break;
-
-				//printf("-> 받을 파일 크기: %d\n", length);
-
-				//// 파일 열기
-				//FILE* fp = fopen(filename, "wb");
-				//if (fp == NULL) {
-				//	perror("fopen()");
-				//	break;
-				//}
-
-				//// 파일 데이터 받기(가변 길이)
-				//char* buf = (char*)malloc(length);
-				//if (buf == NULL) {
-				//	fprintf(stderr, "malloc() error!\n");
-				//	exit(1);
-				//}
-
-				//myRecvn(socket_client, buf, length, 0);
-				////if (retval == SOCKET_ERROR) {
-				////	err_display("recv()");
-				////	break;
-				////}
-				////else if (retval == 0)
-				////	break;
-				/////////////////////////////////////////////////////////////////
-
-				//int totalBufferNum;
-				//int BufferNum = 0;
-				//int readBytes;
-				//int file_size;
-				//char buf[BUFSIZE];
-
-				//FILE* fp;
-				//fp = fopen("card10.png", "wb"); //파일열고 
-				//recv(socket_client, buf, BUFSIZE, 0); //파일사이즈받기 
-				//file_size = atol(buf); //char->long변환 
-				//totalBufferNum = file_size / BUFSIZE + 1;
-				////전체사이즈 = 파일전체사이즈 / 받고있는데이터
-				//while (BufferNum != totalBufferNum) {
-				//	readBytes = recv(socket_client, buf, BUFSIZE, 0);
-				//	//데이터와 데이터의크기 받기 
-				//	BufferNum++;
-				//	fwrite(buf, sizeof(char), readBytes, fp);
-				//	//데이터와 데이터의크기만큼 쓰기 
-				//}
-				////fclose(fp);
-
-				for (int i = 0; i < blockvector.size(); ++i)
+				for (unsigned int i = 0; i < blockvector.size(); ++i)
 				{
 					//auto cast = reinterpret_cast<BlockPacket*>(buffer);
 					send(socket_arry[index], (char*)&blockvector[i], sizeof(BlockPacket), 0);
-					//std::cout << "작동 중" << std::endl;
 				}
 			}
 
@@ -255,7 +166,6 @@ int main()
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(ChattingPacket), 0);
-					//std::cout << "send_chat" << std::endl;
 
 				}
 			}
@@ -263,7 +173,6 @@ int main()
 			case BLOCK:
 			{
 				recv_all(socket_arry[index], buffer + 5, sizeof(BlockPacket) - 5, 0);
-				//std::cout << buffer << std::endl;
 				auto cast = reinterpret_cast<BlockPacket*>(buffer);
 
 				blocklistpacket.id = cast->id;
@@ -275,26 +184,12 @@ int main()
 				blocklistpacket.blocklocation_z = cast->blocklocation_z;
 				blockvector.push_back(blocklistpacket);
 
-				//for (int i = 0; i < blockvector.size(); ++i)
-				//{
-				//	std::cout << blockvector[i].id << " ";
-				//	std::cout << blockvector[i].packetsize << " ";
-				//	std::cout << blockvector[i].blockindex << " ";
-				//	std::cout << blockvector[i].block_id << " ";
-				//	std::cout << blockvector[i].blocklocation_x << " ";
-				//	std::cout << blockvector[i].blocklocation_y << " ";
-				//	std::cout << blockvector[i].blocklocation_z << " ";
-				//	std::cout << "/ ";
-				//}
-				//std::cout << std::endl;
-
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
 					if (c == index) continue;
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(BlockPacket), 0);
-					//std::cout << "send_block" << std::endl;
 
 				}
 			}
@@ -304,7 +199,7 @@ int main()
 				recv_all(socket_arry[index], buffer + 5, sizeof(DestroyPacket) - 5, 0);
 				auto cast = reinterpret_cast<DestroyPacket*>(buffer);
 
-				for (int i = 0; i < blockvector.size(); ++i)
+				for (unsigned int i = 0; i < blockvector.size(); ++i)
 				{
 					if (blockvector[i].block_id == cast->block_id)
 					{
@@ -313,26 +208,12 @@ int main()
 					}
 				}
 
-				//for (int i = 0; i < blockvector.size(); ++i)
-				//{
-				//	std::cout << blockvector[i].id << " ";
-				//	std::cout << blockvector[i].packetsize << " ";
-				//	std::cout << blockvector[i].blockindex << " ";
-				//	std::cout << blockvector[i].block_id << " ";
-				//	std::cout << blockvector[i].blocklocation_x << " ";
-				//	std::cout << blockvector[i].blocklocation_y << " ";
-				//	std::cout << blockvector[i].blocklocation_z << " ";
-				//	std::cout << "/ ";
-				//}
-				//std::cout << std::endl;
-
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
 					if (c == index) continue;
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(DestroyPacket), 0);
-					//std::cout << "send_destroy" << std::endl;
 
 				}
 			}
@@ -365,7 +246,6 @@ int main()
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(PlayerPacket), 0);
-					//std::cout << "send_player" << std::endl;
 
 				}
 			}
@@ -375,7 +255,6 @@ int main()
 			}
 
 		}
-
 
 	}
 	// 서버 소켓 해제
