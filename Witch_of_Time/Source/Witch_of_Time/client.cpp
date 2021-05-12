@@ -170,6 +170,13 @@ void Aclient::BeginPlay()
 	todestroyblockid_2 = -1;
 	is_changed_mode = false;
 
+	angle_x_recv.Init(0, 10);
+	angle_y_recv.Init(0, 10);
+	angle_z_recv.Init(0, 10);
+	position_x_recv.Init(0, 10);
+	position_y_recv.Init(0, 10);
+	position_z_recv.Init(0, 10);
+
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
 
@@ -361,12 +368,20 @@ void Aclient::Tick(float DeltaTime)
 	{
 		recv_all(sock, buffer + 5, sizeof(PlayerPacket) - 5, 0);
 		auto cast = reinterpret_cast<PlayerPacket*>(buffer);
-		angle_x_2 = cast->angle_x;
-		angle_y_2 = cast->angle_y;
-		angle_z_2 = cast->angle_z;
-		position_x_2 = cast->playerlocation_x;
-		position_y_2 = cast->playerlocation_y;
-		position_z_2 = cast->playerlocation_z;
+		
+		angle_x_recv[cast->playerindex] = cast->angle_x;
+		angle_y_recv[cast->playerindex] = cast->angle_y;
+		angle_z_recv[cast->playerindex] = cast->angle_z;
+		position_x_recv[cast->playerindex] = cast->playerlocation_x;
+		position_y_recv[cast->playerindex] = cast->playerlocation_y;
+		position_z_recv[cast->playerindex] = cast->playerlocation_z;
+
+		//angle_x_2 = cast->angle_x;
+		//angle_y_2 = cast->angle_y;
+		//angle_z_2 = cast->angle_z;
+		//position_x_2 = cast->playerlocation_x;
+		//position_y_2 = cast->playerlocation_y;
+		//position_z_2 = cast->playerlocation_z;
 	}
 	break;
 	default:

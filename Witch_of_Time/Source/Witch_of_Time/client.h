@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "client.generated.h"
 
+#define MAX_SOCKET 10 
+
 UCLASS()
 class WITCH_OF_TIME_API Aclient : public AActor
 {
@@ -87,6 +89,20 @@ public:
 		FString Chatting_FString;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		bool is_changed_mode;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int playerindex_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> angle_x_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> angle_y_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> angle_z_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> position_x_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> position_y_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> position_z_recv;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);

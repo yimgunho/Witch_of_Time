@@ -7,7 +7,6 @@
 #include <string>
 #include <algorithm>
 
-#define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
 
 void recv_all(SOCKET sock, char* buf, size_t len, int flag)
 {
@@ -100,7 +99,7 @@ int main()
 		DestroyPacket destroypacket;
 		PlayerPacket playerpacket;
 		RecvPacket recvpacket;
-
+		PlayerPacket playerspos[MAX_SOCKET];
 		// 소켓 접속 대기
 		SOCKADDR_IN clntAddr;
 		int clntLen = sizeof(clntAddr);
@@ -345,6 +344,7 @@ int main()
 
 				playerpacket.id = cast->id;
 				playerpacket.packetsize = cast->packetsize;
+				playerpacket.playerindex = index;
 				playerpacket.angle_x = cast->angle_x;
 				playerpacket.angle_y = cast->angle_y;
 				playerpacket.angle_z = cast->angle_z;
@@ -352,6 +352,12 @@ int main()
 				playerpacket.playerlocation_y = cast->playerlocation_y;
 				playerpacket.playerlocation_z = cast->playerlocation_z;
 
+				playerspos[index].angle_x = cast->angle_x;
+				playerspos[index].angle_y = cast->angle_y;
+				playerspos[index].angle_z = cast->angle_z;
+				playerspos[index].playerlocation_x = cast->playerlocation_x;
+				playerspos[index].playerlocation_y = cast->playerlocation_y;
+				playerspos[index].playerlocation_z = cast->playerlocation_z;
 
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{

@@ -7,6 +7,7 @@
 #define BUFSIZE 1024
 #define CHATSIZE 256
 #define BLOCKSIZE 64
+#define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
 
 
 
@@ -47,6 +48,7 @@ typedef struct PlayerPacket
 {
 	char id = PLAYER;
 	int packetsize = sizeof(PlayerPacket);
+	int playerindex = 0;
 	float angle_x = 0;
 	float angle_y = 0;
 	float angle_z = 0;
