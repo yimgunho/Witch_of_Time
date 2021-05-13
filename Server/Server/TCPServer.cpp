@@ -156,7 +156,6 @@ int main()
 
 				chattingpacket.id = cast->id;
 				chattingpacket.packetsize = cast->packetsize;
-				//chattingpacket.chatting = cast->chatting;
 				strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), cast->chatting);
 
 
