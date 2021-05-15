@@ -2,10 +2,10 @@
 
 #include "../../../Server/Server/TCPServer.h"
 #include <string>
+#include <vector>
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "client.generated.h"
-
 #define MAX_SOCKET 10 
 
 UCLASS()
@@ -66,6 +66,16 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float block_position_z_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int32> commandblockindex_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int32> commandblockdata_0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int32> commandblockdata_1;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int32> commandblockdata_2;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int32> commandblockdata_3;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		AActor* ToDestroyBlock_CL;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int ToDestroyBlock_cnt = 0;
@@ -103,6 +113,20 @@ public:
 		TArray<float> position_y_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<float> position_z_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FString TempCommandBlockName;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int lengthofcommandlist;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> commandblockindex_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> commandblockdata_0_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> commandblockdata_1_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> commandblockdata_2_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> commandblockdata_3_recv;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);

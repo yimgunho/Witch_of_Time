@@ -8,12 +8,12 @@
 #define CHATSIZE 256
 #define BLOCKSIZE 64
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
-
+#define COMMANDS 9
 
 
 enum PacketId
 {
-	RECV, CHATTING, BLOCK, DESTROY, PLAYER
+	RECV, CHATTING, BLOCK, DESTROY, PLAYER, COMMAND
 };
 #pragma pack(push, 1)
 typedef struct ChattingPacket
@@ -33,7 +33,8 @@ typedef struct BlockPacket
 	float blocklocation_x = 0;
 	float blocklocation_y = 0;
 	float blocklocation_z = 0;
-
+	//int commandblockindex = -1;
+	//std::vector<int> commandblockdata;
 }BlockPacket;
 
 typedef struct DestroyPacket
@@ -66,6 +67,26 @@ typedef struct BlockListPacket
 	float blocklocation_z = 0;
 
 }BlockListPacket;
+
+typedef struct CommandPacket
+{
+	char id = COMMAND;
+	int packetsize = sizeof(CommandPacket);
+	char blockname[BLOCKSIZE] = "";
+	//std::vector<int> commandblockindex{ -1 };
+	//std::vector<int> commandblockdata_0{ 0 };
+	//std::vector<int> commandblockdata_1{ 0 };
+	//std::vector<int> commandblockdata_2{ 0 };
+	//std::vector<int> commandblockdata_3{ 0 };
+
+	int commandblockindex[COMMANDS] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+	int commandblockdata_0[COMMANDS] = { 0, };
+	int commandblockdata_1[COMMANDS] = { 0, };
+	int commandblockdata_2[COMMANDS] = { 0, };
+	int commandblockdata_3[COMMANDS] = { 0, };
+	
+
+}CommandPacket;
 
 typedef struct RecvPacket
 {

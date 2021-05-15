@@ -90,6 +90,7 @@ int main()
 		PlayerPacket playerpacket;
 		RecvPacket recvpacket;
 		PlayerPacket playerspos[MAX_SOCKET];
+		CommandPacket commandpacket;
 		// 소켓 접속 대기
 		SOCKADDR_IN clntAddr;
 		int clntLen = sizeof(clntAddr);
@@ -246,6 +247,51 @@ int main()
 
 					send(socket_arry[c], buffer, sizeof(PlayerPacket), 0);
 
+				}
+			}
+				break;
+			case COMMAND:
+			{
+				recv_all(socket_arry[index], buffer + 5, sizeof(CommandPacket) - 5, 0);
+				auto cast = reinterpret_cast<CommandPacket*>(buffer);
+
+				
+				strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), cast->blockname);
+				//for (int i = 0; i < sizeof(cast->commandblockindex); ++i)
+				//{
+				//	commandpacket.commandblockindex.emplace_back(cast->commandblockindex[i]);
+				//}
+				for (int i = 0; i < COMMANDS; ++i)
+				{
+					commandpacket.commandblockindex[i] = cast->commandblockindex[i];
+					commandpacket.commandblockdata_0[i] = cast->commandblockdata_0[i];
+					commandpacket.commandblockdata_1[i] = cast->commandblockdata_1[i];
+					commandpacket.commandblockdata_2[i] = cast->commandblockdata_2[i];
+					commandpacket.commandblockdata_3[i] = cast->commandblockdata_3[i];
+				}
+
+				for (int i = 0; i < COMMANDS; ++i)
+				{
+					std::cout << i << "번째 데이터" << std::endl;
+					std::cout << commandpacket.commandblockindex[i] << std::endl;
+					std::cout << commandpacket.commandblockdata_0[i] << std::endl;
+					std::cout << commandpacket.commandblockdata_1[i] << std::endl;
+					std::cout << commandpacket.commandblockdata_2[i] << std::endl;
+					std::cout << commandpacket.commandblockdata_3[i] << std::endl;
+					std::cout << "----------------------------------" << std::endl;
+				}
+
+				//for (int i = 0; i < sizeof(commandpacket.commandblockindex); ++i)
+				//{
+				//	std::cout << commandpacket.commandblockindex[i] << std::endl;
+				//}
+
+				for (int c = 1; c < MAX_SOCKET; c++)
+				{
+					if (c == index) continue;
+					if (0 == socket_arry[c]) continue;
+
+					send(socket_arry[c], buffer, sizeof(CommandPacket), 0);
 				}
 			}
 				break;

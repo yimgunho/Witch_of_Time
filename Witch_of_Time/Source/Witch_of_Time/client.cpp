@@ -9,7 +9,9 @@
 #include <fstream>
 #include <string>
 
-#define SERVERIP "192.168.60.64"
+//#define SERVERIP "192.168.60.64"
+#define SERVERIP "127.0.0.1"
+
 #define SERVERPORT 9000
 
 
@@ -133,6 +135,7 @@ void Aclient::Tick(float DeltaTime)
 	BlockPacket blockpacket;
 	DestroyPacket destroypacket;
 	PlayerPacket playerpacket;
+	CommandPacket commandpacket;
 	RecvPacket recvpacket;
 
 	int len = 0;
@@ -173,9 +176,61 @@ void Aclient::Tick(float DeltaTime)
 		blockpacket.blocklocation_x = block_position_x;
 		blockpacket.blocklocation_y = block_position_y;
 		blockpacket.blocklocation_z = block_position_z;
-
+		//blockpacket.commandblockindex = ;
+		//blockpacket.
 		send(sock, (char*)&blockpacket, sizeof(blockpacket), 0);
 		Block_cnt = 0;
+	}
+	else if (TempCommandBlockName != "")
+	{
+		std::string TempBlockNameString(TCHAR_TO_UTF8(*TempCommandBlockName));
+		strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), TempBlockNameString.c_str());
+		//for (int index : commandblockindex_CL) {
+		//	commandpacket.commandblockindex.push_back(index);
+		//}
+		//for (int data_0 : commandblockdata_0) {
+		//	commandpacket.commandblockdata_0.push_back(data_0);
+		//}
+		//for (int data_1 : commandblockdata_1) {
+		//	commandpacket.commandblockdata_1.push_back(data_1);
+		//}
+		//for (int data_2 : commandblockdata_2) {
+		//	commandpacket.commandblockdata_2.push_back(data_2);
+		//}
+		//for (int data_3 : commandblockdata_3) {
+		//	commandpacket.commandblockdata_3.push_back(data_3);
+		//}
+		//commandpacket.commandblockindex = commandblockindex_CL[0];
+		//commandpacket.commandblockdata_0 = commandblockdata_0[0];
+		//commandpacket.commandblockdata_1 = commandblockdata_1[0];
+		//commandpacket.commandblockdata_2 = commandblockdata_2[0];
+		//commandpacket.commandblockdata_3 = commandblockdata_3[0];
+
+		for (int i = 0; i < lengthofcommandlist; ++i)
+		{
+			commandpacket.commandblockindex[i] = commandblockindex_CL[i];
+			commandpacket.commandblockdata_0[i] = commandblockdata_0[i];
+			commandpacket.commandblockdata_1[i]	= commandblockdata_1[i];
+			commandpacket.commandblockdata_2[i]	= commandblockdata_2[i];
+			commandpacket.commandblockdata_3[i]	= commandblockdata_3[i];
+		}
+
+		send(sock, (char*)&commandpacket, sizeof(commandpacket), 0);
+
+		//for (int i = 0; i < lengthofcommandlist; ++i)
+		//{
+		//	commandpacket.commandblockindex[i] = -1;
+		//	commandpacket.commandblockdata_0[i] = 0;
+		//	commandpacket.commandblockdata_1[i] = 0;
+		//	commandpacket.commandblockdata_2[i] = 0;
+		//	commandpacket.commandblockdata_3[i] = 0;
+		//}
+		TempCommandBlockName = "";
+		commandblockindex_CL.Empty();
+		commandblockdata_0.Empty();
+		commandblockdata_1.Empty();
+		commandblockdata_2.Empty();
+		commandblockdata_3.Empty();
 	}
 
 	else if (is_moving != 0 || is_changed_mode == true)
@@ -243,6 +298,22 @@ void Aclient::Tick(float DeltaTime)
 		position_x_recv[cast->playerindex] = cast->playerlocation_x;
 		position_y_recv[cast->playerindex] = cast->playerlocation_y;
 		position_z_recv[cast->playerindex] = cast->playerlocation_z;
+	}
+	break;
+	case COMMAND:
+	{
+		recv_all(sock, buffer + 5, sizeof(CommandPacket) - 5, 0);
+		auto cast = reinterpret_cast<CommandPacket*>(buffer);
+		
+		//for (int i = 0; i < COMMANDS; ++i)
+		//{
+		//	commandblockindex_recv[i] = cast->commandblockindex[i];
+		//	commandblockdata_0_recv[i] = cast->commandblockdata_0[i];
+		//	commandblockdata_1_recv[i] = cast->commandblockdata_1[i];
+		//	commandblockdata_2_recv[i] = cast->commandblockdata_2[i];
+		//	commandblockdata_3_recv[i] = cast->commandblockdata_3[i];
+		//}
+
 	}
 	break;
 	default:
