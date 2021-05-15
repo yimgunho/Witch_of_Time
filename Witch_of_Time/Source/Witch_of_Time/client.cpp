@@ -305,14 +305,60 @@ void Aclient::Tick(float DeltaTime)
 		recv_all(sock, buffer + 5, sizeof(CommandPacket) - 5, 0);
 		auto cast = reinterpret_cast<CommandPacket*>(buffer);
 		
-		//for (int i = 0; i < COMMANDS; ++i)
-		//{
-		//	commandblockindex_recv[i] = cast->commandblockindex[i];
-		//	commandblockdata_0_recv[i] = cast->commandblockdata_0[i];
-		//	commandblockdata_1_recv[i] = cast->commandblockdata_1[i];
-		//	commandblockdata_2_recv[i] = cast->commandblockdata_2[i];
-		//	commandblockdata_3_recv[i] = cast->commandblockdata_3[i];
-		//}
+
+		//FString indexfstring = FString::FromInt(cast->commandblockindex[0]);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, indexfstring);
+		//FString fstring_0 = FString::FromInt(cast->commandblockdata_0[0]);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_0);
+		//FString fstring_1 = FString::FromInt(cast->commandblockdata_1[0]);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_1);
+		//FString fstring_2 = FString::FromInt(cast->commandblockdata_2[0]);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_2);
+		//FString fstring_3 = FString::FromInt(cast->commandblockdata_3[0]);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_3);
+		//commandblockindex_recv.Add(cast->commandblockindex[0]);
+		//commandblockdata_0_recv.Add(cast->commandblockdata_0[0]);
+		//commandblockdata_1_recv.Add(cast->commandblockdata_1[0]);
+		//commandblockdata_2_recv.Add(cast->commandblockdata_2[0]);
+		//commandblockdata_3_recv.Add(cast->commandblockdata_3[0]);
+		std::string tempcommandblock_recv(cast->blockname);
+		TempCommandBlockName_recv = (tempcommandblock_recv.c_str());
+		commandblockindex_recv.Reserve(9);
+		commandblockdata_0_recv.Reserve(9);
+		commandblockdata_1_recv.Reserve(9);
+		commandblockdata_2_recv.Reserve(9);
+		commandblockdata_3_recv.Reserve(9);
+
+		for (int i = 0; i < COMMANDS; ++i)
+		{
+			//FString indexfstring = FString::FromInt(cast->commandblockindex[i]);
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, indexfstring);
+			//FString fstring_0 = FString::FromInt(cast->commandblockdata_0[i]);
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_0);
+			//FString fstring_1 = FString::FromInt(cast->commandblockdata_1[i]);
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_1);
+			//FString fstring_2 = FString::FromInt(cast->commandblockdata_2[i]);
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_2);
+			//FString fstring_3 = FString::FromInt(cast->commandblockdata_3[i]);
+			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_3);
+			//commandblockindex_recv[i] = cast->commandblockindex[i];
+			//commandblockdata_0_recv[i] = cast->commandblockdata_0[i];
+			//commandblockdata_1_recv[i] = cast->commandblockdata_1[i];
+			//commandblockdata_2_recv[i] = cast->commandblockdata_2[i];
+			//commandblockdata_3_recv[i] = cast->commandblockdata_3[i];
+
+			commandblockindex_recv.Add(cast->commandblockindex[i]);
+			commandblockdata_0_recv.Add(cast->commandblockdata_0[i]);
+			commandblockdata_1_recv.Add(cast->commandblockdata_1[i]);
+			commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
+			commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
+		}
+
+		//commandblockindex_recv[0] = 0;
+		//commandblockdata_0_recv[0] = 5;
+		//commandblockdata_1_recv[0] = 0;
+		//commandblockdata_2_recv[0] = 0;
+		//commandblockdata_3_recv[0] = 5;
 
 	}
 	break;

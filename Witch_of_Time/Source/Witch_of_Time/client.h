@@ -118,15 +118,17 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int lengthofcommandlist;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<int> commandblockindex_recv;
+		TArray<int32> commandblockindex_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<int> commandblockdata_0_recv;
+		TArray<int32> commandblockdata_0_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<int> commandblockdata_1_recv;
+		TArray<int32> commandblockdata_1_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<int> commandblockdata_2_recv;
+		TArray<int32> commandblockdata_2_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<int> commandblockdata_3_recv;
+		TArray<int32> commandblockdata_3_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FString TempCommandBlockName_recv;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);

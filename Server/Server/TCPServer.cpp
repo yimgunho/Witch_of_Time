@@ -255,7 +255,7 @@ int main()
 				recv_all(socket_arry[index], buffer + 5, sizeof(CommandPacket) - 5, 0);
 				auto cast = reinterpret_cast<CommandPacket*>(buffer);
 
-				
+				//std::cout << cast->blockname << std::endl;
 				strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), cast->blockname);
 				//for (int i = 0; i < sizeof(cast->commandblockindex); ++i)
 				//{
