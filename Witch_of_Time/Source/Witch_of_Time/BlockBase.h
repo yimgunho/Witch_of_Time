@@ -120,6 +120,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UClass* m_MeltingClass = NULL;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
+		void SetShadow(bool flag);
+
 	float Elapsed_Time = 0.f;
 public:	
 	// Called every frame

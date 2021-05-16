@@ -72,7 +72,10 @@ void ABlockBase::ResetBlock()
 	this->SetActorLocation(OriginLocation);
 	CommandBlockInitialized = false;
 	CurrentCommandBlock = 0;
-	this->SetActorTickEnabled(true);
+	if (CommandBlockArray.Num() != 0 || ApplyHeatNearBlocks)
+	{
+		this->SetActorTickEnabled(true);
+	}
 }
 
 void ABlockBase::GetMovement(int& maxcount, float& speed)
