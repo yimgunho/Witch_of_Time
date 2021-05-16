@@ -231,7 +231,7 @@ void ALevelEditorPawn::DestroyBlock()
 	collisionParams.AddIgnoredActor(this);
 	collisionParams.AddIgnoredActor(DummyBlock);
 
-	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
 	{
 		ToDestroyBlock = hitResult.GetActor();
 		ToDestroyBlockName = hitResult.GetActor()->GetName();
