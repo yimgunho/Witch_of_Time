@@ -52,7 +52,6 @@ bool ALiquidBlockBase::PlaceDummy(FVector location, bool IsFlow)
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-	
 	auto PlacedActor = GetWorld()->SpawnActor<AActor>(Place, location, Rotator, SpawnParams);
 	auto casted = Cast<ALiquidBlockBase>(PlacedActor);
 	if (IsFlow == false)
@@ -127,17 +126,16 @@ bool ALiquidBlockBase::PlaceDummy(FVector location, bool IsFlow)
 		return false;
 }
 
-void ALiquidBlockBase::ResetBlock()
-{
-	Super::ResetBlock();
-	this->SetActorTickEnabled(true);
-}
-
 void ALiquidBlockBase::BeginPlay()
 {
 	ABlockBase::BeginPlay();
 
 	
+}
+void ALiquidBlockBase::ResetBlock()
+{
+	Super::ResetBlock();
+	this->SetActorTickEnabled(true);
 }
 
 
@@ -177,8 +175,8 @@ void ALiquidBlockBase::Tick(float DeltaTime)
 			}
 		}
 
-		
 		Elapsed_Time = 0.f;
+		this->SetActorTickEnabled(false);
 	}
 	
 }
