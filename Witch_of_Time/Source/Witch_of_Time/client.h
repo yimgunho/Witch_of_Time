@@ -129,6 +129,10 @@ public:
 		TArray<int32> commandblockdata_3_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempCommandBlockName_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int TempCommandBlockId;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int TempCommandBlockId_recv;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);

@@ -72,7 +72,7 @@ typedef struct CommandPacket
 {
 	char id = COMMAND;
 	int packetsize = sizeof(CommandPacket);
-	char blockname[BLOCKSIZE] = "";
+	int commandblock_id = -1;
 	//std::vector<int> commandblockindex{ -1 };
 	//std::vector<int> commandblockdata_0{ 0 };
 	//std::vector<int> commandblockdata_1{ 0 };

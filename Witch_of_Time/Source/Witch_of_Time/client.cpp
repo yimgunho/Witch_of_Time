@@ -103,6 +103,9 @@ void Aclient::BeginPlay()
 	position_y_recv.Init(0, 10);
 	position_z_recv.Init(0, 10);
 
+	TempCommandBlockId = -1;
+	TempCommandBlockId_recv = -1;
+
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
 
@@ -181,10 +184,9 @@ void Aclient::Tick(float DeltaTime)
 		send(sock, (char*)&blockpacket, sizeof(blockpacket), 0);
 		Block_cnt = 0;
 	}
-	else if (TempCommandBlockName != "")
+	else if (TempCommandBlockId != -1)
 	{
-		std::string TempBlockNameString(TCHAR_TO_UTF8(*TempCommandBlockName));
-		strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), TempBlockNameString.c_str());
+		commandpacket.commandblock_id = TempCommandBlockId;
 		//for (int index : commandblockindex_CL) {
 		//	commandpacket.commandblockindex.push_back(index);
 		//}
@@ -225,7 +227,7 @@ void Aclient::Tick(float DeltaTime)
 		//	commandpacket.commandblockdata_2[i] = 0;
 		//	commandpacket.commandblockdata_3[i] = 0;
 		//}
-		TempCommandBlockName = "";
+		TempCommandBlockId = -1;
 		commandblockindex_CL.Empty();
 		commandblockdata_0.Empty();
 		commandblockdata_1.Empty();
@@ -321,8 +323,9 @@ void Aclient::Tick(float DeltaTime)
 		//commandblockdata_1_recv.Add(cast->commandblockdata_1[0]);
 		//commandblockdata_2_recv.Add(cast->commandblockdata_2[0]);
 		//commandblockdata_3_recv.Add(cast->commandblockdata_3[0]);
-		std::string tempcommandblock_recv(cast->blockname);
-		TempCommandBlockName_recv = (tempcommandblock_recv.c_str());
+		//std::string tempcommandblock_recv(cast->blockname);
+		//TempCommandBlockName_recv = (tempcommandblock_recv.c_str());
+		TempCommandBlockId_recv = cast->commandblock_id;
 		commandblockindex_recv.Reserve(9);
 		commandblockdata_0_recv.Reserve(9);
 		commandblockdata_1_recv.Reserve(9);

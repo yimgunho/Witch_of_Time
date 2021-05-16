@@ -255,8 +255,9 @@ int main()
 				recv_all(socket_arry[index], buffer + 5, sizeof(CommandPacket) - 5, 0);
 				auto cast = reinterpret_cast<CommandPacket*>(buffer);
 
-				//std::cout << cast->blockname << std::endl;
-				strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), cast->blockname);
+				commandpacket.commandblock_id = cast->commandblock_id;
+				std::cout << "블록 id 번호: " << cast->commandblock_id << std::endl;
+				//strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), cast->blockname);
 				//for (int i = 0; i < sizeof(cast->commandblockindex); ++i)
 				//{
 				//	commandpacket.commandblockindex.emplace_back(cast->commandblockindex[i]);
