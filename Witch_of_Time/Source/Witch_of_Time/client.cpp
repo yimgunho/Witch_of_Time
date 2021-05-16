@@ -67,7 +67,6 @@ Aclient::Aclient()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Elapsed_Time = 0;
-	cnt = 0;
 	recv_cnt = 0;
 }
 
@@ -106,6 +105,8 @@ void Aclient::BeginPlay()
 	TempCommandBlockId = -1;
 	TempCommandBlockId_recv = -1;
 
+	is_ready = false;
+
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
 
@@ -139,6 +140,7 @@ void Aclient::Tick(float DeltaTime)
 	DestroyPacket destroypacket;
 	PlayerPacket playerpacket;
 	CommandPacket commandpacket;
+	ModePacket modepacket;
 	RecvPacket recvpacket;
 
 	int len = 0;
@@ -146,8 +148,15 @@ void Aclient::Tick(float DeltaTime)
 
 	tempchars = *TempSendStr;
 
+	
+	if (is_ready == true)
+	{
+		modepacket.readycount = 1;
+		send(sock, (char*)&modepacket, sizeof(modepacket), 0);
+		is_ready = false;
+	}
 
-	if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
+	else if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
 	{
 		std::string TempSendString(TCHAR_TO_UTF8(*TempSendStr));
 
@@ -234,7 +243,7 @@ void Aclient::Tick(float DeltaTime)
 		commandblockdata_2.Empty();
 		commandblockdata_3.Empty();
 	}
-
+	
 	else if (is_moving != 0 || is_changed_mode == true)
 	{
 		playerpacket.angle_x = angle_x;

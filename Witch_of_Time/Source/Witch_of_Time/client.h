@@ -22,8 +22,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempRecvStr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int cnt;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float position_x;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float position_y;
@@ -133,6 +131,10 @@ public:
 		int TempCommandBlockId;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int TempCommandBlockId_recv;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		bool is_ready;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		bool ready_switch;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);
