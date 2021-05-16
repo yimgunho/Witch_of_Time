@@ -48,7 +48,7 @@ public:
 	bool GetApplyCommandBlocks();
 
 	UFUNCTION(BlueprintCallable)
-	void ResetBlock();
+	virtual void ResetBlock();
 
 	void ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime);
 

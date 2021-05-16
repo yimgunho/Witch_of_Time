@@ -38,25 +38,38 @@ void ATimeControllableActorBase::BeginPlay()
 	
 }
 
+void ATimeControllableActorBase::ResetBlock()
+{
+	Super::ResetBlock();
+	CurrentMesh = InitMesh;
+	InitScale = ResetScale;
+	ChangeMesh();
+	SetActorScale3D(FVector(ResetScale));
+}
+
 void ATimeControllableActorBase::ReturnTime()
 {
-	if (CurrentMesh != Past)
+	if (CurrentMesh != Past && !Changing)
 	{
 		CurrentMesh--;
-		UpdateMesh();
+		Changing = true;
+		IsFuture = false;
+		Elapsed_Time = 0.f;
 	}
 }
 
 void ATimeControllableActorBase::JumpTime()
 {
-	if (CurrentMesh != Future)
+	if (CurrentMesh != Future && !Changing)
 	{
 		CurrentMesh++;
-		UpdateMesh();
+		Changing = true;
+		IsFuture = true;
+		Elapsed_Time = 0.f;
 	}
 }
 
-void ATimeControllableActorBase::UpdateMesh()
+void ATimeControllableActorBase::ChangeMesh()
 {
 	switch (CurrentMesh)
 	{
@@ -89,10 +102,52 @@ void ATimeControllableActorBase::UpdateMesh()
 	}
 }
 
+void ATimeControllableActorBase::InitalizeMesh()
+{
+	CurrentMesh = InitMesh;
+	ResetScale = InitScale;
+}
+
 // Called every frame
 void ATimeControllableActorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (Changing)
+	{
+		Elapsed_Time += DeltaTime;
+
+		if (Elapsed_Time > 1.0f)
+		{
+			if (IsFuture)
+			{
+				CurrScale = FMath::Lerp<float>(InitScale, 5 * InitScale, 1.f);
+			}
+			else
+			{
+				CurrScale = FMath::Lerp<float>(0.2 * InitScale, InitScale, 0.f);
+			}
+			SetActorScale3D(FVector(CurrScale));
+
+			Elapsed_Time = 0.f;
+			ChangeMesh();
+			Changing = false;
+			InitScale = CurrScale;
+		}
+		else
+		{
+			if (IsFuture)
+			{
+				CurrScale = FMath::Lerp<float>(InitScale, 5 * InitScale, Elapsed_Time);
+			}
+			else
+			{
+				CurrScale = FMath::Lerp<float>(0.2 * InitScale, InitScale, 1.f - Elapsed_Time);
+			}
+			SetActorScale3D(FVector(CurrScale));
+		}
+
+	}
 
 }
 
