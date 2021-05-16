@@ -43,6 +43,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	UClass* Place;
 
+	void ResetBlock() override;
 	
 
 	float Elapsed_Time = 0.f;

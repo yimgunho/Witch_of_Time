@@ -127,6 +127,12 @@ bool ALiquidBlockBase::PlaceDummy(FVector location, bool IsFlow)
 		return false;
 }
 
+void ALiquidBlockBase::ResetBlock()
+{
+	Super::ResetBlock();
+	this->SetActorTickEnabled(true);
+}
+
 void ALiquidBlockBase::BeginPlay()
 {
 	ABlockBase::BeginPlay();

@@ -45,6 +45,7 @@ void ATimeControllableActorBase::ResetBlock()
 	InitScale = ResetScale;
 	ChangeMesh();
 	SetActorScale3D(FVector(ResetScale));
+	this->SetActorTickEnabled(true);
 }
 
 void ATimeControllableActorBase::ReturnTime()
