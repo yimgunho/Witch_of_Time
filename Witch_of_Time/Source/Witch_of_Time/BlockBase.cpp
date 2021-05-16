@@ -166,10 +166,6 @@ bool ABlockBase::GetApplyCommandBlocks()
 void ABlockBase::BeginPlay()
 {
 	Super::BeginPlay();
-	if (ApplyHeatNearBlocks)
-	{
-		this->SetActorTickEnabled(true);
-	}
 	OriginLocation = this->GetActorLocation();
 
 }
