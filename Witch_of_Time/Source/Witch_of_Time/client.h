@@ -1,9 +1,9 @@
 #pragma once
 
+#include "CoreMinimal.h"
 #include "../../../Server/Server/TCPServer.h"
 #include <string>
 #include <vector>
-#include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "client.generated.h"
 #define MAX_SOCKET 10 
