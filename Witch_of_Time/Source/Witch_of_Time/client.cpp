@@ -247,7 +247,7 @@ void Aclient::Tick(float DeltaTime)
 		commandblockdata_3.Empty();
 	}
 	
-	else/* if (is_moving != 0 || is_changed_mode == true)*/
+	else if (is_moving != 0 || is_changed_mode == true)
 	{
 		playerpacket.angle_x = angle_x;
 		playerpacket.angle_y = angle_y;
