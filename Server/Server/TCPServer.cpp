@@ -81,6 +81,9 @@ int main()
 
 	std::vector<BlockPacket> blockvector;
 	BlockPacket blocklistpacket;
+	bool ready_count[MAX_SOCKET] = { 0, };
+	int all_ready_count = 0;
+	int current_players = 0;
 	// 메인 루프
 	while (1)
 	{
@@ -91,6 +94,8 @@ int main()
 		RecvPacket recvpacket;
 		PlayerPacket playerspos[MAX_SOCKET];
 		CommandPacket commandpacket;
+		ModeChangePacket modepacket;
+
 		// 소켓 접속 대기
 		SOCKADDR_IN clntAddr;
 		int clntLen = sizeof(clntAddr);
@@ -113,6 +118,8 @@ int main()
 			if (index > 0)  //하나라도 접속
 			{
 				printf("%d번 -> 클라이언트 접속\n", index);
+				current_players++;
+				printf("현재 클라이언트 수 %d\n", current_players);
 				// 배열에 소켓 저장
 				socket_arry[index] = socket_client;
 				unsigned long noblock = 1;
@@ -143,6 +150,8 @@ int main()
 			if (ret == 0)
 			{
 				std::cout << index << "번 플레이어가 접속을 종료함" << std::endl;
+				current_players--;
+				printf("현재 클라이언트 수 %d\n", current_players);
 				closesocket(socket_arry[index]);
 				socket_arry[index] = 0;
 				continue;
@@ -190,7 +199,6 @@ int main()
 					if (0 == socket_arry[c]) continue;
 
 					send(socket_arry[c], buffer, sizeof(BlockPacket), 0);
-
 				}
 			}
 				break;
@@ -296,6 +304,41 @@ int main()
 				}
 			}
 				break;
+			case MODECHANGE:
+			{
+				recv_all(socket_arry[index], buffer + 5, sizeof(ModeChangePacket) - 5, 0);
+				auto cast = reinterpret_cast<ModeChangePacket*>(buffer);
+
+				modepacket.id = cast->id;
+				modepacket.packetsize = cast->packetsize;
+				modepacket.readycount = 0;
+				std::cout << index << "번 클라이언트 " << cast->readycount << std::endl;
+				//ready_count[index] = cast->readycount;
+				
+				int ready_c = 0;
+				for (int c = 1; c < MAX_SOCKET; c++)
+				{
+					if (ready_count[c] == true)
+					{
+						ready_c++;
+					}
+				}
+				std::cout << "ready 상황 " << ready_c << "클라이언트 수 " << current_players << std::endl;
+				if (ready_c == current_players)
+				{
+					modepacket.all_ready_set = 1;
+					std::cout << "all ready!: "<< modepacket.all_ready_set << std::endl;
+
+					for (int c = 1; c < MAX_SOCKET; c++)
+					{
+						//if (c == index) continue;
+						if (0 == socket_arry[c]) continue;
+
+						send(socket_arry[c], buffer, sizeof(ModeChangePacket), 0);
+					}
+				}
+			}
+			break;
 			default:
 				break;
 			}

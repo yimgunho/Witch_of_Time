@@ -135,6 +135,8 @@ public:
 		bool is_ready;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		bool ready_switch;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int is_all_ready;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);

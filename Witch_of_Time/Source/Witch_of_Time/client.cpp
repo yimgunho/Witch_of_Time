@@ -80,6 +80,7 @@ void Aclient::BeginPlay()
 {
 	Super::BeginPlay();
 
+
 	TempSendStr = TEXT("");
 	TempRecvStr = TEXT("");
 	chars = *TempSendStr;
@@ -106,6 +107,8 @@ void Aclient::BeginPlay()
 	TempCommandBlockId_recv = -1;
 
 	is_ready = false;
+	ready_switch = false;
+	is_all_ready = 0;
 
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
@@ -140,8 +143,8 @@ void Aclient::Tick(float DeltaTime)
 	DestroyPacket destroypacket;
 	PlayerPacket playerpacket;
 	CommandPacket commandpacket;
-	ModePacket modepacket;
 	RecvPacket recvpacket;
+	ModeChangePacket modepacket;
 
 	int len = 0;
 	Elapsed_Time += DeltaTime;
@@ -149,11 +152,11 @@ void Aclient::Tick(float DeltaTime)
 	tempchars = *TempSendStr;
 
 	
-	if (is_ready == true)
+	if (ready_switch == true)
 	{
-		modepacket.readycount = 1;
+		modepacket.readycount = int(is_ready);
 		send(sock, (char*)&modepacket, sizeof(modepacket), 0);
-		is_ready = false;
+		ready_switch = false;
 	}
 
 	else if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
@@ -315,25 +318,7 @@ void Aclient::Tick(float DeltaTime)
 	{
 		recv_all(sock, buffer + 5, sizeof(CommandPacket) - 5, 0);
 		auto cast = reinterpret_cast<CommandPacket*>(buffer);
-		
 
-		//FString indexfstring = FString::FromInt(cast->commandblockindex[0]);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, indexfstring);
-		//FString fstring_0 = FString::FromInt(cast->commandblockdata_0[0]);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_0);
-		//FString fstring_1 = FString::FromInt(cast->commandblockdata_1[0]);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_1);
-		//FString fstring_2 = FString::FromInt(cast->commandblockdata_2[0]);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_2);
-		//FString fstring_3 = FString::FromInt(cast->commandblockdata_3[0]);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_3);
-		//commandblockindex_recv.Add(cast->commandblockindex[0]);
-		//commandblockdata_0_recv.Add(cast->commandblockdata_0[0]);
-		//commandblockdata_1_recv.Add(cast->commandblockdata_1[0]);
-		//commandblockdata_2_recv.Add(cast->commandblockdata_2[0]);
-		//commandblockdata_3_recv.Add(cast->commandblockdata_3[0]);
-		//std::string tempcommandblock_recv(cast->blockname);
-		//TempCommandBlockName_recv = (tempcommandblock_recv.c_str());
 		TempCommandBlockId_recv = cast->commandblock_id;
 		commandblockindex_recv.Reserve(9);
 		commandblockdata_0_recv.Reserve(9);
@@ -343,22 +328,6 @@ void Aclient::Tick(float DeltaTime)
 
 		for (int i = 0; i < COMMANDS; ++i)
 		{
-			//FString indexfstring = FString::FromInt(cast->commandblockindex[i]);
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, indexfstring);
-			//FString fstring_0 = FString::FromInt(cast->commandblockdata_0[i]);
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_0);
-			//FString fstring_1 = FString::FromInt(cast->commandblockdata_1[i]);
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_1);
-			//FString fstring_2 = FString::FromInt(cast->commandblockdata_2[i]);
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_2);
-			//FString fstring_3 = FString::FromInt(cast->commandblockdata_3[i]);
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, fstring_3);
-			//commandblockindex_recv[i] = cast->commandblockindex[i];
-			//commandblockdata_0_recv[i] = cast->commandblockdata_0[i];
-			//commandblockdata_1_recv[i] = cast->commandblockdata_1[i];
-			//commandblockdata_2_recv[i] = cast->commandblockdata_2[i];
-			//commandblockdata_3_recv[i] = cast->commandblockdata_3[i];
-
 			commandblockindex_recv.Add(cast->commandblockindex[i]);
 			commandblockdata_0_recv.Add(cast->commandblockdata_0[i]);
 			commandblockdata_1_recv.Add(cast->commandblockdata_1[i]);
@@ -366,19 +335,22 @@ void Aclient::Tick(float DeltaTime)
 			commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
 		}
 
-		//commandblockindex_recv[0] = 0;
-		//commandblockdata_0_recv[0] = 5;
-		//commandblockdata_1_recv[0] = 0;
-		//commandblockdata_2_recv[0] = 0;
-		//commandblockdata_3_recv[0] = 5;
+	}
+	break;
+	case MODECHANGE:
+	{
+		recv_all(sock, buffer + 5, sizeof(ModeChangePacket) - 5, 0);
+		auto cast = reinterpret_cast<ModeChangePacket*>(buffer);
+
+		FString allreadystr = FString::FromInt(cast->all_ready_set);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, allreadystr);
+		is_all_ready = cast->all_ready_set;
 
 	}
 	break;
 	default:
 		break;
 	}
-
-
 }
 
 void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)

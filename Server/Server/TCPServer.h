@@ -13,7 +13,7 @@
 
 enum PacketId
 {
-	RECV, CHATTING, BLOCK, DESTROY, PLAYER, COMMAND, MODE
+	RECV, CHATTING, BLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE
 };
 #pragma pack(push, 1)
 typedef struct ChattingPacket
@@ -88,12 +88,13 @@ typedef struct CommandPacket
 
 }CommandPacket;
 
-typedef struct ModePacket
+typedef struct ModeChangePacket
 {
-	char id = MODE;
-	int packetsize = sizeof(ModePacket);
+	char id = MODECHANGE;
+	int packetsize = sizeof(ModeChangePacket);
 	int readycount = 0;
-}ModePacket;
+	int all_ready_set = 0;
+}ModeChangePacket;
 
 typedef struct RecvPacket
 {
