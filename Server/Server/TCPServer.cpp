@@ -119,7 +119,7 @@ int main()
 			{
 				printf("%d번 -> 클라이언트 접속\n", index);
 				current_players++;
-				printf("현재 클라이언트 수 %d\n", current_players);
+				//printf("현재 클라이언트 수 %d\n", current_players);
 				// 배열에 소켓 저장
 				socket_arry[index] = socket_client;
 				unsigned long noblock = 1;
@@ -151,7 +151,7 @@ int main()
 			{
 				std::cout << index << "번 플레이어가 접속을 종료함" << std::endl;
 				current_players--;
-				printf("현재 클라이언트 수 %d\n", current_players);
+				//printf("현재 클라이언트 수 %d\n", current_players);
 				closesocket(socket_arry[index]);
 				socket_arry[index] = 0;
 				continue;
@@ -264,7 +264,7 @@ int main()
 				auto cast = reinterpret_cast<CommandPacket*>(buffer);
 
 				commandpacket.commandblock_id = cast->commandblock_id;
-				std::cout << "블록 id 번호: " << cast->commandblock_id << std::endl;
+				//std::cout << "블록 id 번호: " << cast->commandblock_id << std::endl;
 				//strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), cast->blockname);
 				//for (int i = 0; i < sizeof(cast->commandblockindex); ++i)
 				//{
@@ -279,16 +279,16 @@ int main()
 					commandpacket.commandblockdata_3[i] = cast->commandblockdata_3[i];
 				}
 
-				for (int i = 0; i < COMMANDS; ++i)
-				{
-					std::cout << i << "번째 데이터" << std::endl;
-					std::cout << commandpacket.commandblockindex[i] << std::endl;
-					std::cout << commandpacket.commandblockdata_0[i] << std::endl;
-					std::cout << commandpacket.commandblockdata_1[i] << std::endl;
-					std::cout << commandpacket.commandblockdata_2[i] << std::endl;
-					std::cout << commandpacket.commandblockdata_3[i] << std::endl;
-					std::cout << "----------------------------------" << std::endl;
-				}
+				//for (int i = 0; i < COMMANDS; ++i)
+				//{
+				//	std::cout << i << "번째 데이터" << std::endl;
+				//	std::cout << commandpacket.commandblockindex[i] << std::endl;
+				//	std::cout << commandpacket.commandblockdata_0[i] << std::endl;
+				//	std::cout << commandpacket.commandblockdata_1[i] << std::endl;
+				//	std::cout << commandpacket.commandblockdata_2[i] << std::endl;
+				//	std::cout << commandpacket.commandblockdata_3[i] << std::endl;
+				//	std::cout << "----------------------------------" << std::endl;
+				//}
 
 				//for (int i = 0; i < sizeof(commandpacket.commandblockindex); ++i)
 				//{
@@ -312,8 +312,8 @@ int main()
 				modepacket.id = cast->id;
 				modepacket.packetsize = cast->packetsize;
 				modepacket.readycount = 0;
-				std::cout << index << "번 클라이언트 " << cast->readycount << std::endl;
-				//ready_count[index] = cast->readycount;
+				//std::cout << index << "번 클라이언트 " << cast->readycount << std::endl;
+				ready_count[index] = cast->readycount;
 				
 				int ready_c = 0;
 				for (int c = 1; c < MAX_SOCKET; c++)
@@ -322,19 +322,24 @@ int main()
 					{
 						ready_c++;
 					}
+					//std::cout << index << ":" << ready_count[c] << std::endl;
 				}
-				std::cout << "ready 상황 " << ready_c << "클라이언트 수 " << current_players << std::endl;
+				//std::cout << "ready 상황 " << ready_c << "클라이언트 수 " << current_players << std::endl;
 				if (ready_c == current_players)
 				{
 					modepacket.all_ready_set = 1;
-					std::cout << "all ready!: "<< modepacket.all_ready_set << std::endl;
+					//std::cout << "all ready!: "<< modepacket.all_ready_set << std::endl;
 
 					for (int c = 1; c < MAX_SOCKET; c++)
 					{
 						//if (c == index) continue;
 						if (0 == socket_arry[c]) continue;
+						send(socket_arry[c], (char*)&modepacket, sizeof(ModeChangePacket), 0);
+					}
 
-						send(socket_arry[c], buffer, sizeof(ModeChangePacket), 0);
+					for (int c = 1; c < MAX_SOCKET; c++)
+					{
+						ready_count[c] = false;
 					}
 				}
 			}

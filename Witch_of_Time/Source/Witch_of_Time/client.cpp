@@ -247,7 +247,7 @@ void Aclient::Tick(float DeltaTime)
 		commandblockdata_3.Empty();
 	}
 	
-	else if (is_moving != 0 || is_changed_mode == true)
+	else/* if (is_moving != 0 || is_changed_mode == true)*/
 	{
 		playerpacket.angle_x = angle_x;
 		playerpacket.angle_y = angle_y;
@@ -342,8 +342,8 @@ void Aclient::Tick(float DeltaTime)
 		recv_all(sock, buffer + 5, sizeof(ModeChangePacket) - 5, 0);
 		auto cast = reinterpret_cast<ModeChangePacket*>(buffer);
 
-		FString allreadystr = FString::FromInt(cast->all_ready_set);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, allreadystr);
+		//FString allreadystr = FString::FromInt(cast->all_ready_set);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, allreadystr);
 		is_all_ready = cast->all_ready_set;
 
 	}
