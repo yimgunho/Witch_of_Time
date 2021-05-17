@@ -23,6 +23,7 @@ protected:
 	ALiquidBlockBase* ParentBlock;
 	ALiquidBlockBase* GrandParentBlock;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
 	TArray <ALiquidBlockBase*> ChildBlocks;
 
 	UFUNCTION(BlueprintCallable, Category = "Placing")

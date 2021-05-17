@@ -30,6 +30,8 @@ void ABlockBase::ApplyHeatEnergy(float heat)
 		
 
 		Cast<ABlockBase>(spawned)->temperature = temperature;
+		Cast<ABlockBase>(spawned)->ResetBlock();
+
 		this->Destroy();
 	}
 	else if (temperature < FreezingPoint && m_FreezingClass != NULL)
@@ -39,6 +41,8 @@ void ABlockBase::ApplyHeatEnergy(float heat)
 		auto spawned = GetWorld()->SpawnActor<AActor>(m_FreezingClass, this->GetActorLocation(), this->GetActorRotation(), SpawnParams);
 
 		Cast<ABlockBase>(spawned)->temperature = temperature;
+		Cast<ABlockBase>(spawned)->ResetBlock();
+
 		this->Destroy();
 	}
 }
