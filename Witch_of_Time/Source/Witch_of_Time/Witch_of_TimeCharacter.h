@@ -6,22 +6,28 @@
 #include "GameFramework/Character.h"
 #include "Witch_of_TimeCharacter.generated.h"
 
+constexpr int TIMEMAGIC_RANGE = 3000;
+
 UCLASS(config=Game)
 class AWitch_of_TimeCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	AActor* PickedActor = NULL;
+	
 public:
+
 	AWitch_of_TimeCharacter();
+
+	UPROPERTY(BlueprintReadWrite)
+		AActor* PickedActor = nullptr;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
