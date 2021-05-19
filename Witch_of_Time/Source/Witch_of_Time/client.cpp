@@ -334,11 +334,12 @@ void Aclient::Tick(float DeltaTime)
 		auto cast = reinterpret_cast<CommandPacket*>(buffer);
 
 		TempCommandBlockId_recv = cast->commandblock_id;
-		commandblockindex_recv.Reserve(9);
-		commandblockdata_0_recv.Reserve(9);
-		commandblockdata_1_recv.Reserve(9);
-		commandblockdata_2_recv.Reserve(9);
-		commandblockdata_3_recv.Reserve(9);
+
+		commandblockindex_recv.Init(-1, 0);
+		commandblockdata_0_recv.Init(0, 0);
+		commandblockdata_1_recv.Init(0, 0);
+		commandblockdata_2_recv.Init(0, 0);
+		commandblockdata_3_recv.Init(0, 0);
 
 		for (int i = 0; i < COMMANDS; ++i)
 		{
@@ -348,6 +349,7 @@ void Aclient::Tick(float DeltaTime)
 			commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
 			commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
 		}
+
 
 	}
 	break;
