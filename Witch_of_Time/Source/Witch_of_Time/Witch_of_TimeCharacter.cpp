@@ -117,11 +117,19 @@ void AWitch_of_TimeCharacter::PickTarget()
 	// 디버깅용 라인
 	// DrawDebugLine(GetWorld(), CLocation, CLocation + CForwardVector * 2000, FColor::Red, false, 1, 0, 1.0f);
 
-	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_WorldStatic, collisionParams))
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * TIMEMAGIC_RANGE, ECC_WorldStatic, collisionParams))
 	{
 		PickedActor = hitResult.GetActor();
 
-		DrawBillboard(PickedActor);
+		if (PickedActor->ActorHasTag("Returnable") || PickedActor->ActorHasTag("Jumpable"))
+		{
+			DrawBillboard(PickedActor);
+		}
+		else
+		{
+			PickedActor = nullptr;
+			DrawBillboard(PickedActor);
+		}
 	}
 
 	
