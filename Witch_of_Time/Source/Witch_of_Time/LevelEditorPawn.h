@@ -58,6 +58,18 @@ public:
 	float location_z;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float location_x_load;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float location_y_load;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float location_z_load;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int blockindex_load;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	float temp_location_x;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -102,6 +114,8 @@ public:
 		TArray<float> Y_arr_level;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<float> Z_arr_level;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> blockindex_arr_level;
 	int dummycnt = 0;
 
 

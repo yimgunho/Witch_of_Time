@@ -10,6 +10,7 @@ float old_location_x;
 float old_location_y;
 float old_location_z;
 FVector location_to_FVector;
+
 ALevelEditorPawn::ALevelEditorPawn()
 {
 	bUseControllerRotationPitch = true;
@@ -31,7 +32,7 @@ void ALevelEditorPawn::BeginPlay()
 	old_location_x = 0;
 	old_location_y = 0;
 	old_location_z = 0;
-
+	blockindex = 0;
 	blockid = 0;
 	ToDestroyBlockName = "none";
 

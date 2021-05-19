@@ -4,6 +4,7 @@
 #include "Widget_SaveData.h"
 #include "../../../Server/Server/TCPServer.h"
 #include "client.h"
+#include "LevelEditorPawn.h"
 
 
 void UWidget_SaveData::NativeConstruct()
@@ -48,10 +49,15 @@ void UWidget_SaveData::SaveGame()
 			{
 				temp.location = casted->GetOrigin();
 				temp.CommandArray = casted->CommandBlockArray;
+				temp.index_of_block = casted->blockindex;
+				FString blockindex_FString = FString::FromInt(temp.index_of_block);
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, blockindex_FString);
+
 			}
 			else
+			{
 				temp.location = target->GetActorLocation();
-
+			}
 			temp.blockclass = target->GetClass();
 
 
@@ -61,7 +67,7 @@ void UWidget_SaveData::SaveGame()
 		Instance->Savetime = FDateTime::Now();
 		UGameplayStatics::SaveGameToSlot(Instance, SaveName->GetText().ToString(), Instance->UserIndex);
 	}
-	
+
 }
 
 void UWidget_SaveData::LoadGame()
@@ -69,10 +75,11 @@ void UWidget_SaveData::LoadGame()
 	LoadGameInstance = Cast<USaveEditorLevel>(UGameplayStatics::CreateSaveGameObject(USaveEditorLevel::StaticClass()));
 	if (LoadGameInstance)
 	{
-		blockid_SaveData = 0;
 		location_x_SaveData = 0;
 		location_y_SaveData = 0;
 		location_z_SaveData = 0;
+		blockindex_SaveData = 0;
+
 		TArray<AActor*> actors;
 		UGameplayStatics::GetAllActorsWithTag(GetWorld(), "Removable", actors);
 		for (auto target : actors)
@@ -102,24 +109,25 @@ void UWidget_SaveData::LoadGame()
 				//blockpacket.blocklocation_x = block_position_x;
 				//blockpacket.blocklocation_y = block_position_y;
 				//blockpacket.blocklocation_z = block_position_z;
-
 				blockid_SaveData++;
-
+				
 				location_x_SaveData = block.location.X;
 				location_y_SaveData = block.location.Y;
 				location_z_SaveData = block.location.Z;
+				blockindex_SaveData = block.index_of_block;
 
 				id_arr.Add(blockid_SaveData);
 				location_x_arr.Add(block.location.X);
 				location_y_arr.Add(block.location.Y);
 				location_z_arr.Add(block.location.Z);
-
+				blockindex_arr.Add(block.index_of_block);
 
 				auto casted = Cast<ABlockBase>(spawned);
 
 				if (casted)
 				{
 					casted->CommandBlockArray = block.CommandArray;
+					//casted->blockindex = block.index_of_block;
 				}
 			}
 		}
@@ -153,4 +161,10 @@ float UWidget_SaveData::Transblocklocation_z()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblocklocation_z");
 	return location_z_SaveData;
+}
+
+int UWidget_SaveData::Transblockindex()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblockindex");
+	return blockindex_SaveData;
 }

@@ -37,6 +37,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		float location_z_SaveData;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int blockindex_SaveData;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int> id_arr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<float> location_x_arr;
@@ -44,7 +46,8 @@ public:
 		TArray<float> location_y_arr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<float> location_z_arr;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> blockindex_arr;
 	UFUNCTION(BlueprintCallable, Category = "SaveLoad")
 		void SaveGame();
 
@@ -63,6 +66,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		float Transblocklocation_z();
 
+	UFUNCTION(BlueprintCallable)
+		int Transblockindex();
 
 
 };

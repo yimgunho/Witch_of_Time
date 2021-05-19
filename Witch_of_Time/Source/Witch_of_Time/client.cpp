@@ -140,6 +140,7 @@ void Aclient::Tick(float DeltaTime)
 	char buffer[BUFSIZE];
 	ChattingPacket chattingpacket;
 	BlockPacket blockpacket;
+	BlockPacket blockpacket_load;
 	DestroyPacket destroypacket;
 	PlayerPacket playerpacket;
 	CommandPacket commandpacket;
@@ -151,7 +152,19 @@ void Aclient::Tick(float DeltaTime)
 
 	tempchars = *TempSendStr;
 
-	
+	if (Block_cnt_load != 0)
+	{
+		blockpacket_load.blockindex = blockindex_load;
+		blockpacket_load.block_id = block_id_CL;
+		blockpacket_load.blocklocation_x = block_position_x_load;
+		blockpacket_load.blocklocation_y = block_position_y_load;
+		blockpacket_load.blocklocation_z = block_position_z_load;
+		//blockpacket.commandblockindex = ;
+		//blockpacket.
+		send(sock, (char*)&blockpacket_load, sizeof(blockpacket_load), 0);
+		Block_cnt_load = 0;
+	}
+
 	if (ready_switch == true)
 	{
 		modepacket.readycount = int(is_ready);

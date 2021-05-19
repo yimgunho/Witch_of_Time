@@ -84,6 +84,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int Block_cnt = 0;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int Block_cnt_load = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int block_index;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int todestroyblockid;
@@ -137,6 +139,14 @@ public:
 		bool ready_switch;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int is_all_ready;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float block_position_x_load;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float block_position_y_load;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		float block_position_z_load;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int blockindex_load;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);

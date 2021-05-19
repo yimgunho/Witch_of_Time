@@ -21,6 +21,8 @@ struct Fblockinfo {
 	FVector location;
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	UClass* blockclass;
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	int index_of_block;
 
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	int Move_MaxCount = 0;
