@@ -152,6 +152,7 @@ void Aclient::Tick(float DeltaTime)
 
 	tempchars = *TempSendStr;
 
+
 	if (Block_cnt_load != 0)
 	{
 		blockpacket_load.blockindex = blockindex_load;

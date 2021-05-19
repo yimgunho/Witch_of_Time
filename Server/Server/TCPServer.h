@@ -28,7 +28,7 @@ typedef struct BlockPacket
 {
 	char id = BLOCK;
 	int packetsize = sizeof(BlockPacket);
-	int blockindex = 0;
+	int blockindex = 1;
 	int block_id = 0;
 	float blocklocation_x = 0;
 	float blocklocation_y = 0;
@@ -60,7 +60,7 @@ typedef struct PlayerPacket
 
 typedef struct BlockListPacket
 {
-	int blockindex = 0;
+	int blockindex = 1;
 	int block_id = 0;
 	float blocklocation_x = 0;
 	float blocklocation_y = 0;

@@ -37,7 +37,7 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 public:
 	ALevelEditorPawn();
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	int blockindex;
+	int blockindex = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int blockid;

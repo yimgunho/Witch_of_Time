@@ -56,7 +56,7 @@ public:
 		TArray<FCommandBlockInfo> CommandBlockArray;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int blockindex = 0;
+		int blockindex = 1;
 
 	int CurrentCommandBlock = 0;
 

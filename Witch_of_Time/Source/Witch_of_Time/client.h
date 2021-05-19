@@ -86,7 +86,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int Block_cnt_load = 0;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int block_index;
+		int block_index = 1;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int todestroyblockid;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
