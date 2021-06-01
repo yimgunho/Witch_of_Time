@@ -125,7 +125,7 @@ void ALevelEditorPawn::PlaceBlock()
 		collisionParams.AddIgnoredActor(DummyBlock);
 
 		FRotator Rotator = { 0,0,0 };
-		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams))
 		{
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -199,7 +199,7 @@ void ALevelEditorPawn::PlaceBlock()
 		collisionParams.AddIgnoredActor(DummyBlock);
 
 		FRotator Rotator = { 0,0,0 };
-		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+		if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams))
 		{
 			FVector Location = hitResult.GetActor()->GetActorLocation();
 			auto target = hitResult.GetActor();
@@ -232,7 +232,7 @@ void ALevelEditorPawn::DestroyBlock()
 	collisionParams.AddIgnoredActor(this);
 	collisionParams.AddIgnoredActor(DummyBlock);
 
-	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
+	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
 	{
 		ToDestroyBlock = hitResult.GetActor();
 		ToDestroyBlockName = hitResult.GetActor()->GetName();
@@ -259,7 +259,7 @@ void ALevelEditorPawn::DrawDummyBlock(float value)
 			collisionParams.AddIgnoredActor(DummyBlock);
 
 			FRotator Rotator = { 0,0,0 };
-			if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+			if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams))
 			{
 				FVector Location = hitResult.GetComponent()->GetComponentLocation();
 
@@ -318,7 +318,7 @@ void ALevelEditorPawn::DrawDummyBlock(float value)
 			collisionParams.AddIgnoredActor(DummyBlock);
 
 			FRotator Rotator = { 0,0,0 };
-			if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Camera, collisionParams))
+			if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams))
 			{
 				FVector Location = hitResult.GetActor()->GetActorLocation();
 				auto target = hitResult.GetActor();
