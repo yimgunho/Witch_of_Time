@@ -9,7 +9,7 @@
 #define BLOCKSIZE 64
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
 #define COMMANDS 9
-#define MAXLOADBLOCK 10
+#define MAXLOADBLOCK 50
 
 enum PacketId
 {

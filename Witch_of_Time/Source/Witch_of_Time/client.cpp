@@ -110,6 +110,11 @@ void Aclient::BeginPlay()
 	is_ready = false;
 	ready_switch = false;
 	is_all_ready = 0;
+	id_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
+	location_x_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
+	location_y_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
+	location_z_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
+	blockindex_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
 
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
@@ -169,6 +174,8 @@ void Aclient::Tick(float DeltaTime)
 
 	if (Block_cnt_load != 0)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "LoadData Send Enter");
+
 		for (int i = 0; i < blockindex_arr_CL.Num(); ++i)
 		{
 			//blockpacket_load.id;
@@ -305,20 +312,20 @@ void Aclient::Tick(float DeltaTime)
 
 	switch (buffer[0])
 	{
-	//case LOAD:
-	//{
-	//	recv_all(sock, buffer + 5, sizeof(LoadPacket) - 5, 0);
-	//	auto cast = reinterpret_cast<LoadPacket*>(buffer);
+	case LOAD:
+	{
+		recv_all(sock, buffer + 5, sizeof(LoadPacket) - 5, 0);
+		auto cast = reinterpret_cast<LoadPacket*>(buffer);
 
-	//	for (int i = 0; i < MAXLOADBLOCK; ++i)
-	//	{
-	//		id_arr_to_levelEditor[i] = cast->block_id[i];
-	//		location_x_arr_to_levelEditor[i] = cast->blocklocation_x[i];
-	//		location_y_arr_to_levelEditor[i] = cast->blocklocation_y[i];
-	//		location_z_arr_to_levelEditor[i] = cast->blocklocation_z[i];
-	//		blockindex_arr_to_levelEditor[i] = cast->blockindex[i];
-	//	}
-	//}
+		for (int i = 0; i < MAXLOADBLOCK; ++i)
+		{
+			id_arr_to_levelEditor[i] = cast->block_id[i];
+			location_x_arr_to_levelEditor[i] = cast->blocklocation_x[i];
+			location_y_arr_to_levelEditor[i] = cast->blocklocation_y[i];
+			location_z_arr_to_levelEditor[i] = cast->blocklocation_z[i];
+			blockindex_arr_to_levelEditor[i] = cast->blockindex[i];
+		}
+	}
 	break;
 	case CHATTING:
 	{

@@ -5,7 +5,7 @@
 #include <Runtime/Engine/Public/DrawDebugHelpers.h>
 #include "math.h"
 #include "CommandBlockBase.h"
-
+#include "../../../Server/Server/TCPServer.h"
 float old_location_x;
 float old_location_y;
 float old_location_z;
@@ -22,6 +22,12 @@ ALevelEditorPawn::ALevelEditorPawn()
 void ALevelEditorPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	blockindex_arr_level_from_CL.Init(0, MAXLOADBLOCK);
+	X_arr_level_from_CL.Init(0, MAXLOADBLOCK);
+	Y_arr_level_from_CL.Init(0, MAXLOADBLOCK);
+	Z_arr_level_from_CL.Init(0, MAXLOADBLOCK);
+	//blockindex_to_uclass.Reserve(MAXLOADBLOCK);
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -76,18 +82,29 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	if (blockindex_arr_level_from_CL.Num() > 0)
+	if (((X_arr_level_from_CL[0] > 0) && (Y_arr_level_from_CL[0] > 0) && (Z_arr_level_from_CL[0] > 0)) == true)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Entered Loading");
 		FRotator Rotator = { 0,0,0 };
 
 		FActorSpawnParameters SpawnParams;
 
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		for (int i = 0; i < id_arr_level_from_CL.Num(); ++i) {
-			auto spawned_Load = GetWorld()->SpawnActor<AActor>(ClassOfPlacedBlock, { X_arr_level_from_CL[i],Y_arr_level_from_CL[i],Z_arr_level_from_CL[i] }, Rotator, SpawnParams);
+		for (int i = 0; i < id_arr_level_from_CL.Num(); ++i)
+		{
+			if ((X_arr_level_from_CL[i] > 0 && Y_arr_level_from_CL[i] > 0 && Z_arr_level_from_CL[i] > 0) == true) 
+			{
+				//SetClassOfPlacedBlock(blockindex_to_uclass[0]);
+				auto spawned_Load = GetWorld()->SpawnActor<AActor>(ClassOfPlacedBlock, { X_arr_level_from_CL[i],Y_arr_level_from_CL[i],Z_arr_level_from_CL[i] }, Rotator, SpawnParams);
+			}
 		}
 		blockindex_arr_level_from_CL.Empty();
+		X_arr_level_from_CL.Empty();
+		Y_arr_level_from_CL.Empty();
+		Z_arr_level_from_CL.Empty();
+		blockindex_to_uclass.Empty();
+
 	}
 	location_to_FVector = { temp_location_x, temp_location_y, temp_location_z };
 
@@ -112,11 +129,6 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 		temp_location_x = 0;
 		temp_location_y = 0;
 		temp_location_z = 0;
-		FString temptempx = FString::SanitizeFloat(temp_location_x);
-		FString temptempy = FString::SanitizeFloat(temp_location_y);
-		FString temptempz = FString::SanitizeFloat(temp_location_z);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, temptempx + temptempy + temptempz);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 	}
 
 	

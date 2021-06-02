@@ -127,6 +127,10 @@ public:
 		TArray<float> Z_arr_level_from_CL;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int> blockindex_arr_level_from_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int Block_Cnt_Load_LEP = 0;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<UClass*> blockindex_to_uclass;
 	int dummycnt = 0;
 
 
