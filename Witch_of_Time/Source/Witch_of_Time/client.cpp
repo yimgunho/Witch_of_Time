@@ -8,6 +8,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <array>
 
 //#define SERVERIP "192.168.60.64"
 #define SERVERIP "127.0.0.1"
@@ -140,7 +141,7 @@ void Aclient::Tick(float DeltaTime)
 	char buffer[BUFSIZE];
 	ChattingPacket chattingpacket;
 	BlockPacket blockpacket;
-	BlockPacket blockpacket_load;
+	LoadPacket blockpacket_load;
 	DestroyPacket destroypacket;
 	PlayerPacket playerpacket;
 	CommandPacket commandpacket;
@@ -153,17 +154,36 @@ void Aclient::Tick(float DeltaTime)
 	tempchars = *TempSendStr;
 
 
+	//if (Block_cnt_load != 0)
+	//{
+	//	blockpacket_load.blockindex = blockindex_load;
+	//	blockpacket_load.block_id = block_id_CL;
+	//	blockpacket_load.blocklocation_x = block_position_x_load;
+	//	blockpacket_load.blocklocation_y = block_position_y_load;
+	//	blockpacket_load.blocklocation_z = block_position_z_load;
+	//	//blockpacket.commandblockindex = ;
+	//	//blockpacket.
+	//	send(sock, (char*)&blockpacket_load, sizeof(blockpacket_load), 0);
+	//	Block_cnt_load = 0;
+	//}
+
 	if (Block_cnt_load != 0)
 	{
-		blockpacket_load.blockindex = blockindex_load;
-		blockpacket_load.block_id = block_id_CL;
-		blockpacket_load.blocklocation_x = block_position_x_load;
-		blockpacket_load.blocklocation_y = block_position_y_load;
-		blockpacket_load.blocklocation_z = block_position_z_load;
-		//blockpacket.commandblockindex = ;
-		//blockpacket.
-		send(sock, (char*)&blockpacket_load, sizeof(blockpacket_load), 0);
-		Block_cnt_load = 0;
+		for (int i = 0; i < blockindex_arr_CL.Num(); ++i)
+		{
+			//blockpacket_load.id;
+			blockpacket_load.blocklocation_x[i] = location_x_arr_CL[i];
+			blockpacket_load.blocklocation_y[i] = location_y_arr_CL[i];
+			blockpacket_load.blocklocation_z[i] = location_z_arr_CL[i];
+			blockpacket_load.blockindex[i] = blockindex_arr_CL[i];
+		}
+
+			send(sock, (char*)&blockpacket_load, sizeof(blockpacket_load), 0);
+			blockindex_arr_CL.Empty();
+			location_x_arr_CL.Empty();
+			location_y_arr_CL.Empty();
+			location_z_arr_CL.Empty();
+			Block_cnt_load = 0;
 	}
 
 	if (ready_switch == true)
@@ -285,6 +305,21 @@ void Aclient::Tick(float DeltaTime)
 
 	switch (buffer[0])
 	{
+	//case LOAD:
+	//{
+	//	recv_all(sock, buffer + 5, sizeof(LoadPacket) - 5, 0);
+	//	auto cast = reinterpret_cast<LoadPacket*>(buffer);
+
+	//	for (int i = 0; i < MAXLOADBLOCK; ++i)
+	//	{
+	//		id_arr_to_levelEditor[i] = cast->block_id[i];
+	//		location_x_arr_to_levelEditor[i] = cast->blocklocation_x[i];
+	//		location_y_arr_to_levelEditor[i] = cast->blocklocation_y[i];
+	//		location_z_arr_to_levelEditor[i] = cast->blocklocation_z[i];
+	//		blockindex_arr_to_levelEditor[i] = cast->blockindex[i];
+	//	}
+	//}
+	break;
 	case CHATTING:
 	{
 		recv_all(sock, buffer + 5, sizeof(ChattingPacket) - 5, 0);

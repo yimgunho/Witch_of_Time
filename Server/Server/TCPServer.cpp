@@ -159,6 +159,25 @@ int main()
 
 			switch (buffer[0])
 			{
+			case LOAD:
+			{
+				std::cout << "loadpacketrecv" << std::endl;
+				recv_all(socket_arry[index], buffer + 5, sizeof(LoadPacket) - 5, 0);
+				auto cast = reinterpret_cast<LoadPacket*>(buffer);
+
+				std::cout << cast->blocklocation_x[0] << std::endl;
+				std::cout << cast->blocklocation_x[1] << std::endl;
+				std::cout << cast->blocklocation_x[2] << std::endl;
+
+				//for (int c = 1; c < MAX_SOCKET; c++)
+				//{
+				//	if (c == index) continue;
+				//	if (0 == socket_arry[c]) continue;
+
+				//	send(socket_arry[c], buffer, sizeof(LoadPacket), 0);
+				//}
+			}
+			break;
 			case CHATTING:
 			{
 				recv_all(socket_arry[index], buffer + 5, sizeof(ChattingPacket) - 5, 0);

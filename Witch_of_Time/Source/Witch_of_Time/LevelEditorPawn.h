@@ -11,6 +11,7 @@
 
 
 
+
 /**
  * 
  */
@@ -116,6 +117,16 @@ public:
 		TArray<float> Z_arr_level;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int> blockindex_arr_level;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> id_arr_level_from_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> X_arr_level_from_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> Y_arr_level_from_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> Z_arr_level_from_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> blockindex_arr_level_from_CL;
 	int dummycnt = 0;
 
 

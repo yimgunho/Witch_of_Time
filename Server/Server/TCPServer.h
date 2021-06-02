@@ -9,11 +9,11 @@
 #define BLOCKSIZE 64
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
 #define COMMANDS 9
-
+#define MAXLOADBLOCK 10
 
 enum PacketId
 {
-	RECV, CHATTING, BLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE
+	RECV, CHATTING, BLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD
 };
 #pragma pack(push, 1)
 typedef struct ChattingPacket
@@ -36,6 +36,19 @@ typedef struct BlockPacket
 	//int commandblockindex = -1;
 	//std::vector<int> commandblockdata;
 }BlockPacket;
+
+typedef struct LoadPacket
+{
+	char id = LOAD;
+	int packetsize = sizeof(LoadPacket);
+	int blockindex[MAXLOADBLOCK] = { 0, };
+	int block_id[MAXLOADBLOCK] = { 0, };
+	float blocklocation_x[MAXLOADBLOCK] = { 0, };
+	float blocklocation_y[MAXLOADBLOCK] = { 0, };
+	float blocklocation_z[MAXLOADBLOCK] = { 0, };
+	//int commandblockindex = -1;
+	//std::vector<int> commandblockdata;
+}LoadPacket;
 
 typedef struct DestroyPacket
 {

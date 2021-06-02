@@ -75,6 +75,20 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+	if (blockindex_arr_level_from_CL.Num() > 0)
+	{
+		FRotator Rotator = { 0,0,0 };
+
+		FActorSpawnParameters SpawnParams;
+
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		for (int i = 0; i < id_arr_level_from_CL.Num(); ++i) {
+			auto spawned_Load = GetWorld()->SpawnActor<AActor>(ClassOfPlacedBlock, { X_arr_level_from_CL[i],Y_arr_level_from_CL[i],Z_arr_level_from_CL[i] }, Rotator, SpawnParams);
+		}
+		blockindex_arr_level_from_CL.Empty();
+	}
 	location_to_FVector = { temp_location_x, temp_location_y, temp_location_z };
 
 	if (!(temp_location_x == 0 && temp_location_y == 0 && temp_location_z == 0) && (temp_location_x > 0 && temp_location_y > 0 && temp_location_z > 0))

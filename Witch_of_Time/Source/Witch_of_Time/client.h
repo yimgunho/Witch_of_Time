@@ -147,6 +147,26 @@ public:
 		float block_position_z_load;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int blockindex_load;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> id_arr_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> location_x_arr_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> location_y_arr_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> location_z_arr_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> blockindex_arr_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> id_arr_to_levelEditor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> location_x_arr_to_levelEditor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> location_y_arr_to_levelEditor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<float> location_z_arr_to_levelEditor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> blockindex_arr_to_levelEditor;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);
