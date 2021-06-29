@@ -56,6 +56,8 @@ void ATimeControllableActorBase::ReturnTime()
 		Changing = true;
 		IsFuture = false;
 		Elapsed_Time = 0.f;
+		if (m_Current_to_Future->IsValid())
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Current_to_Future, this->GetActorLocation());
 	}
 }
 
@@ -67,6 +69,8 @@ void ATimeControllableActorBase::JumpTime()
 		Changing = true;
 		IsFuture = true;
 		Elapsed_Time = 0.f;
+		if (m_Current_to_Future->IsValid())
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Current_to_Future, this->GetActorLocation());
 	}
 }
 

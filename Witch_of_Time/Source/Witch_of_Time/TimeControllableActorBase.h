@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "BlockBase.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraSystem.h"
 #include "TimeControllableActorBase.generated.h"
 
 enum MeshIndex {
@@ -27,6 +29,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BluePrintReadWrite, Category = Mesh)
 		UStaticMeshComponent* m_FutureMesh;
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Niagara)
+		UNiagaraSystem* m_Current_to_Future;	
+
 
 	void ReturnTime();
 
