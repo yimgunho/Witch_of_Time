@@ -33,6 +33,15 @@ public:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Niagara)
 		UNiagaraSystem* m_Current_to_Future;	
 
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Niagara)
+		UNiagaraSystem* m_Past_to_Current;
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Niagara)
+		UNiagaraSystem* m_Future_to_Current;
+
+	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Niagara)
+		UNiagaraSystem* m_Current_to_Past;
+
 
 	void ReturnTime();
 

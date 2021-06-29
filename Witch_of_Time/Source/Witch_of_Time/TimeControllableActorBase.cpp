@@ -52,12 +52,20 @@ void ATimeControllableActorBase::ReturnTime()
 {
 	if (CurrentMesh != Past && !Changing)
 	{
+		if (CurrentMesh == Current)
+		{
+			if (m_Current_to_Past != nullptr)
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Current_to_Past, this->GetActorLocation());
+		}
+		if (CurrentMesh == Future)
+		{
+			if (m_Future_to_Current != nullptr)
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Future_to_Current, this->GetActorLocation());
+		}
 		CurrentMesh--;
 		Changing = true;
 		IsFuture = false;
 		Elapsed_Time = 0.f;
-		if (m_Current_to_Future->IsValid())
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Current_to_Future, this->GetActorLocation());
 	}
 }
 
@@ -65,12 +73,20 @@ void ATimeControllableActorBase::JumpTime()
 {
 	if (CurrentMesh != Future && !Changing)
 	{
+		if (CurrentMesh == Current)
+		{
+			if (m_Current_to_Future != nullptr)
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Current_to_Future, this->GetActorLocation());
+		}
+		if (CurrentMesh == Past)
+		{
+			if (m_Past_to_Current != nullptr)
+				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Past_to_Current, this->GetActorLocation());
+		}
 		CurrentMesh++;
 		Changing = true;
 		IsFuture = true;
 		Elapsed_Time = 0.f;
-		if (m_Current_to_Future->IsValid())
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Current_to_Future, this->GetActorLocation());
 	}
 }
 
@@ -122,8 +138,9 @@ void ATimeControllableActorBase::Tick(float DeltaTime)
 	{
 		Elapsed_Time += DeltaTime;
 
-		if (Elapsed_Time > 1.0f)
+		if (Elapsed_Time > 2.0f)
 		{
+			/*
 			if (IsFuture)
 			{
 				CurrScale = FMath::Lerp<float>(InitScale, 5 * InitScale, 1.f);
@@ -133,14 +150,16 @@ void ATimeControllableActorBase::Tick(float DeltaTime)
 				CurrScale = FMath::Lerp<float>(0.2 * InitScale, InitScale, 0.f);
 			}
 			SetActorScale3D(FVector(CurrScale));
-
+			*/
 			Elapsed_Time = 0.f;
 			ChangeMesh();
 			Changing = false;
 			InitScale = CurrScale;
 		}
+		/*
 		else
 		{
+
 			if (IsFuture)
 			{
 				CurrScale = FMath::Lerp<float>(InitScale, 5 * InitScale, Elapsed_Time);
@@ -151,7 +170,7 @@ void ATimeControllableActorBase::Tick(float DeltaTime)
 			}
 			SetActorScale3D(FVector(CurrScale));
 		}
-
+		*/
 	}
 
 }
