@@ -55,12 +55,18 @@ void ATimeControllableActorBase::ReturnTime()
 		if (CurrentMesh == Current)
 		{
 			if (m_Current_to_Past != nullptr)
+			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Current_to_Past, this->GetActorLocation());
+				m_CurrentMesh->SetVisibility(false);
+			}
 		}
 		if (CurrentMesh == Future)
 		{
 			if (m_Future_to_Current != nullptr)
+			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Future_to_Current, this->GetActorLocation());
+				m_FutureMesh->SetVisibility(false);
+			}
 		}
 		CurrentMesh--;
 		Changing = true;
@@ -76,12 +82,18 @@ void ATimeControllableActorBase::JumpTime()
 		if (CurrentMesh == Current)
 		{
 			if (m_Current_to_Future != nullptr)
+			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Current_to_Future, this->GetActorLocation());
+				m_CurrentMesh->SetVisibility(false);
+			}
 		}
 		if (CurrentMesh == Past)
 		{
 			if (m_Past_to_Current != nullptr)
+			{
 				UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), m_Past_to_Current, this->GetActorLocation());
+				m_PastMesh->SetVisibility(false);
+			}
 		}
 		CurrentMesh++;
 		Changing = true;
