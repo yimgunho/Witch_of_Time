@@ -89,6 +89,7 @@ int main()
 	{
 		ChattingPacket chattingpacket;
 		BlockPacket blockpacket;
+		TimeBlockPacket timeblockpacket;
 		DestroyPacket destroypacket;
 		PlayerPacket playerpacket;
 		RecvPacket recvpacket;
@@ -219,6 +220,26 @@ int main()
 				}
 			}
 				break;
+			case TIMEBLOCK:
+			{
+				recv_all(socket_arry[index], buffer + 5, sizeof(TimeBlockPacket) - 5, 0);
+				auto cast = reinterpret_cast<TimeBlockPacket*>(buffer);
+				
+				std::cout << cast->timeblock_id << ", " << cast->timetype << std::endl;
+				timeblockpacket.id = cast->id;
+				timeblockpacket.packetsize = cast->packetsize;
+				timeblockpacket.timeblock_id = cast->timeblock_id;
+				timeblockpacket.timetype = cast->timetype;
+
+				for (int c = 1; c < MAX_SOCKET; c++)
+				{
+					if (c == index) continue;
+					if (0 == socket_arry[c]) continue;
+
+					send(socket_arry[c], buffer, sizeof(TimeBlockPacket), 0);
+				}
+			}
+			break;
 			case DESTROY:
 			{
 				recv_all(socket_arry[index], buffer + 5, sizeof(DestroyPacket) - 5, 0);

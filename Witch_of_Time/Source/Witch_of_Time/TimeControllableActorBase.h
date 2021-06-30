@@ -42,9 +42,19 @@ public:
 	UPROPERTY(EditAnywhere, BluePrintReadWrite, Category = Niagara)
 		UNiagaraSystem* m_Current_to_Past;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int TimeBlock_id;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int ReturnTimeBlock_id;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int JumpTimeBlock_id;
+
+	UFUNCTION(BlueprintCallable)
 	void ReturnTime();
 
+	UFUNCTION(BlueprintCallable)
 	void JumpTime();
 
 	UFUNCTION(BlueprintCallable, Category = "Mesh")
@@ -52,6 +62,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Mesh")
 		void InitalizeMesh();
+
+
 
 protected:
 	// Called when the game starts or when spawned

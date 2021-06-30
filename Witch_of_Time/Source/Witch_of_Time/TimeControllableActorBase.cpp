@@ -34,6 +34,7 @@ ATimeControllableActorBase::ATimeControllableActorBase()
 // Called when the game starts or when spawned
 void ATimeControllableActorBase::BeginPlay()
 {
+	TimeBlock_id = -1;
 	Super::BeginPlay();
 	
 }
@@ -68,6 +69,7 @@ void ATimeControllableActorBase::ReturnTime()
 				m_FutureMesh->SetVisibility(false);
 			}
 		}
+		ReturnTimeBlock_id = TimeBlock_id;
 		CurrentMesh--;
 		Changing = true;
 		IsFuture = false;
@@ -95,6 +97,7 @@ void ATimeControllableActorBase::JumpTime()
 				m_PastMesh->SetVisibility(false);
 			}
 		}
+		JumpTimeBlock_id = TimeBlock_id;
 		CurrentMesh++;
 		Changing = true;
 		IsFuture = true;

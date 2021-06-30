@@ -167,6 +167,20 @@ public:
 		TArray<float> location_z_arr_to_levelEditor;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int> blockindex_arr_to_levelEditor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FString FastTimeBlock_name_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		FString SlowTimeBlock_name_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int TimeBlock_id_Gen;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int SlowTimeBlock_id_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int FastTimeBlock_id_CL;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int TimeBlock_id_SERVER;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int TimeBlock_type_SERVER;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);

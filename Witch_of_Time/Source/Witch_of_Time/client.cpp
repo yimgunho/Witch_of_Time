@@ -116,6 +116,11 @@ void Aclient::BeginPlay()
 	location_z_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
 	blockindex_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
 
+	TimeBlock_id_Gen = 0;
+
+	FastTimeBlock_id_CL = -1;
+	SlowTimeBlock_id_CL = -1;
+
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
 
@@ -146,6 +151,7 @@ void Aclient::Tick(float DeltaTime)
 	char buffer[BUFSIZE];
 	ChattingPacket chattingpacket;
 	BlockPacket blockpacket;
+	TimeBlockPacket timeblockpacket;
 	LoadPacket blockpacket_load;
 	DestroyPacket destroypacket;
 	PlayerPacket playerpacket;
@@ -305,6 +311,25 @@ void Aclient::Tick(float DeltaTime)
 		}
 	}
 
+	else if (FastTimeBlock_id_CL >= 0 || SlowTimeBlock_id_CL >= 0)
+	{
+		if (FastTimeBlock_id_CL >= 0) {
+			timeblockpacket.timeblock_id = FastTimeBlock_id_CL;
+			timeblockpacket.timetype = 1;
+		}
+
+		else if (SlowTimeBlock_id_CL >= 0) {
+			timeblockpacket.timeblock_id = SlowTimeBlock_id_CL;
+			timeblockpacket.timetype = 2;
+		}
+
+		send(sock, (char*)&timeblockpacket, sizeof(timeblockpacket), 0);
+
+		FastTimeBlock_id_CL = -1;
+		SlowTimeBlock_id_CL = -1;
+	}
+	
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -345,6 +370,14 @@ void Aclient::Tick(float DeltaTime)
 		block_position_x_2 = cast->blocklocation_x;
 		block_position_y_2 = cast->blocklocation_y;
 		block_position_z_2 = cast->blocklocation_z;
+	}
+	break;
+	case TIMEBLOCK:
+	{
+		recv_all(sock, buffer + 5, sizeof(TimeBlockPacket) - 5, 0);
+		auto cast = reinterpret_cast<TimeBlockPacket*>(buffer);
+		TimeBlock_id_SERVER = cast->timeblock_id;
+		TimeBlock_type_SERVER = cast->timetype;
 	}
 	break;
 	case DESTROY:
