@@ -132,9 +132,9 @@ void ALiquidBlockBase::BeginPlay()
 
 	
 }
-void ALiquidBlockBase::ResetBlock()
+void ALiquidBlockBase::ResetBlock_Implementation()
 {
-	Super::ResetBlock();
+	Super::ResetBlock_Implementation();
 	this->SetActorTickEnabled(true);
 }
 

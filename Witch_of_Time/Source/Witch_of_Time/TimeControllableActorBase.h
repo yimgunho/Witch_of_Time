@@ -74,7 +74,7 @@ protected:
 
 	int CurrentMesh;
 
-	void ResetBlock() override;
+	void ResetBlock_Implementation() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float InitScale = 1.f;

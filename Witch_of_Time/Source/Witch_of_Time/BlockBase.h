@@ -47,8 +47,10 @@ public:
 
 	bool GetApplyCommandBlocks();
 
-	UFUNCTION(BlueprintCallable)
-	virtual void ResetBlock();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void ResetBlock();
+	virtual void ResetBlock_Implementation();
+
 
 	void ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime);
 

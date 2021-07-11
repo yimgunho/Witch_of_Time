@@ -71,7 +71,7 @@ bool ABlockBase::GetIsMovable()
 	return IsMovable;
 }
 
-void ABlockBase::ResetBlock()
+void ABlockBase::ResetBlock_Implementation()
 {
 	this->SetActorLocation(OriginLocation);
 	CommandBlockInitialized = false;

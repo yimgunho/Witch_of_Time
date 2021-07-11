@@ -39,9 +39,9 @@ void ATimeControllableActorBase::BeginPlay()
 	
 }
 
-void ATimeControllableActorBase::ResetBlock()
+void ATimeControllableActorBase::ResetBlock_Implementation()
 {
-	Super::ResetBlock();
+	Super::ResetBlock_Implementation();
 	CurrentMesh = InitMesh;
 	InitScale = ResetScale;
 	ChangeMesh();
