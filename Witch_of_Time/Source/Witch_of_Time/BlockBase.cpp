@@ -76,7 +76,7 @@ void ABlockBase::ResetBlock()
 	this->SetActorLocation(OriginLocation);
 	CommandBlockInitialized = false;
 	CurrentCommandBlock = 0;
-	if (CommandBlockArray.Num() != 0 || ApplyHeatNearBlocks)
+	if (CommandBlockArray.Num() != 0 || ApplyHeatNearBlocks || InGameTickEnabled)
 	{
 		this->SetActorTickEnabled(true);
 	}

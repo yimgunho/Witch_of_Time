@@ -118,6 +118,9 @@ protected:
 	bool ApplyHeatNearBlocks = false;
 
 	UPROPERTY(EditAnywhere)
+	bool InGameTickEnabled = false;
+
+	UPROPERTY(EditAnywhere)
 	UClass* m_FreezingClass = NULL;
 
 	UPROPERTY(EditAnywhere)
