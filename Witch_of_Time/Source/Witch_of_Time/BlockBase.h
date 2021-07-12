@@ -60,6 +60,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int blockindex = 1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int timetype = 0;
+
 	int CurrentCommandBlock = 0;
 
 

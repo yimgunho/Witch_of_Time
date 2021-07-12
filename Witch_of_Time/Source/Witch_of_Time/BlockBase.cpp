@@ -16,6 +16,8 @@ ABlockBase::ABlockBase()
 	Ignores.Add(this);
 
 	OriginLocation = this->GetActorLocation();
+
+	Tags.Add(FName("Destroyable"));
 }
 
 void ABlockBase::ApplyHeatEnergy(float heat)
@@ -210,7 +212,28 @@ void ABlockBase::Tick(float DeltaTime)
 		ExecuteCommandBlock(CommandBlockArray[CurrentCommandBlock], DeltaTime);
 	}
 
+	if (this->ActorHasTag("Destroyable"))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "111");
+		this->timetype = 0;
+	}
 
+	else if (this->ActorHasTag("Restorable"))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "222");
+		this->timetype = 1;
+	}
+
+	if (timetype == 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "111");
+		this->SetActorEnableCollision(true);
+	}
+
+	else if (timetype == 1)
+	{
+		this->SetActorEnableCollision(false);
+	}
 
 	/*
 	* move ¿´´ø°Í

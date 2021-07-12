@@ -121,7 +121,7 @@ void AWitch_of_TimeCharacter::PickTarget()
 	{
 		PickedActor = hitResult.GetActor();
 
-		if (PickedActor->ActorHasTag("Returnable") || PickedActor->ActorHasTag("Jumpable"))
+		if (PickedActor->ActorHasTag("Returnable") || PickedActor->ActorHasTag("Jumpable") || PickedActor->ActorHasTag("Destroyable"))
 		{
 			DrawBillboard(PickedActor);
 		}
@@ -143,6 +143,12 @@ void AWitch_of_TimeCharacter::SlowTime()
 		{
 			dynamic_cast<ATimeControllableActorBase*>(PickedActor)->ReturnTime();
 		}
+
+		else if (PickedActor->ActorHasTag("Destroyable"))
+		{
+			PickedActor->Tags.Remove("Destroyable");
+			PickedActor->Tags.Add(FName("Restorable"));
+		}
 	}
 	
 }
@@ -154,6 +160,13 @@ void AWitch_of_TimeCharacter::FastTime()
 		if (PickedActor->ActorHasTag("Jumpable"))
 		{
 			dynamic_cast<ATimeControllableActorBase*>(PickedActor)->JumpTime();
+		}
+
+		else if (PickedActor->ActorHasTag("Restorable"))
+		{
+			PickedActor->Tags.Remove("Restorable");
+			PickedActor->Tags.Add(FName("Destroyable"));
+
 		}
 	}
 }
