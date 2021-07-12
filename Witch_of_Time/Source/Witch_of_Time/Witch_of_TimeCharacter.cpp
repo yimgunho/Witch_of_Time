@@ -120,15 +120,17 @@ void AWitch_of_TimeCharacter::PickTarget()
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * TIMEMAGIC_RANGE, ECC_WorldStatic, collisionParams))
 	{
 		PickedActor = hitResult.GetActor();
-
-		if (PickedActor->ActorHasTag("Returnable") || PickedActor->ActorHasTag("Jumpable") || PickedActor->ActorHasTag("Destroyable"))
+		if ((PickedActor->ActorHasTag("Returnable")) || (PickedActor->ActorHasTag("Jumpable")) || (PickedActor->ActorHasTag("Destroyable")) || (PickedActor->ActorHasTag("Restorable")))
 		{
 			DrawBillboard(PickedActor);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, PickedActor->GetName());
+
 		}
 		else
 		{
 			PickedActor = nullptr;
 			DrawBillboard(PickedActor);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "billboard2");
 		}
 	}
 
@@ -162,7 +164,7 @@ void AWitch_of_TimeCharacter::FastTime()
 			dynamic_cast<ATimeControllableActorBase*>(PickedActor)->JumpTime();
 		}
 
-		else if (PickedActor->ActorHasTag("Restorable"))
+		else if (PickedActor->ActorHasTag("Restorable") == true)
 		{
 			PickedActor->SetActorEnableCollision(true);
 			PickedActor->Tags.Remove("Restorable");
