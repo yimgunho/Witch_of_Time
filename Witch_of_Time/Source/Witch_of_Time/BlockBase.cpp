@@ -8,7 +8,7 @@
 ABlockBase::ABlockBase()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	//PrimaryActorTick.bCanEverTick = true;
 
 	Types.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldDynamic));
 	Types.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_PhysicsBody));
@@ -212,28 +212,25 @@ void ABlockBase::Tick(float DeltaTime)
 		ExecuteCommandBlock(CommandBlockArray[CurrentCommandBlock], DeltaTime);
 	}
 
-	if (this->ActorHasTag("Destroyable"))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "111");
-		this->timetype = 0;
-	}
+	//if (this->ActorHasTag("Restorable") == true)
+	//{
+	//	this->timetype = 0;
+	//}
 
-	else if (this->ActorHasTag("Restorable"))
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "222");
-		this->timetype = 1;
-	}
+	//else if (this->ActorHasTag("Restorable") == false)
+	//{
+	//	this->timetype = 1;
+	//}
 
-	if (timetype == 0)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "111");
-		this->SetActorEnableCollision(true);
-	}
+	//if (this->timetype == 0)
+	//{
+	//	this->SetActorEnableCollision(true);
+	//}
 
-	else if (timetype == 1)
-	{
-		this->SetActorEnableCollision(false);
-	}
+	//else if (this->timetype == 1)
+	//{
+	//	this->SetActorEnableCollision(false);
+	//}
 
 	/*
 	* move ¿´´ø°Í

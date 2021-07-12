@@ -144,9 +144,9 @@ void AWitch_of_TimeCharacter::SlowTime()
 			dynamic_cast<ATimeControllableActorBase*>(PickedActor)->ReturnTime();
 		}
 
-		else if (PickedActor->ActorHasTag("Destroyable"))
+		else if (PickedActor->ActorHasTag("Restorable") == false)
 		{
-			PickedActor->Tags.Remove("Destroyable");
+			PickedActor->SetActorEnableCollision(false);
 			PickedActor->Tags.Add(FName("Restorable"));
 		}
 	}
@@ -164,9 +164,8 @@ void AWitch_of_TimeCharacter::FastTime()
 
 		else if (PickedActor->ActorHasTag("Restorable"))
 		{
+			PickedActor->SetActorEnableCollision(true);
 			PickedActor->Tags.Remove("Restorable");
-			PickedActor->Tags.Add(FName("Destroyable"));
-
 		}
 	}
 }
