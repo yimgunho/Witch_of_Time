@@ -173,6 +173,14 @@ void Broadcast_Packet(void* data) {
 	}
 }
 
+void Broadcast_Packet_Except_me(int p_id, void* data) {
+	for (int i = 0; i < NPC_ID_START; i++) {
+		if (i == p_id) continue;
+		if (objects[i].object_state != STATE_INGAME) continue;
+		send_packet(i, data);
+	}
+}
+
 void process_packet(int p_id, unsigned char* buffer)
 {
 	switch (buffer[4])
@@ -275,7 +283,7 @@ void process_packet(int p_id, unsigned char* buffer)
 		objects[p_id].y = cast->playerlocation_y;
 		objects[p_id].z = cast->playerlocation_z;
 
-		Broadcast_Packet(&playerpacket);
+		Broadcast_Packet_Except_me(p_id, &playerpacket);
 
 	}
 	break;
