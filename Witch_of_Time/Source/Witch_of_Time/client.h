@@ -4,6 +4,7 @@
 #include "../../../Server/Server/TCPServer.h"
 #include <string>
 #include <vector>
+#include <thread>
 #include "GameFramework/Actor.h"
 #include "client.generated.h"
 #define MAX_SOCKET 10 
@@ -213,12 +214,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void send_player_packet(FVector player_pos, FRotator player_angle);
 
+	std::thread *worker_thread;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	//static DWORD WINAPI SendThread(void* lpData);
 public:
+	void worker();
+	void process_packet(int p_id, unsigned char* p_buf);
+	void send_packet(void* p);
+	void do_recv(int s_id);
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
