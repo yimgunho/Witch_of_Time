@@ -152,7 +152,6 @@ void AWitch_of_TimeCharacter::SlowTime()
 			PickedActor->Tags.Add(FName("Restorable"));
 		}
 	}
-	
 }
 
 void AWitch_of_TimeCharacter::FastTime()

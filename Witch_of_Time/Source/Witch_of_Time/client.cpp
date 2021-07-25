@@ -393,7 +393,9 @@ void Aclient::Tick(float DeltaTime)
 	{
 		recv_all(sock, buffer + 5, sizeof(PlayerPacket) - 5, 0);
 		auto cast = reinterpret_cast<PlayerPacket*>(buffer);
-		
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
 		players[cast->playerindex].player_ang.Yaw = cast->angle_x;
 		players[cast->playerindex].player_ang.Pitch = cast->angle_y;
 		players[cast->playerindex].player_ang.Roll = cast->angle_z;
@@ -406,11 +408,8 @@ void Aclient::Tick(float DeltaTime)
 			players[cast->playerindex].playeractor->SetActorRotation(players[cast->playerindex].player_ang);
 		}
 		else {
-			FActorSpawnParameters SpawnParams;
-			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			players[cast->playerindex].playeractor = GetWorld()->SpawnActor<AActor>(luna, players[cast->playerindex].player_pos, players[cast->playerindex].player_ang, SpawnParams);
 		}
-
 		
 	}
 	break;

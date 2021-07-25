@@ -13,7 +13,7 @@ struct FPlayerinfo
 {
 	GENERATED_USTRUCT_BODY()
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
-	AActor* playeractor;
+	AActor* playeractor = nullptr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
 	FVector player_pos;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
