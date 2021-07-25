@@ -41,9 +41,6 @@ public:
 	int blockindex = 1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-	int blockid;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	UClass* TempPlaceActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -141,6 +138,8 @@ protected:
 	void RightMouseFunc(bool flag);
 
 	void SwitchPlaceMode();
+	
+	void Location_Clear();
 
 	void PlaceBlock();
 	void DestroyBlock();

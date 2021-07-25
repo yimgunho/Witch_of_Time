@@ -130,9 +130,12 @@ protected:
 
 	UPROPERTY(EditAnywhere)
 	UClass* m_MeltingClass = NULL;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int block_id;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
-		void SetShadow(bool flag);
+	void SetShadow(bool flag);
 
 	float Elapsed_Time = 0.f;
 public:	

@@ -41,6 +41,8 @@ int myRecvn(SOCKET s, char* buf, int len, int flags)
 
 int main()
 {
+	int generated_blockid = 0;
+
 	// 소켓 라이브러리 초기화
 	WSADATA wsaData;
 	int token = WSAStartup(WINSOCK_VERSION, &wsaData);
@@ -205,7 +207,10 @@ int main()
 				blocklistpacket.id = cast->id;
 				blocklistpacket.packetsize = cast->packetsize;
 				blocklistpacket.blockindex = cast->blockindex;
-				blocklistpacket.block_id = cast->block_id;
+
+				blocklistpacket.block_id = generated_blockid;
+				++generated_blockid;
+
 				blocklistpacket.blocklocation_x = cast->blocklocation_x;
 				blocklistpacket.blocklocation_y = cast->blocklocation_y;
 				blocklistpacket.blocklocation_z = cast->blocklocation_z;
@@ -213,10 +218,10 @@ int main()
 
 				for (int c = 1; c < MAX_SOCKET; c++)
 				{
-					if (c == index) continue;
+					//if (c == index) continue;
 					if (0 == socket_arry[c]) continue;
 
-					send(socket_arry[c], buffer, sizeof(BlockPacket), 0);
+					send(socket_arry[c], (char*)&blocklistpacket, sizeof(BlockPacket), 0);
 				}
 			}
 				break;

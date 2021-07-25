@@ -211,7 +211,6 @@ void ABlockBase::Tick(float DeltaTime)
 	{
 		ExecuteCommandBlock(CommandBlockArray[CurrentCommandBlock], DeltaTime);
 	}
-
 	//if (this->ActorHasTag("Restorable") == true)
 	//{
 	//	this->timetype = 0;

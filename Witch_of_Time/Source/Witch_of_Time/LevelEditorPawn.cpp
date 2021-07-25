@@ -39,7 +39,6 @@ void ALevelEditorPawn::BeginPlay()
 	old_location_y = 0;
 	old_location_z = 0;
 	blockindex = 1;
-	blockid = 0;
 	ToDestroyBlockName = "none";
 
 }
@@ -77,6 +76,15 @@ void ALevelEditorPawn::SwitchPlaceMode()
 	CommandBlockMode = !CommandBlockMode;
 }
 
+void ALevelEditorPawn::Location_Clear()
+{
+	location_x = 0;
+	location_y = 0;
+	location_z = 0;
+	temp_location_x = 0;
+	temp_location_y = 0;
+	temp_location_z = 0;
+}
 void ALevelEditorPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -118,11 +126,12 @@ void ALevelEditorPawn::Tick(float DeltaTime)
 
 
 		auto spawned_by_server = GetWorld()->SpawnActor<AActor>(ClassOfPlacedBlock, location_to_FVector, Rotator, SpawnParams);
-		blockid++;
+
 
 		old_location_x = temp_location_x;
 		old_location_y = temp_location_y;
 		old_location_z = temp_location_z;
+
 		location_x = 0;
 		location_y = 0;
 		location_z = 0;
@@ -191,9 +200,7 @@ void ALevelEditorPawn::PlaceBlock()
 				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
 			}
 
-			auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
-
-			blockid++;
+			//auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
 
 			location_x = hitResult.Location.X;
 			location_y = hitResult.Location.Y;
@@ -201,15 +208,15 @@ void ALevelEditorPawn::PlaceBlock()
 
 
 			TArray<AActor*> overlapped;
-			spawned->GetOverlappingActors(overlapped);
+			//spawned->GetOverlappingActors(overlapped);
 
 			for (AActor* actor : overlapped)
 			{
 				actor->Destroy();
 			}
 
-			BlockName = spawned->GetName();
-			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
+			//BlockName = spawned->GetName();
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 		}
 	}
 	else
@@ -240,6 +247,7 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 		}
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Tried Block Spawning but not proper MODE");
 	}
 
 	
