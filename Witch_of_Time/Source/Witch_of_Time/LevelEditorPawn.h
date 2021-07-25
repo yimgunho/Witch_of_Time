@@ -6,6 +6,7 @@
 #include "GameFramework/DefaultPawn.h"
 #include "BlockBase.h"
 #include "SaveEditorLevel.h"
+#include "client.h"
 #include "Kismet/GameplayStatics.h"
 #include "LevelEditorPawn.generated.h"
 
@@ -23,6 +24,8 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 	UPROPERTY(EditAnywhere)
 	UClass* PlaceActor;
 
+	
+
 	UPROPERTY(EditAnywhere)
 	UClass* DummyActor;
 
@@ -37,6 +40,9 @@ class WITCH_OF_TIME_API ALevelEditorPawn : public ADefaultPawn
 
 public:
 	ALevelEditorPawn();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		Aclient* client;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int blockindex = 1;
 

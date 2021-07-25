@@ -269,10 +269,11 @@ void ALevelEditorPawn::DestroyBlock()
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, CLocation, CLocation + CForwardVector * 2000, ECC_Visibility, collisionParams) && hitResult.GetActor()->ActorHasTag("Destroyable"))
 	{
 		ToDestroyBlock = hitResult.GetActor();
+		
 		ToDestroyBlockName = hitResult.GetActor()->GetName();
 		//todestroyblockid = 0;
-		hitResult.GetActor()->Destroy();
-
+		//hitResult.GetActor()->Destroy();
+		client->send_destroy_packet(Cast<ABlockBase>(ToDestroyBlock)->block_id);
 	}
 }
 

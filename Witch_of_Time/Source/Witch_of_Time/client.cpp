@@ -141,6 +141,19 @@ void Aclient::BeginPlay()
 
 }
 
+void Aclient::send_destroy_packet(int block_id)
+{
+	DestroyPacket destroypacket;
+	destroypacket.block_id = block_id;
+
+	send(sock, (char*)&destroypacket, sizeof(destroypacket), 0);
+
+	FString todestroyblockid_FString = FString::FromInt(todestroyblockid);
+
+	ToDestroyBlockName_CL = "none";
+	ToDestroyBlock_cnt = 0;
+}
+
 
 
 // Called every frame
@@ -217,19 +230,6 @@ void Aclient::Tick(float DeltaTime)
 		TempSendStr = "";
 	}
 
-	else if (ToDestroyBlock_cnt != 0)
-	{
-		destroypacket.block_id = todestroyblockid;
-		
-
-		send(sock, (char*)&destroypacket, sizeof(destroypacket), 0);
-
-		FString todestroyblockid_FString = FString::FromInt(todestroyblockid);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Send " + todestroyblockid_FString);
-
-		ToDestroyBlockName_CL = "none";
-		ToDestroyBlock_cnt = 0;
-	}
 
 	else if (Block_cnt != 0)
 	{

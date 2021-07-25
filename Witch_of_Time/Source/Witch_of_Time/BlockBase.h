@@ -65,6 +65,9 @@ public:
 
 	int CurrentCommandBlock = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int block_id;
+
 
 protected:
 	// Called when the game starts or when spawned
@@ -131,8 +134,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	UClass* m_MeltingClass = NULL;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int block_id;
+
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
 	void SetShadow(bool flag);

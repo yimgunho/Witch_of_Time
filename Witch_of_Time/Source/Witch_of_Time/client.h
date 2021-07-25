@@ -185,6 +185,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);
 
+	UFUNCTION(BlueprintCallable)
+	void send_destroy_packet(int block_id);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
