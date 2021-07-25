@@ -201,11 +201,7 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			//auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
-
-			location_x = hitResult.Location.X;
-			location_y = hitResult.Location.Y;
-			location_z = hitResult.Location.Z;
-
+			client->send_block_packet(blockindex, hitResult.Location.X, hitResult.Location.Y, hitResult.Location.Z);
 
 			TArray<AActor*> overlapped;
 			//spawned->GetOverlappingActors(overlapped);

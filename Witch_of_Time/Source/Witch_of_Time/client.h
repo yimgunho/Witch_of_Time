@@ -8,15 +8,30 @@
 #include "client.generated.h"
 #define MAX_SOCKET 10 
 
+USTRUCT(BlueprintType)
+struct FPlayerinfo
+{
+	GENERATED_USTRUCT_BODY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
+	AActor* playeractor;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
+	FVector player_pos;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
+	FRotator player_ang;
+};
+
 UCLASS()
 class WITCH_OF_TIME_API Aclient : public AActor
 {
 	GENERATED_BODY()
 
+
 public:
 	// Sets default values for this actor's properties
 	//전역 변수로 선언하지 말고 여기 선언하고 변수이름 좀더 잘 알아볼수 있게 만들기
 	Aclient();
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempSendStr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -181,12 +196,22 @@ public:
 		int TimeBlock_id_SERVER;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int TimeBlock_type_SERVER;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<FPlayerinfo> players;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		UClass* luna;
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);
 
 	UFUNCTION(BlueprintCallable)
 	void send_destroy_packet(int block_id);
+
+	UFUNCTION(BlueprintCallable)
+	void send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z);
+
+	UFUNCTION(BlueprintCallable)
+		void send_player_packet(FVector player_pos, FRotator player_angle);
 
 protected:
 	// Called when the game starts or when spawned

@@ -97,13 +97,7 @@ void Aclient::BeginPlay()
 	todestroyblockid_2 = -1;
 	is_changed_mode = false;
 
-	angle_x_recv.Init(0, 10);
-	angle_y_recv.Init(0, 10);
-	angle_z_recv.Init(0, 10);
-	position_x_recv.Init(0, 10);
-	position_y_recv.Init(0, 10);
-	position_z_recv.Init(0, 10);
-
+	players.SetNum(10);
 	TempCommandBlockId = -1;
 	TempCommandBlockId_recv = -1;
 
@@ -141,20 +135,38 @@ void Aclient::BeginPlay()
 
 }
 
+void Aclient::send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z)
+{
+	BlockPacket blockpacket;
+	blockpacket.blockindex = blockindex;
+	blockpacket.blocklocation_x = block_pos_x;
+	blockpacket.blocklocation_y = block_pos_y;
+	blockpacket.blocklocation_z = block_pos_z;
+
+	send(sock, (char*)&blockpacket, sizeof(blockpacket), 0);
+}
+
 void Aclient::send_destroy_packet(int block_id)
 {
 	DestroyPacket destroypacket;
 	destroypacket.block_id = block_id;
 
 	send(sock, (char*)&destroypacket, sizeof(destroypacket), 0);
-
-	FString todestroyblockid_FString = FString::FromInt(todestroyblockid);
-
-	ToDestroyBlockName_CL = "none";
-	ToDestroyBlock_cnt = 0;
 }
 
+void Aclient::send_player_packet(FVector player_pos, FRotator player_angle)
+{
+	PlayerPacket playerpacket;
 
+	playerpacket.playerlocation_x = player_pos.X;
+	playerpacket.playerlocation_y = player_pos.Y;
+	playerpacket.playerlocation_z = player_pos.Z;
+	playerpacket.angle_x = player_angle.Yaw;
+	playerpacket.angle_y = player_angle.Pitch;
+	playerpacket.angle_z = player_angle.Roll;
+	
+	send(sock, (char*)&playerpacket, sizeof(playerpacket), 0);
+}
 
 // Called every frame
 void Aclient::Tick(float DeltaTime)
@@ -230,19 +242,6 @@ void Aclient::Tick(float DeltaTime)
 		TempSendStr = "";
 	}
 
-
-	else if (Block_cnt != 0)
-	{
-		blockpacket.blockindex = block_index;
-		blockpacket.block_id = block_id_CL;
-		blockpacket.blocklocation_x = block_position_x;
-		blockpacket.blocklocation_y = block_position_y;
-		blockpacket.blocklocation_z = block_position_z;
-		//blockpacket.commandblockindex = ;
-		//blockpacket.
-		send(sock, (char*)&blockpacket, sizeof(blockpacket), 0);
-		Block_cnt = 0;
-	}
 	else if (TempCommandBlockId != -1)
 	{
 		commandpacket.commandblock_id = TempCommandBlockId;
@@ -294,22 +293,22 @@ void Aclient::Tick(float DeltaTime)
 		commandblockdata_3.Empty();
 	}
 	
-	else if (is_moving != 0 || is_changed_mode == true)
-	{
-		playerpacket.angle_x = angle_x;
-		playerpacket.angle_y = angle_y;
-		playerpacket.angle_z = angle_z;
-		playerpacket.playerlocation_x = position_x;
-		playerpacket.playerlocation_y = position_y;
-		playerpacket.playerlocation_z = position_z;
+	//else if (is_moving != 0 || is_changed_mode == true)
+	//{
+	//	playerpacket.angle_x = angle_x;
+	//	playerpacket.angle_y = angle_y;
+	//	playerpacket.angle_z = angle_z;
+	//	playerpacket.playerlocation_x = position_x;
+	//	playerpacket.playerlocation_y = position_y;
+	//	playerpacket.playerlocation_z = position_z;
 
-		send(sock, (char*)&playerpacket, sizeof(playerpacket), 0);
+	//	send(sock, (char*)&playerpacket, sizeof(playerpacket), 0);
 
-		if (is_changed_mode == true)
-		{
-			is_changed_mode = false;
-		}
-	}
+	//	if (is_changed_mode == true)
+	//	{
+	//		is_changed_mode = false;
+	//	}
+	//}
 
 	else if (FastTimeBlock_id_CL >= 0 || SlowTimeBlock_id_CL >= 0)
 	{
@@ -395,12 +394,24 @@ void Aclient::Tick(float DeltaTime)
 		recv_all(sock, buffer + 5, sizeof(PlayerPacket) - 5, 0);
 		auto cast = reinterpret_cast<PlayerPacket*>(buffer);
 		
-		angle_x_recv[cast->playerindex] = cast->angle_x;
-		angle_y_recv[cast->playerindex] = cast->angle_y;
-		angle_z_recv[cast->playerindex] = cast->angle_z;
-		position_x_recv[cast->playerindex] = cast->playerlocation_x;
-		position_y_recv[cast->playerindex] = cast->playerlocation_y;
-		position_z_recv[cast->playerindex] = cast->playerlocation_z;
+		players[cast->playerindex].player_ang.Yaw = cast->angle_x;
+		players[cast->playerindex].player_ang.Pitch = cast->angle_y;
+		players[cast->playerindex].player_ang.Roll = cast->angle_z;
+		players[cast->playerindex].player_pos.X = cast->playerlocation_x;
+		players[cast->playerindex].player_pos.Y = cast->playerlocation_y;
+		players[cast->playerindex].player_pos.Z = cast->playerlocation_z;
+
+		if (IsValid(players[cast->playerindex].playeractor) == true) {
+			players[cast->playerindex].playeractor->SetActorLocation(players[cast->playerindex].player_pos);
+			players[cast->playerindex].playeractor->SetActorRotation(players[cast->playerindex].player_ang);
+		}
+		else {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			players[cast->playerindex].playeractor = GetWorld()->SpawnActor<AActor>(luna, players[cast->playerindex].player_pos, players[cast->playerindex].player_ang, SpawnParams);
+		}
+
+		
 	}
 	break;
 	case COMMAND:
