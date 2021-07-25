@@ -10,6 +10,9 @@
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
 #define COMMANDS 9
 #define MAXLOADBLOCK 50
+#define MAX_USER 10
+#define NPC_ID_START MAX_USER + 1
+#define MAX_OBJECTS 100000
 
 enum PacketId
 {
@@ -18,16 +21,16 @@ enum PacketId
 #pragma pack(push, 1)
 typedef struct ChattingPacket
 {
-	char id = CHATTING;
 	int packetsize = sizeof(ChattingPacket);
+	char id = CHATTING;
 	char chatting[CHATSIZE] = "";
 	//std::string chatting = "";
 }ChattingPacket;
 
 typedef struct BlockPacket
 {
-	char id = BLOCK;
 	int packetsize = sizeof(BlockPacket);
+	char id = BLOCK;
 	int blockindex = 1;
 	int block_id = 0;
 	float blocklocation_x = 0;
@@ -39,16 +42,16 @@ typedef struct BlockPacket
 
 typedef struct TimeBlockPacket
 {
-	char id = TIMEBLOCK;
 	int packetsize = sizeof(TimeBlockPacket);
+	char id = TIMEBLOCK;
 	int timeblock_id = 0;
 	int timetype = 0;
 }TimeBlockPacket;
 
 typedef struct LoadPacket
 {
-	char id = LOAD;
 	int packetsize = sizeof(LoadPacket);
+	char id = LOAD;
 	int blockindex[MAXLOADBLOCK] = { 0, };
 	int block_id[MAXLOADBLOCK] = { 0, };
 	float blocklocation_x[MAXLOADBLOCK] = { 0, };
@@ -60,16 +63,16 @@ typedef struct LoadPacket
 
 typedef struct DestroyPacket
 {
-	char id = DESTROY;
 	int packetsize = sizeof(DestroyPacket);
+	char id = DESTROY;
 	int block_id = 0;
 	//char todestroyblock[BLOCKSIZE] = "none";
 }DestroyPacket;
 
 typedef struct PlayerPacket
 {
-	char id = PLAYER;
 	int packetsize = sizeof(PlayerPacket);
+	char id = PLAYER;
 	int playerindex = 0;
 	float angle_x = 0;
 	float angle_y = 0;
@@ -91,8 +94,8 @@ typedef struct BlockListPacket
 
 typedef struct CommandPacket
 {
-	char id = COMMAND;
 	int packetsize = sizeof(CommandPacket);
+	char id = COMMAND;
 	int commandblock_id = -1;
 	//std::vector<int> commandblockindex{ -1 };
 	//std::vector<int> commandblockdata_0{ 0 };
@@ -111,14 +114,15 @@ typedef struct CommandPacket
 
 typedef struct ModeChangePacket
 {
-	char id = MODECHANGE;
 	int packetsize = sizeof(ModeChangePacket);
+	char id = MODECHANGE;
 	int readycount = 0;
 	int all_ready_set = 0;
 }ModeChangePacket;
 
 typedef struct RecvPacket
 {
+	int packetsize = sizeof(RecvPacket);
 	char id = RECV;
 	float angle_x = 0;
 	float angle_y = 0;

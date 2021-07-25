@@ -1,4 +1,3 @@
-#include <winsock2.h>
 #include "TCPServer.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,7 +5,17 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <WS2tcpip.h>
+#include <MSWSock.h>
+#include <thread>
+#include <array>
+#include <mutex>
 
+
+#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib, "MSWSock.lib")
+
+using namespace std;
 
 void recv_all(SOCKET sock, char* buf, size_t len, int flag)
 {
@@ -17,70 +26,476 @@ void recv_all(SOCKET sock, char* buf, size_t len, int flag)
 	}
 }
 
-int myRecvn(SOCKET s, char* buf, int len, int flags)
+enum OBJ_STATE {
+	STATE_READY, STATE_CONNECTED, STATE_INGAME
+};
+
+enum OP_TYPE {
+	OP_RECV, OP_SEND, OP_ACCEPT
+};
+
+struct OVERLAPPED_EXTENDED
 {
-	int received;
-	char* ptr = buf;
-	int left = len;
+	WSAOVERLAPPED overlapped;
+	WSABUF wsabuf[1];
+	unsigned char packetbuf[BUFSIZE];
+	OP_TYPE op_type;
+	SOCKET socket;
+};
+struct COMMAND_BLOCK
+{
+	int commandindex;
+	vector<int> commandblockdata;
+};
 
-	while (left > 0) {
-		received = recv(s, ptr, BUFSIZE, flags);
-		printf("받은 용량 : %d\n총 남은 용량 : %d\n", received, left);
-		if (received == SOCKET_ERROR)
-			return SOCKET_ERROR;
-		else if (received == 0)
-			break;
+struct OBJECT
+{
+	SOCKET socket;
+	mutex state_lock;
+	atomic <OBJ_STATE> object_state;
+	OVERLAPPED_EXTENDED m_recv_over;
+	int prev_packet_size;
+	int id;
+	int obj_class;
 
-		left -= received;
-		ptr += received;
-		printf(" -- 다운로드 중... %f %%\n\n", (float)((len - left) * 100.f / len));
+	float x, y, z;
+	float angle_x, angle_y, angle_z;
+	int hp;
+
+	int block_index;
+	vector <COMMAND_BLOCK> command_block;
+};
+
+array <OBJECT, MAX_OBJECTS> objects;
+
+HANDLE iocp_handle;
+
+bool ready_count[MAX_USER] = { 0, };
+int current_players = 0;
+
+
+
+
+void display_error(const char* msg, int err_no)
+{
+	WCHAR* lpMsgBuf;
+	FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, err_no,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf, 0, NULL);
+	cout << msg;
+	wcout << lpMsgBuf << endl;
+	LocalFree(lpMsgBuf);
+
+}
+
+
+void do_recv(int id)
+{
+	objects[id].m_recv_over.wsabuf[0].buf = reinterpret_cast<char*>(objects[id].m_recv_over.packetbuf) + objects[id].prev_packet_size;
+	objects[id].m_recv_over.wsabuf[0].len = BUFSIZE - objects[id].prev_packet_size;
+
+	memset(&objects[id].m_recv_over.overlapped, 0, sizeof(objects[id].m_recv_over.overlapped));
+	DWORD r_flag = 0;
+	int ret = WSARecv(objects[id].socket, objects[id].m_recv_over.wsabuf, 1, NULL,
+		&r_flag, &objects[id].m_recv_over.overlapped, NULL);
+	if (0 != ret) {
+		int err_no = WSAGetLastError();
+		if (WSA_IO_PENDING != err_no)
+			display_error("Error in RecvPacket:", err_no);
 	}
+}
 
-	return (len - left);
+int get_new_player_id(SOCKET p_socket)
+{
+	for (int i = 1; i <= MAX_USER ;++i)
+	{
+		lock_guard<mutex> lg{ objects[i].state_lock };
+		if (objects[i].object_state == STATE_READY) {
+			objects[i].object_state = STATE_CONNECTED;
+			objects[i].socket = p_socket;
+			return i;
+		}
+	}
+	return -1;
+}
+
+int get_new_block_id()
+{
+	for (int i = NPC_ID_START; i <= MAX_OBJECTS; ++i)
+	{
+		lock_guard<mutex> lg{ objects[i].state_lock };
+		if (objects[i].object_state == STATE_READY) {
+			objects[i].object_state = STATE_INGAME;
+			return i;
+		}
+	}
+	return -1;
+}
+
+void disconnect(int p_id) {
+	{
+		if (STATE_READY == objects[p_id].object_state) return;
+		closesocket(objects[p_id].socket);
+		objects[p_id].object_state = STATE_READY;
+		current_players--;
+	}
+}
+
+void send_packet(int p_id, void* p)
+{
+	int p_size = reinterpret_cast<unsigned char*>(p)[0];
+	OVERLAPPED_EXTENDED* overlapped = new OVERLAPPED_EXTENDED;
+	overlapped->op_type = OP_SEND;
+	memset(&overlapped->overlapped, 0, sizeof(overlapped->overlapped));
+	memcpy(&overlapped->packetbuf, p, p_size);
+	overlapped->wsabuf[0].buf = reinterpret_cast<char*>(overlapped->packetbuf);
+	overlapped->wsabuf[0].len = p_size;
+
+	int ret = WSASend(objects[p_id].socket, (overlapped->wsabuf), 1, NULL, 0,
+		&overlapped->overlapped, NULL);
+
+	if (0 != ret) {
+		int err_no = WSAGetLastError();
+		if (WSA_IO_PENDING != err_no)
+			display_error("Error in SendPacket:", err_no);
+	}
+}
+
+
+void Broadcast_Packet(void* data) {
+	for (int i = 0; i < NPC_ID_START; i++) {
+		if (objects[i].object_state != STATE_INGAME) continue;
+		send_packet(i, data);
+	}
+}
+
+void process_packet(int p_id, unsigned char* buffer)
+{
+	switch (buffer[4])
+	{
+	case LOAD:
+	{
+		std::cout << "loadpacketrecv" << std::endl;
+		auto cast = reinterpret_cast<LoadPacket*>(buffer);
+
+		std::cout << cast->blocklocation_x[0] << std::endl;
+
+		Broadcast_Packet(cast);
+	}
+	break;
+	case CHATTING:
+	{
+		auto cast = reinterpret_cast<ChattingPacket*>(buffer);
+		ChattingPacket chattingpacket;
+		chattingpacket.id = cast->id;
+		chattingpacket.packetsize = cast->packetsize;
+		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), cast->chatting);
+
+
+		Broadcast_Packet(&chattingpacket);
+	}
+	break;
+	case BLOCK:
+	{
+		auto cast = reinterpret_cast<BlockPacket*>(buffer);
+
+		BlockPacket blocklistpacket;
+
+		blocklistpacket.id = cast->id;
+		blocklistpacket.packetsize = cast->packetsize;
+		blocklistpacket.blockindex = cast->blockindex;
+
+		int blockid = get_new_block_id();
+		blocklistpacket.block_id = blockid;
+
+		blocklistpacket.blocklocation_x = cast->blocklocation_x;
+		blocklistpacket.blocklocation_y = cast->blocklocation_y;
+		blocklistpacket.blocklocation_z = cast->blocklocation_z;
+
+		objects[blockid].block_index = cast->blockindex;
+		objects[blockid].x = cast->blocklocation_x;
+		objects[blockid].y = cast->blocklocation_y;
+		objects[blockid].z = cast->blocklocation_z;
+
+		Broadcast_Packet(&blocklistpacket);
+
+	}
+	break;
+	case TIMEBLOCK:
+	{
+		auto cast = reinterpret_cast<TimeBlockPacket*>(buffer);
+
+		TimeBlockPacket timeblockpacket;
+
+		std::cout << cast->timeblock_id << ", " << cast->timetype << std::endl;
+		timeblockpacket.id = cast->id;
+		timeblockpacket.packetsize = cast->packetsize;
+		timeblockpacket.timeblock_id = cast->timeblock_id;
+		timeblockpacket.timetype = cast->timetype;
+
+		Broadcast_Packet(&timeblockpacket);
+
+	}
+	break;
+	case DESTROY:
+	{
+		auto cast = reinterpret_cast<DestroyPacket*>(buffer);
+
+		lock_guard<mutex> lg{ objects[cast->block_id].state_lock };
+		objects[cast->block_id].object_state = STATE_READY;
+
+		Broadcast_Packet(cast);
+
+	}
+	break;
+	case PLAYER:
+	{
+		auto cast = reinterpret_cast<PlayerPacket*>(buffer);
+
+		PlayerPacket playerpacket;
+
+		playerpacket.id = cast->id;
+		playerpacket.packetsize = cast->packetsize;
+		playerpacket.playerindex = p_id;
+		playerpacket.angle_x = cast->angle_x;
+		playerpacket.angle_y = cast->angle_y;
+		playerpacket.angle_z = cast->angle_z;
+		playerpacket.playerlocation_x = cast->playerlocation_x;
+		playerpacket.playerlocation_y = cast->playerlocation_y;
+		playerpacket.playerlocation_z = cast->playerlocation_z;
+
+		objects[p_id].angle_x = cast->angle_x;
+		objects[p_id].angle_y = cast->angle_y;
+		objects[p_id].angle_z = cast->angle_z;
+		objects[p_id].x = cast->playerlocation_x;
+		objects[p_id].y = cast->playerlocation_y;
+		objects[p_id].z = cast->playerlocation_z;
+
+		Broadcast_Packet(&playerpacket);
+
+	}
+	break;
+	case COMMAND:
+	{
+		auto cast = reinterpret_cast<CommandPacket*>(buffer);
+
+		CommandPacket commandpacket;
+
+		commandpacket.commandblock_id = cast->commandblock_id;
+		//std::cout << "블록 id 번호: " << cast->commandblock_id << std::endl;
+		//strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), cast->blockname);
+		//for (int i = 0; i < sizeof(cast->commandblockindex); ++i)
+		//{
+		//	commandpacket.commandblockindex.emplace_back(cast->commandblockindex[i]);
+		//}
+		for (int i = 0; i < COMMANDS; ++i)
+		{
+			commandpacket.commandblockindex[i] = cast->commandblockindex[i];
+			commandpacket.commandblockdata_0[i] = cast->commandblockdata_0[i];
+			commandpacket.commandblockdata_1[i] = cast->commandblockdata_1[i];
+			commandpacket.commandblockdata_2[i] = cast->commandblockdata_2[i];
+			commandpacket.commandblockdata_3[i] = cast->commandblockdata_3[i];
+		}
+
+		//for (int i = 0; i < COMMANDS; ++i)
+		//{
+		//	std::cout << i << "번째 데이터" << std::endl;
+		//	std::cout << commandpacket.commandblockindex[i] << std::endl;
+		//	std::cout << commandpacket.commandblockdata_0[i] << std::endl;
+		//	std::cout << commandpacket.commandblockdata_1[i] << std::endl;
+		//	std::cout << commandpacket.commandblockdata_2[i] << std::endl;
+		//	std::cout << commandpacket.commandblockdata_3[i] << std::endl;
+		//	std::cout << "----------------------------------" << std::endl;
+		//}
+
+		//for (int i = 0; i < sizeof(commandpacket.commandblockindex); ++i)
+		//{
+		//	std::cout << commandpacket.commandblockindex[i] << std::endl;
+		//}
+
+		Broadcast_Packet(&commandpacket);
+
+	}
+	break;
+	case MODECHANGE:
+	{
+		auto cast = reinterpret_cast<ModeChangePacket*>(buffer);
+
+		ModeChangePacket modepacket;
+
+		modepacket.id = cast->id;
+		modepacket.packetsize = cast->packetsize;
+		modepacket.readycount = 0;
+		//std::cout << index << "번 클라이언트 " << cast->readycount << std::endl;
+		ready_count[p_id] = cast->readycount;
+
+		int ready_c = 0;
+		for (int c = 1; c < MAX_SOCKET; c++)
+		{
+			if (ready_count[c] == true)
+			{
+				ready_c++;
+			}
+			//std::cout << index << ":" << ready_count[c] << std::endl;
+		}
+		//std::cout << "ready 상황 " << ready_c << "클라이언트 수 " << current_players << std::endl;
+		if (ready_c >= current_players)
+		{
+			modepacket.all_ready_set = 1;
+			//std::cout << "all ready!: "<< modepacket.all_ready_set << std::endl;
+
+			Broadcast_Packet(&modepacket);
+
+
+			for (int c = 1; c < MAX_SOCKET; c++)
+			{
+				ready_count[c] = false;
+			}
+		}
+	}
+	break;
+	default:
+		//cout << "Unknown Packet Type from Client [" << p_id << "] Packet Type [" << p_buf[1] << "]" << endl;
+		//exit(-1);
+		break;
+	}
+}
+
+void worker(HANDLE h_iocp, SOCKET l_socket) {
+	while (true) {
+		DWORD bytes_recved;
+		ULONG_PTR ikey;
+		WSAOVERLAPPED* over;
+
+		BOOL ret = GetQueuedCompletionStatus(h_iocp, &bytes_recved, &ikey, &over, INFINITE);
+		int key = static_cast<int>(ikey);
+
+		if (FALSE == ret) {
+			if (0 == key) {
+				display_error("GQCS : ", WSAGetLastError());
+				exit(-1);
+			}
+			else {
+				display_error("GQCS : ", WSAGetLastError());
+				disconnect(key);
+			}
+		}
+
+		if ((key != 0) && (0 == bytes_recved)) {
+			disconnect(key);
+			continue;
+		}
+
+
+		OVERLAPPED_EXTENDED* over_ex = reinterpret_cast<OVERLAPPED_EXTENDED*>(over);
+
+		switch (over_ex->op_type)
+		{
+		case OP_RECV: {
+			unsigned char* packet_ptr = over_ex->packetbuf;
+			int data_bytes = bytes_recved + objects[key].prev_packet_size;
+			int packet_size = packet_ptr[0];
+
+			while (data_bytes >= packet_size)
+			{
+				process_packet(key, packet_ptr);
+				data_bytes -= packet_size;
+				packet_ptr += packet_size;
+				if (0 >= data_bytes)	break;
+				packet_size = packet_ptr[0];
+			}
+			objects[key].prev_packet_size = data_bytes;
+			if (data_bytes > 0)
+				memcpy(over_ex->packetbuf, packet_ptr, data_bytes);
+
+			do_recv(key);
+		}
+					break;
+		case OP_SEND:
+			delete over_ex;
+			break;
+		case OP_ACCEPT:
+		{
+			int c_id = get_new_player_id(over_ex->socket);
+			if (-1 == c_id) {
+				closesocket(over_ex->socket);
+				break;
+			}
+
+			objects[c_id].object_state = STATE_INGAME;
+			objects[c_id].m_recv_over.op_type = OP_RECV;
+			objects[c_id].prev_packet_size = 0;
+			current_players++;
+
+			cout << c_id << "번 플레이어가 접속됨" << endl;
+
+			CreateIoCompletionPort(reinterpret_cast<HANDLE>(over_ex->socket), h_iocp, c_id, 0);
+
+			do_recv(c_id);
+
+
+			memset(&over_ex->overlapped, 0, sizeof(over_ex->overlapped));
+			SOCKET c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+			over_ex->socket = c_socket;
+			AcceptEx(l_socket, c_socket, over_ex->packetbuf, 0, 32, 32, NULL, &over_ex->overlapped);
+			break;
+		}
+		}
+
+
+	}
 }
 
 int main()
 {
-	int generated_blockid = 0;
-
+	setlocale(LC_ALL, "korean");
+	wcout.imbue(locale("korean"));
 	// 소켓 라이브러리 초기화
 	WSADATA wsaData;
 	int token = WSAStartup(WINSOCK_VERSION, &wsaData);
 	//사용할 포트번호
+	iocp_handle = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
 
+	SOCKET l_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
-	// 소켓 배열   다중 클라이언트 접속을 하기위해 배열을 사용.
-	SOCKET socket_arry[MAX_SOCKET] = { 0 };   //최대값은 위에서 정의해줌.
-	SOCKET socket_client;
-	// 대기용 소켓 생성
-	socket_arry[0] = socket(AF_INET, SOCK_STREAM, 0);
+	CreateIoCompletionPort(reinterpret_cast<HANDLE>(l_socket), iocp_handle, 0, 0);
 
-	// 소켓 주소 정보 작성
-	SOCKADDR_IN servAddr;
-	servAddr.sin_family = AF_INET;
-	servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	servAddr.sin_port = htons(9000); // 포트 번호를 받아서 사용.
+	SOCKADDR_IN serverAddr;
+	memset(&serverAddr, 0, sizeof(SOCKADDR_IN));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_port = htons(9000);
+	serverAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+	::bind(l_socket, (struct sockaddr*)&serverAddr, sizeof(SOCKADDR_IN));
+	listen(l_socket, SOMAXCONN);
 
-	// 소켓 바인드
-	if (bind(socket_arry[0], (sockaddr*)&servAddr, sizeof(servAddr)) == SOCKET_ERROR)
-	{
-		closesocket(socket_arry[0]);
-		return -1;
+	OVERLAPPED_EXTENDED accept_over;
+	accept_over.op_type = OP_ACCEPT;
+	memset(&accept_over.overlapped, 0, sizeof(accept_over.overlapped));
+	SOCKET c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
+	accept_over.socket = c_socket;
+	BOOL ret = AcceptEx(l_socket, c_socket, accept_over.packetbuf, 0, 32, 32, NULL, &accept_over.overlapped);
+	if (FALSE == ret) {
+		int err_num = WSAGetLastError();
+		if (err_num != WSA_IO_PENDING)
+			display_error("AcceptEX : ", err_num);
 	}
-
-	// 소케 대기
-	if (listen(socket_arry[0], SOMAXCONN) == SOCKET_ERROR)
+	vector <thread> worker_threads;
+	for (int i = 0; i < 4; ++i)
 	{
-		closesocket(socket_arry[0]);
-		//printf("listen() Error");
-		return -1;
+		worker_threads.emplace_back(worker, iocp_handle, l_socket);
 	}
+	for (auto& th : worker_threads)
+	{
+		th.join();
+	}
+	closesocket(l_socket);
 
-	printf("클라이언트 접속을 기다리고 있습니다.\n");
+	WSACleanup();
 
-	unsigned long noblock = 1;
-	int nRet = ioctlsocket(socket_arry[0], FIONBIO, &noblock);
-
+	/*
 	std::vector<BlockPacket> blockvector;
 	BlockPacket blocklistpacket;
 	bool ready_count[MAX_SOCKET] = { 0, };
@@ -400,4 +815,5 @@ int main()
 
 	WSACleanup();
 	return 0;
+	*/
 }

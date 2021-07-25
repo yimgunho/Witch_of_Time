@@ -335,7 +335,7 @@ void Aclient::Tick(float DeltaTime)
 
 	recv(sock, &buffer[0], sizeof(char) + sizeof(int), 0);
 
-	switch (buffer[0])
+	switch (buffer[4])
 	{
 	case LOAD:
 	{
