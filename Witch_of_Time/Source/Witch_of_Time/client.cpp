@@ -9,76 +9,18 @@
 #include <fstream>
 #include <string>
 #include <array>
-#include <WS2tcpip.h>
-#include <MSWSock.h>
-
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "MSWSock.lib")
 
 //#define SERVERIP "192.168.60.64"
 #define SERVERIP "127.0.0.1"
 
 #define SERVERPORT 9000
 
-enum OP_TYPE {
-	OP_RECV, OP_SEND
-};
 
-
-
-struct EX_OVER
-{
-	WSAOVERLAPPED m_over;
-	WSABUF m_wsabuf[1];
-	unsigned char m_packetbuf[BUFSIZE];
-	OP_TYPE m_op;
-};
-
-SOCKET sock;
-
-const TCHAR* chars;
-const TCHAR* tempchars;
-
-float Elapsed_Time;
-
-int PositionCnt;
-
-int BlockPositionCnt;
-EX_OVER m_recv_over;
-int m_prev_size;
-HANDLE h_iocp;
-void Aclient::send_packet(void* p)
-{
-	int p_size = reinterpret_cast<int*>(p)[0];
-	int p_type = reinterpret_cast<char*>(p)[4];
-	EX_OVER* s_over = new EX_OVER;
-	s_over->m_op = OP_SEND;
-	memset(&s_over->m_over, 0, sizeof(s_over->m_over));
-	memcpy(&s_over->m_packetbuf, p, p_size);
-	s_over->m_wsabuf[0].buf = reinterpret_cast<CHAR*>(s_over->m_packetbuf);
-	s_over->m_wsabuf[0].len = p_size;
-
-	int ret = WSASend(sock, (s_over->m_wsabuf), 1, NULL, 0,
-		&s_over->m_over, NULL);
-
-}
-
-void Aclient::do_recv(int s_id)
-{
-	m_recv_over.m_wsabuf[0].buf =
-		reinterpret_cast<char*>(m_recv_over.m_packetbuf) + m_prev_size;
-	m_recv_over.m_wsabuf[0].len = BUFSIZE - m_prev_size;
-	memset(&m_recv_over.m_over, 0, sizeof(m_recv_over.m_over));
-	DWORD r_flag = 0;
-	int ret = WSARecv(sock, m_recv_over.m_wsabuf, 1, NULL,
-		&r_flag, &m_recv_over.m_over, NULL);
-}
-
-void recv_all(SOCKET socket, char* buf, size_t len, int flag)
+void recv_all(SOCKET sock, char* buf, size_t len, int flag)
 {
 	int total_received = 0;
 	while (total_received != len) {
-		int ret = recv(socket, buf + total_received, len - total_received, flag);
+		int ret = recv(sock, buf + total_received, len - total_received, flag);
 		total_received += ret;
 	}
 
@@ -110,7 +52,16 @@ void err_display(const char* msg)
 	LocalFree(lpMsgBuf);
 }
 
+SOCKET sock;
 
+const TCHAR* chars;
+const TCHAR* tempchars;
+
+float Elapsed_Time;
+
+int PositionCnt;
+
+int BlockPositionCnt;
 
 Aclient::Aclient()
 {
@@ -147,6 +98,7 @@ void Aclient::BeginPlay()
 	is_changed_mode = false;
 
 	players.SetNum(10);
+
 	TempCommandBlockId = -1;
 	TempCommandBlockId_recv = -1;
 
@@ -167,11 +119,13 @@ void Aclient::BeginPlay()
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
 
-	h_iocp = CreateIoCompletionPort(INVALID_HANDLE_VALUE, 0, 0, 0);
+	sock = socket(AF_INET, SOCK_STREAM, 0);
 
-	sock = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
-
-	CreateIoCompletionPort(reinterpret_cast<HANDLE>(sock), h_iocp, 0, 0);
+	u_long on = 1;
+	ioctlsocket(sock, FIONBIO, &on);
+	
+	int optval = 0;
+	setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (char*)&optval, sizeof(optval));
 
 	SOCKADDR_IN serveraddr;
 	//ZeroMemory(&serveraddr, sizeof(serveraddr));
@@ -180,8 +134,6 @@ void Aclient::BeginPlay()
 	serveraddr.sin_port = htons(SERVERPORT);
 	connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 
-	worker_thread = new std::thread(&Aclient::worker, this);
-	do_recv(0);
 }
 
 void Aclient::send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z)
@@ -192,14 +144,15 @@ void Aclient::send_block_packet(int blockindex, float block_pos_x, float block_p
 	blockpacket.blocklocation_y = block_pos_y;
 	blockpacket.blocklocation_z = block_pos_z;
 
-	send_packet(&blockpacket);
+	send(sock, (char*)&blockpacket, sizeof(blockpacket), 0);
 }
 
 void Aclient::send_destroy_packet(int block_id)
 {
 	DestroyPacket destroypacket;
 	destroypacket.block_id = block_id;
-	send_packet(&destroypacket);
+
+	send(sock, (char*)&destroypacket, sizeof(destroypacket), 0);
 }
 
 void Aclient::send_player_packet(FVector player_pos, FRotator player_angle)
@@ -212,163 +165,8 @@ void Aclient::send_player_packet(FVector player_pos, FRotator player_angle)
 	playerpacket.angle_x = player_angle.Yaw;
 	playerpacket.angle_y = player_angle.Pitch;
 	playerpacket.angle_z = player_angle.Roll;
-	send_packet(&playerpacket);
-}
-
-void Aclient::process_packet(int p_id, unsigned char* p_buf)
-{
-	switch (p_buf[4])
-	{
-
-	case LOAD:
-	{
-		auto cast = reinterpret_cast<LoadPacket*>(p_buf);
-
-		for (int i = 0; i < MAXLOADBLOCK; ++i)
-		{
-			id_arr_to_levelEditor[i] = cast->block_id[i];
-			location_x_arr_to_levelEditor[i] = cast->blocklocation_x[i];
-			location_y_arr_to_levelEditor[i] = cast->blocklocation_y[i];
-			location_z_arr_to_levelEditor[i] = cast->blocklocation_z[i];
-			blockindex_arr_to_levelEditor[i] = cast->blockindex[i];
-		}
-	}
-	break;
-	case CHATTING:
-	{
-		auto cast = reinterpret_cast<ChattingPacket*>(p_buf);
-
-		std::string test(cast->chatting);
-		TempRecvStr = (test.c_str());
-	}
-	break;
-	case BLOCK:
-	{
-		auto cast = reinterpret_cast<BlockPacket*>(p_buf);
-		block_index = cast->blockindex;
-		block_id_CL_2 = cast->block_id;
-		block_position_x_2 = cast->blocklocation_x;
-		block_position_y_2 = cast->blocklocation_y;
-		block_position_z_2 = cast->blocklocation_z;
-	}
-	break;
-	case TIMEBLOCK:
-	{
-		auto cast = reinterpret_cast<TimeBlockPacket*>(p_buf);
-		TimeBlock_id_SERVER = cast->timeblock_id;
-		TimeBlock_type_SERVER = cast->timetype;
-	}
-	break;
-	case DESTROY:
-	{
-		auto cast = reinterpret_cast<DestroyPacket*>(p_buf);
-		int todestroyblockid_recv(cast->block_id);
-		todestroyblockid_2 = todestroyblockid_recv;
-
-		FString todestroyblockid_2_FString = FString::FromInt(todestroyblockid_2);
-	}
-	break;
-	case PLAYER:
-	{
-		auto cast = reinterpret_cast<PlayerPacket*>(p_buf);
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		players[cast->playerindex].player_ang.Yaw = cast->angle_x;
-		players[cast->playerindex].player_ang.Pitch = cast->angle_y;
-		players[cast->playerindex].player_ang.Roll = cast->angle_z;
-		players[cast->playerindex].player_pos.X = cast->playerlocation_x;
-		players[cast->playerindex].player_pos.Y = cast->playerlocation_y;
-		players[cast->playerindex].player_pos.Z = cast->playerlocation_z;
-
-		if (IsValid(players[cast->playerindex].playeractor) == true) {
-			players[cast->playerindex].playeractor->SetActorLocation(players[cast->playerindex].player_pos);
-			players[cast->playerindex].playeractor->SetActorRotation(players[cast->playerindex].player_ang);
-		}
-		else {
-			players[cast->playerindex].playeractor = GetWorld()->SpawnActor<AActor>(luna, players[cast->playerindex].player_pos, players[cast->playerindex].player_ang, SpawnParams);
-		}
-
-	}
-	break;
-	case COMMAND:
-	{
-		auto cast = reinterpret_cast<CommandPacket*>(p_buf);
-
-		TempCommandBlockId_recv = cast->commandblock_id;
-
-		commandblockindex_recv.Init(-1, 0);
-		commandblockdata_0_recv.Init(0, 0);
-		commandblockdata_1_recv.Init(0, 0);
-		commandblockdata_2_recv.Init(0, 0);
-		commandblockdata_3_recv.Init(0, 0);
-
-		for (int i = 0; i < COMMANDS; ++i)
-		{
-			commandblockindex_recv.Add(cast->commandblockindex[i]);
-			commandblockdata_0_recv.Add(cast->commandblockdata_0[i]);
-			commandblockdata_1_recv.Add(cast->commandblockdata_1[i]);
-			commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
-			commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
-		}
-
-
-	}
-	break;
-	case MODECHANGE:
-	{
-		auto cast = reinterpret_cast<ModeChangePacket*>(p_buf);
-
-		//FString allreadystr = FString::FromInt(cast->all_ready_set);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, allreadystr);
-		is_all_ready = cast->all_ready_set;
-
-	}
-	break;
-	default:
-		break;
-	}
-}
-
-void Aclient::worker()
-{
-	while (true) {
-		DWORD num_bytes;
-		ULONG_PTR ikey;
-		WSAOVERLAPPED* over;
-
-		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &ikey, &over, INFINITE);
-		int key = static_cast<int>(ikey);
-
-		EX_OVER* ex_over = reinterpret_cast<EX_OVER*>(over);
-
-
-		switch (ex_over->m_op)
-		{
-		case OP_RECV: {
-			unsigned char* packet_ptr = ex_over->m_packetbuf;
-			int num_data = num_bytes + m_prev_size;
-			int packet_size = packet_ptr[0];
-
-			while (num_data >= packet_size)
-			{
-				process_packet(key, packet_ptr);
-				num_data -= packet_size;
-				packet_ptr += packet_size;
-				if (0 >= num_data)	break;
-				packet_size = packet_ptr[0];
-			}
-			m_prev_size = num_data;
-			if (num_data != 0)	memcpy(ex_over->m_packetbuf, packet_ptr, num_data);
-
-			do_recv(key);
-		}
-					break;
-		case OP_SEND:
-			delete ex_over;
-			break;
-		}
-	}
+	
+	send(sock, (char*)&playerpacket, sizeof(playerpacket), 0);
 }
 
 // Called every frame
@@ -376,7 +174,7 @@ void Aclient::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//char buffer[BUFSIZE];
+	char buffer[BUFSIZE];
 	ChattingPacket chattingpacket;
 	BlockPacket blockpacket;
 	TimeBlockPacket timeblockpacket;
@@ -419,7 +217,7 @@ void Aclient::Tick(float DeltaTime)
 			blockpacket_load.blockindex[i] = blockindex_arr_CL[i];
 		}
 
-			send_packet(&blockpacket_load);
+			send(sock, (char*)&blockpacket_load, sizeof(blockpacket_load), 0);
 			blockindex_arr_CL.Empty();
 			location_x_arr_CL.Empty();
 			location_y_arr_CL.Empty();
@@ -430,7 +228,7 @@ void Aclient::Tick(float DeltaTime)
 	if (ready_switch == true)
 	{
 		modepacket.readycount = int(is_ready);
-		send_packet(&modepacket);
+		send(sock, (char*)&modepacket, sizeof(modepacket), 0);
 		ready_switch = false;
 	}
 
@@ -477,7 +275,8 @@ void Aclient::Tick(float DeltaTime)
 			commandpacket.commandblockdata_2[i]	= commandblockdata_2[i];
 			commandpacket.commandblockdata_3[i]	= commandblockdata_3[i];
 		}
-		send_packet(&commandpacket);
+
+		send(sock, (char*)&commandpacket, sizeof(commandpacket), 0);
 
 		//for (int i = 0; i < lengthofcommandlist; ++i)
 		//{
@@ -524,8 +323,7 @@ void Aclient::Tick(float DeltaTime)
 			timeblockpacket.timetype = 2;
 		}
 
-		send_packet(&timeblockpacket);
-
+		send(sock, (char*)&timeblockpacket, sizeof(timeblockpacket), 0);
 
 		FastTimeBlock_id_CL = -1;
 		SlowTimeBlock_id_CL = -1;
@@ -534,11 +332,134 @@ void Aclient::Tick(float DeltaTime)
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+	recv(sock, &buffer[0], sizeof(char) + sizeof(int), 0);
+
+	switch (buffer[4])
+	{
+	case LOAD:
+	{
+		recv_all(sock, buffer + 5, sizeof(LoadPacket) - 5, 0);
+		auto cast = reinterpret_cast<LoadPacket*>(buffer);
+
+		for (int i = 0; i < MAXLOADBLOCK; ++i)
+		{
+			id_arr_to_levelEditor[i] = cast->block_id[i];
+			location_x_arr_to_levelEditor[i] = cast->blocklocation_x[i];
+			location_y_arr_to_levelEditor[i] = cast->blocklocation_y[i];
+			location_z_arr_to_levelEditor[i] = cast->blocklocation_z[i];
+			blockindex_arr_to_levelEditor[i] = cast->blockindex[i];
+		}
+	}
+	break;
+	case CHATTING:
+	{
+		recv_all(sock, buffer + 5, sizeof(ChattingPacket) - 5, 0);
+		auto cast = reinterpret_cast<ChattingPacket*>(buffer);
+		
+		std::string test(cast->chatting);
+		TempRecvStr = (test.c_str());
+	}
+	break;
+	case BLOCK:
+	{
+		recv_all(sock, buffer + 5, sizeof(BlockPacket) - 5, 0);
+		auto cast = reinterpret_cast<BlockPacket*>(buffer);
+		block_index = cast->blockindex;
+		block_id_CL_2 = cast->block_id;
+		block_position_x_2 = cast->blocklocation_x;
+		block_position_y_2 = cast->blocklocation_y;
+		block_position_z_2 = cast->blocklocation_z;
+	}
+	break;
+	case TIMEBLOCK:
+	{
+		recv_all(sock, buffer + 5, sizeof(TimeBlockPacket) - 5, 0);
+		auto cast = reinterpret_cast<TimeBlockPacket*>(buffer);
+		TimeBlock_id_SERVER = cast->timeblock_id;
+		TimeBlock_type_SERVER = cast->timetype;
+	}
+	break;
+	case DESTROY:
+	{
+		recv_all(sock, buffer + 5, sizeof(DestroyPacket) - 5, 0);
+		auto cast = reinterpret_cast<DestroyPacket*>(buffer);
+		int todestroyblockid_recv(cast->block_id);
+		todestroyblockid_2 = todestroyblockid_recv;
+
+		FString todestroyblockid_2_FString = FString::FromInt(todestroyblockid_2);
+	}
+	break;
+	case PLAYER:
+	{
+		recv_all(sock, buffer + 5, sizeof(PlayerPacket) - 5, 0);
+		auto cast = reinterpret_cast<PlayerPacket*>(buffer);
+		
+		players[cast->playerindex].player_ang.Yaw = cast->angle_x;
+		players[cast->playerindex].player_ang.Pitch = cast->angle_y;
+		players[cast->playerindex].player_ang.Roll = cast->angle_z;
+		players[cast->playerindex].player_pos.X = cast->playerlocation_x;
+		players[cast->playerindex].player_pos.Y = cast->playerlocation_y;
+		players[cast->playerindex].player_pos.Z = cast->playerlocation_z;
+
+		if (IsValid(players[cast->playerindex].playeractor) == true) {
+			players[cast->playerindex].playeractor->SetActorLocation(players[cast->playerindex].player_pos);
+			players[cast->playerindex].playeractor->SetActorRotation(players[cast->playerindex].player_ang);
+		}
+		else {
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			players[cast->playerindex].playeractor = GetWorld()->SpawnActor<AActor>(luna, players[cast->playerindex].player_pos, players[cast->playerindex].player_ang, SpawnParams);
+		}
+
+		
+	}
+	break;
+	case COMMAND:
+	{
+		recv_all(sock, buffer + 5, sizeof(CommandPacket) - 5, 0);
+		auto cast = reinterpret_cast<CommandPacket*>(buffer);
+
+		TempCommandBlockId_recv = cast->commandblock_id;
+
+		commandblockindex_recv.Init(-1, 0);
+		commandblockdata_0_recv.Init(0, 0);
+		commandblockdata_1_recv.Init(0, 0);
+		commandblockdata_2_recv.Init(0, 0);
+		commandblockdata_3_recv.Init(0, 0);
+
+		for (int i = 0; i < COMMANDS; ++i)
+		{
+			commandblockindex_recv.Add(cast->commandblockindex[i]);
+			commandblockdata_0_recv.Add(cast->commandblockdata_0[i]);
+			commandblockdata_1_recv.Add(cast->commandblockdata_1[i]);
+			commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
+			commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
+		}
+
+
+	}
+	break;
+	case MODECHANGE:
+	{
+		recv_all(sock, buffer + 5, sizeof(ModeChangePacket) - 5, 0);
+		auto cast = reinterpret_cast<ModeChangePacket*>(buffer);
+
+		//FString allreadystr = FString::FromInt(cast->all_ready_set);
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, allreadystr);
+		is_all_ready = cast->all_ready_set;
+
+	}
+	break;
+	default:
+		break;
+	}
 }
 
 void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
+
 	closesocket(sock);
 	WSACleanup();
 }
