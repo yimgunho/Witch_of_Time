@@ -200,6 +200,10 @@ void ALevelEditorPawn::PlaceBlock()
 				hitResult.Location.Z = hitResult.GetComponent()->GetComponentLocation().Z;
 			}
 
+			location_x = hitResult.Location.X;
+			location_y = hitResult.Location.Y;
+			location_z = hitResult.Location.Z;
+
 			//auto spawned = GetWorld()->SpawnActor<AActor>(PlaceActor, (FVector)hitResult.Location, Rotator, SpawnParams);
 			client->send_block_packet(blockindex, hitResult.Location.X, hitResult.Location.Y, hitResult.Location.Z);
 
