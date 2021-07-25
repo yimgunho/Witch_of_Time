@@ -10,6 +10,7 @@
 #include <thread>
 #include <array>
 #include <mutex>
+#include <atomic>
 
 
 #pragma comment(lib, "Ws2_32.lib")
