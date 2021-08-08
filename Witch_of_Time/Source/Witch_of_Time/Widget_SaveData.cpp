@@ -52,7 +52,6 @@ void UWidget_SaveData::SaveGame()
 				temp.index_of_block = casted->blockindex;
 				FString blockindex_FString = FString::FromInt(temp.index_of_block);
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, blockindex_FString);
-
 			}
 			else
 			{
