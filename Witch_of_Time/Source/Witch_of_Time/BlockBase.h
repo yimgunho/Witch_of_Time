@@ -80,6 +80,7 @@ protected:
 	// 커맨드 블럭의 실행 초기 변수 설정용 플래그
 	bool CommandBlockInitialized = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector OriginLocation;
 	// 이동 함수 구현을 위한 변수
 	FVector TargetLocation;
