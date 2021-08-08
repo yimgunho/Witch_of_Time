@@ -59,6 +59,7 @@ typedef struct OperationPacket
 	int packetsize = sizeof(OperationPacket);
 	char id = OP;
 	int block_id = 0;
+	int op_id = 0;
 }OperationPacket;
 
 typedef struct TimeBlockPacket

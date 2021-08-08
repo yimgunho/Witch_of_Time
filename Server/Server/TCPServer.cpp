@@ -18,6 +18,8 @@
 
 using namespace std;
 
+bool is_play_mode = false;
+
 void recv_all(SOCKET sock, char* buf, size_t len, int flag)
 {
 	int total_received = 0;
@@ -357,6 +359,7 @@ void process_packet(int p_id, unsigned char* buffer)
 			{
 				ready_count[c] = false;
 			}
+			is_play_mode = !is_play_mode;
 		}
 	}
 	break;
