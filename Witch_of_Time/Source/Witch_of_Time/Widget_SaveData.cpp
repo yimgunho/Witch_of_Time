@@ -72,6 +72,7 @@ void UWidget_SaveData::SaveGame()
 
 void UWidget_SaveData::LoadGame()
 {
+	int Generated_block_id = 11;
 	LoadGameInstance = Cast<USaveEditorLevel>(UGameplayStatics::CreateSaveGameObject(USaveEditorLevel::StaticClass()));
 	if (LoadGameInstance)
 	{
@@ -117,12 +118,18 @@ void UWidget_SaveData::LoadGame()
 				location_z_SaveData = block.location.Z;
 				blockindex_SaveData = block.index_of_block;
 
+				FCommandBlockArray tempcommandarray;
+				tempcommandarray.blockid = Generated_block_id;
+				Generated_block_id++;
+				tempcommandarray.MyActors = block.CommandArray;
+
+				client->commandblockarr.Emplace(tempcommandarray);
+				
 				//auto casted = Cast<ABlockBase>(spawned);
 
 				//if (casted)
 				//{
 				//	casted->CommandBlockArray = block.CommandArray;
-				//	//casted->blockindex = block.index_of_block;
 				//}
 			}
 		}

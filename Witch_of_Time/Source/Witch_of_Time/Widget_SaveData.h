@@ -13,6 +13,9 @@
 /**
  * 
  */
+
+
+
 UCLASS()
 class WITCH_OF_TIME_API UWidget_SaveData : public UUserWidget
 {
@@ -51,6 +54,11 @@ public:
 		TArray<float> location_z_arr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int> blockindex_arr;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<int> TempCommandBlockid;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		TArray<FCommandBlockInfo> TempCommandBlocklist;
+	
 	UFUNCTION(BlueprintCallable, Category = "SaveLoad")
 		void SaveGame();
 
