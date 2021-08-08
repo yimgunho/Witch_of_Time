@@ -337,9 +337,8 @@ void process_packet(int p_id, unsigned char* buffer)
 
 		modepacket.id = cast->id;
 		modepacket.packetsize = cast->packetsize;
-		modepacket.readycount = 0;
 		//std::cout << index << "번 클라이언트 " << cast->readycount << std::endl;
-		ready_count[p_id] = cast->readycount;
+		ready_count[p_id] = true;
 
 		int ready_c = 0;
 		for (int c = 1; c < MAX_SOCKET; c++)
@@ -353,12 +352,7 @@ void process_packet(int p_id, unsigned char* buffer)
 		//std::cout << "ready 상황 " << ready_c << "클라이언트 수 " << current_players << std::endl;
 		if (ready_c >= current_players)
 		{
-			modepacket.all_ready_set = 1;
-			//std::cout << "all ready!: "<< modepacket.all_ready_set << std::endl;
-
 			Broadcast_Packet(&modepacket);
-
-
 			for (int c = 1; c < MAX_SOCKET; c++)
 			{
 				ready_count[c] = false;
@@ -441,12 +435,13 @@ void worker(HANDLE h_iocp, SOCKET l_socket) {
 
 			cout << c_id << "번 플레이어가 접속됨" << endl;
 
+
+			CreateIoCompletionPort(reinterpret_cast<HANDLE>(over_ex->socket), h_iocp, c_id, 0);
+
 			LoginOKPacket packet;
 			packet.id = c_id;
 
 			send_packet(c_id, &packet);
-
-			CreateIoCompletionPort(reinterpret_cast<HANDLE>(over_ex->socket), h_iocp, c_id, 0);
 
 			do_recv(c_id);
 

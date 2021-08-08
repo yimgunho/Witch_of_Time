@@ -20,7 +20,7 @@ struct FPlayerinfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
 	FRotator player_ang;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
-		int player_hp;
+		int player_hp = 100;
 };
 
 UCLASS()
@@ -214,6 +214,9 @@ public:
 	void send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z);
 
 	UFUNCTION(BlueprintCallable)
+	void send_change_packet();
+
+	UFUNCTION(BlueprintCallable)
 		void send_player_packet(FVector player_pos, FRotator player_angle);
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -221,6 +224,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void move_player(float x, float y, float z, float a_x, float a_y, float a_z);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void mode_change();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void spawn_dummy_player(int index, FVector pos, FRotator ang);
 
 	int my_index = -1;
 

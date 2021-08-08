@@ -202,6 +202,12 @@ void Aclient::send_destroy_packet(int block_id)
 	send_packet(&destroypacket);
 }
 
+void Aclient::send_change_packet()
+{
+	ModeChangePacket packet;
+	send_packet(&packet);
+}
+
 void Aclient::send_player_packet(FVector player_pos, FRotator player_angle)
 {
 	PlayerPacket playerpacket;
@@ -293,18 +299,13 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 				players[cast->playerindex].playeractor->SetActorRotation(players[cast->playerindex].player_ang);
 			}
 			else {
-				players[cast->playerindex].playeractor = GetWorld()->SpawnActor<AActor>(luna, players[cast->playerindex].player_pos, players[cast->playerindex].player_ang, SpawnParams);
+				spawn_dummy_player(cast->playerindex, players[cast->playerindex].player_pos, players[cast->playerindex].player_ang);
 			}
 		}
 		else
 		{
-			move_player(cast->playerlocation_x, cast->playerlocation_y, cast->playerlocation_z,
-				cast->angle_x, cast->angle_y, cast->angle_z);
+			move_player(cast->playerlocation_x, cast->playerlocation_y, cast->playerlocation_z, cast->angle_x, cast->angle_y, cast->angle_z);
 		}
-
-
-		
-
 	}
 	break;
 	case COMMAND:
@@ -334,11 +335,7 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 	case MODECHANGE:
 	{
 		auto cast = reinterpret_cast<ModeChangePacket*>(p_buf);
-
-		//FString allreadystr = FString::FromInt(cast->all_ready_set);
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, allreadystr);
-		is_all_ready = cast->all_ready_set;
-
+		mode_change();
 	}
 	break;
 	case PLAYERINFO:
@@ -456,12 +453,6 @@ void Aclient::Tick(float DeltaTime)
 		Block_cnt_load = 0;
 	}
 
-	if (ready_switch == true)
-	{
-		modepacket.readycount = int(is_ready);
-		send_packet(&modepacket);
-		ready_switch = false;
-	}
 
 	else if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
 	{

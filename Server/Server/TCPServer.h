@@ -16,7 +16,7 @@
 
 enum PacketId
 {
-	RECV, CHATTING, BLOCK, TIMEBLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD, PLAYERINFO, LOGINOK, LOGOUT
+	RECV, CHATTING, BLOCK, TIMEBLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD, PLAYERINFO, LOGINOK, LOGOUT, OP
 };
 #pragma pack(push, 1)
 typedef struct ChattingPacket
@@ -53,6 +53,13 @@ typedef struct BlockPacket
 	//int commandblockindex = -1;
 	//std::vector<int> commandblockdata;
 }BlockPacket;
+
+typedef struct OperationPacket
+{
+	int packetsize = sizeof(OperationPacket);
+	char id = OP;
+	int block_id = 0;
+}OperationPacket;
 
 typedef struct TimeBlockPacket
 {
@@ -130,8 +137,6 @@ typedef struct ModeChangePacket
 {
 	int packetsize = sizeof(ModeChangePacket);
 	char id = MODECHANGE;
-	int readycount = 0;
-	int all_ready_set = 0;
 }ModeChangePacket;
 
 typedef struct PlayerInfoPacket
