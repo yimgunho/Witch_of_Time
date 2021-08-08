@@ -330,6 +330,12 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 	}
 	break;
+	case PLAYERINFO:
+	{
+		auto cast = reinterpret_cast<PlayerInfoPacket*>(p_buf);
+		players[cast->playerindex].player_hp = cast->hp;
+	}
+		break;
 	default:
 		break;
 	}

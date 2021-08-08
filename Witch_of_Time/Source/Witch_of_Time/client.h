@@ -19,6 +19,8 @@ struct FPlayerinfo
 	FVector player_pos;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
 	FRotator player_ang;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Basic)
+		int player_hp;
 };
 
 UCLASS()
@@ -213,6 +215,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void send_player_packet(FVector player_pos, FRotator player_angle);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void apply_damage();
 
 	int my_index = -1;
 
