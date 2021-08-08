@@ -279,20 +279,31 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		players[cast->playerindex].player_ang.Yaw = cast->angle_x;
-		players[cast->playerindex].player_ang.Pitch = cast->angle_y;
-		players[cast->playerindex].player_ang.Roll = cast->angle_z;
-		players[cast->playerindex].player_pos.X = cast->playerlocation_x;
-		players[cast->playerindex].player_pos.Y = cast->playerlocation_y;
-		players[cast->playerindex].player_pos.Z = cast->playerlocation_z;
+		if (cast->playerindex != my_index)
+		{
+			players[cast->playerindex].player_ang.Yaw = cast->angle_x;
+			players[cast->playerindex].player_ang.Pitch = cast->angle_y;
+			players[cast->playerindex].player_ang.Roll = cast->angle_z;
+			players[cast->playerindex].player_pos.X = cast->playerlocation_x;
+			players[cast->playerindex].player_pos.Y = cast->playerlocation_y;
+			players[cast->playerindex].player_pos.Z = cast->playerlocation_z;
 
-		if (IsValid(players[cast->playerindex].playeractor) == true) {
-			players[cast->playerindex].playeractor->SetActorLocation(players[cast->playerindex].player_pos);
-			players[cast->playerindex].playeractor->SetActorRotation(players[cast->playerindex].player_ang);
+			if (IsValid(players[cast->playerindex].playeractor) == true) {
+				players[cast->playerindex].playeractor->SetActorLocation(players[cast->playerindex].player_pos);
+				players[cast->playerindex].playeractor->SetActorRotation(players[cast->playerindex].player_ang);
+			}
+			else {
+				players[cast->playerindex].playeractor = GetWorld()->SpawnActor<AActor>(luna, players[cast->playerindex].player_pos, players[cast->playerindex].player_ang, SpawnParams);
+			}
 		}
-		else {
-			players[cast->playerindex].playeractor = GetWorld()->SpawnActor<AActor>(luna, players[cast->playerindex].player_pos, players[cast->playerindex].player_ang, SpawnParams);
+		else
+		{
+			move_player(cast->playerlocation_x, cast->playerlocation_y, cast->playerlocation_z,
+				cast->angle_x, cast->angle_y, cast->angle_z);
 		}
+
+
+		
 
 	}
 	break;
@@ -334,6 +345,14 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 	{
 		auto cast = reinterpret_cast<PlayerInfoPacket*>(p_buf);
 		players[cast->playerindex].player_hp = cast->hp;
+		if (cast->playerindex != my_index)
+		{
+			apply_damage(players[cast->playerindex].playeractor, cast->hp, true);
+		}
+		else
+		{
+			apply_damage(nullptr, cast->hp, false);
+		}
 	}
 		break;
 	default:

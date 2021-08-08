@@ -217,7 +217,10 @@ public:
 		void send_player_packet(FVector player_pos, FRotator player_angle);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void apply_damage();
+		void apply_damage(AActor* actor, int hp, bool flag = false);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void move_player(float x, float y, float z, float a_x, float a_y, float a_z);
 
 	int my_index = -1;
 
