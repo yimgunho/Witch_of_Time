@@ -363,6 +363,39 @@ void process_packet(int p_id, unsigned char* buffer)
 		}
 	}
 	break;
+	case PLAYERINFO:
+	{
+		auto cast = reinterpret_cast<PlayerInfoPacket*>(buffer);
+		objects[p_id].hp = cast->hp;
+		cast->playerindex = p_id;
+
+		if (objects[p_id].hp <= 0)
+		{
+			PlayerPacket playerpacket;
+			playerpacket.playerindex = p_id;
+			playerpacket.angle_x = 0;
+			playerpacket.angle_y = 0;
+			playerpacket.angle_z = 0;
+			playerpacket.playerlocation_x = 100;
+			playerpacket.playerlocation_y = 100;
+			playerpacket.playerlocation_z = 500;
+
+			objects[p_id].angle_x = 0;
+			objects[p_id].angle_y = 0;
+			objects[p_id].angle_z = 0;
+			objects[p_id].x = 100;
+			objects[p_id].y = 100;
+			objects[p_id].z = 500;
+
+			Broadcast_Packet(&playerpacket);
+
+			objects[p_id].hp = 100;
+			cast->hp = 100;
+		}
+
+		Broadcast_Packet(cast);
+	}
+		break;
 	default:
 		//cout << "Unknown Packet Type from Client [" << p_id << "] Packet Type [" << p_buf[1] << "]" << endl;
 		//exit(-1);
@@ -442,10 +475,11 @@ void worker(HANDLE h_iocp, SOCKET l_socket) {
 			CreateIoCompletionPort(reinterpret_cast<HANDLE>(over_ex->socket), h_iocp, c_id, 0);
 
 			LoginOKPacket packet;
-			packet.id = c_id;
+			packet.playerindex = c_id;
 
 			send_packet(c_id, &packet);
 
+			objects[c_id].m_recv_over.op_type = OP_RECV;
 			do_recv(c_id);
 
 

@@ -22,7 +22,7 @@ enum PacketId
 typedef struct ChattingPacket
 {
 	int packetsize = sizeof(ChattingPacket);
-	char id = CHATTING;
+	unsigned char id = CHATTING;
 	char chatting[CHATSIZE] = "";
 	//std::string chatting = "";
 }ChattingPacket;
@@ -30,21 +30,21 @@ typedef struct ChattingPacket
 typedef struct LoginOKPacket
 {
 	int packetsize = sizeof(LoginOKPacket);
-	char id = LOGINOK;
+	unsigned char id = LOGINOK;
 	int playerindex = 0;
 }LoginOKPacket;
 
 typedef struct LogoutPacket
 {
 	int packetsize = sizeof(LogoutPacket);
-	char id = LOGOUT;
+	unsigned char id = LOGOUT;
 	int playerindex = 0;
 }LogoutPacket;
 
 typedef struct BlockPacket
 {
 	int packetsize = sizeof(BlockPacket);
-	char id = BLOCK;
+	unsigned char id = BLOCK;
 	int blockindex = 1;
 	int block_id = 0;
 	float blocklocation_x = 0;
@@ -57,7 +57,7 @@ typedef struct BlockPacket
 typedef struct OperationPacket
 {
 	int packetsize = sizeof(OperationPacket);
-	char id = OP;
+	unsigned char id = OP;
 	int block_id = 0;
 	int op_id = 0;
 }OperationPacket;
@@ -65,7 +65,7 @@ typedef struct OperationPacket
 typedef struct TimeBlockPacket
 {
 	int packetsize = sizeof(TimeBlockPacket);
-	char id = TIMEBLOCK;
+	unsigned char id = TIMEBLOCK;
 	int timeblock_id = 0;
 	int timetype = 0;
 }TimeBlockPacket;
@@ -73,7 +73,7 @@ typedef struct TimeBlockPacket
 typedef struct LoadPacket
 {
 	int packetsize = sizeof(LoadPacket);
-	char id = LOAD;
+	unsigned char id = LOAD;
 	int blockindex[MAXLOADBLOCK] = { 0, };
 	int block_id[MAXLOADBLOCK] = { 0, };
 	float blocklocation_x[MAXLOADBLOCK] = { 0, };
@@ -86,7 +86,7 @@ typedef struct LoadPacket
 typedef struct DestroyPacket
 {
 	int packetsize = sizeof(DestroyPacket);
-	char id = DESTROY;
+	unsigned char id = DESTROY;
 	int block_id = 0;
 	//char todestroyblock[BLOCKSIZE] = "none";
 }DestroyPacket;
@@ -94,7 +94,7 @@ typedef struct DestroyPacket
 typedef struct PlayerPacket
 {
 	int packetsize = sizeof(PlayerPacket);
-	char id = PLAYER;
+	unsigned char id = PLAYER;
 	int playerindex = 0;
 	float angle_x = 0;
 	float angle_y = 0;
@@ -104,20 +104,10 @@ typedef struct PlayerPacket
 	float playerlocation_z = 0;
 }PlayerPacket;
 
-typedef struct BlockListPacket
-{
-	int blockindex = 1;
-	int block_id = 0;
-	float blocklocation_x = 0;
-	float blocklocation_y = 0;
-	float blocklocation_z = 0;
-
-}BlockListPacket;
-
 typedef struct CommandPacket
 {
 	int packetsize = sizeof(CommandPacket);
-	char id = COMMAND;
+	unsigned char id = COMMAND;
 	int commandblock_id = -1;
 	//std::vector<int> commandblockindex{ -1 };
 	//std::vector<int> commandblockdata_0{ 0 };
@@ -137,13 +127,13 @@ typedef struct CommandPacket
 typedef struct ModeChangePacket
 {
 	int packetsize = sizeof(ModeChangePacket);
-	char id = MODECHANGE;
+	unsigned char id = MODECHANGE;
 }ModeChangePacket;
 
 typedef struct PlayerInfoPacket
 {
 	int packetsize = sizeof(PlayerInfoPacket);
-	char id = PLAYERINFO;
+	unsigned char id = PLAYERINFO;
 	int playerindex = 0;
 	int hp = 100;
 }PlayerInfoPacket;

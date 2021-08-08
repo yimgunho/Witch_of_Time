@@ -217,6 +217,9 @@ public:
 	void send_change_packet();
 
 	UFUNCTION(BlueprintCallable)
+		void send_playerinfo_packet(int hp);
+
+	UFUNCTION(BlueprintCallable)
 		void send_player_packet(FVector player_pos, FRotator player_angle);
 
 	UFUNCTION(BlueprintImplementableEvent)

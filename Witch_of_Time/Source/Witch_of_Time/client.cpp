@@ -208,6 +208,13 @@ void Aclient::send_change_packet()
 	send_packet(&packet);
 }
 
+void Aclient::send_playerinfo_packet(int hp)
+{
+	PlayerInfoPacket packet;
+	packet.hp = hp;
+	send_packet(&packet);
+}
+
 void Aclient::send_player_packet(FVector player_pos, FRotator player_angle)
 {
 	PlayerPacket playerpacket;
