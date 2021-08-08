@@ -214,6 +214,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void send_player_packet(FVector player_pos, FRotator player_angle);
 
+	int my_index = -1;
+
 	std::thread *worker_thread;
 protected:
 	// Called when the game starts or when spawned

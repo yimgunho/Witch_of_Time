@@ -16,7 +16,7 @@
 
 enum PacketId
 {
-	RECV, CHATTING, BLOCK, TIMEBLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD
+	RECV, CHATTING, BLOCK, TIMEBLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD, PLAYERINFO, LOGINOK, LOGOUT
 };
 #pragma pack(push, 1)
 typedef struct ChattingPacket
@@ -26,6 +26,20 @@ typedef struct ChattingPacket
 	char chatting[CHATSIZE] = "";
 	//std::string chatting = "";
 }ChattingPacket;
+
+typedef struct LoginOKPacket
+{
+	int packetsize = sizeof(LoginOKPacket);
+	char id = LOGINOK;
+	int playerindex = 0;
+}LoginOKPacket;
+
+typedef struct LogoutPacket
+{
+	int packetsize = sizeof(LogoutPacket);
+	char id = LOGOUT;
+	int playerindex = 0;
+}LogoutPacket;
 
 typedef struct BlockPacket
 {
@@ -120,21 +134,13 @@ typedef struct ModeChangePacket
 	int all_ready_set = 0;
 }ModeChangePacket;
 
-typedef struct RecvPacket
+typedef struct PlayerInfoPacket
 {
-	int packetsize = sizeof(RecvPacket);
-	char id = RECV;
-	float angle_x = 0;
-	float angle_y = 0;
-	float angle_z = 0;
-	float playerlocation_x = 0;
-	float playerlocation_y = 0;
-	float playerlocation_z = 0;
-	float blocklocation_x = 0;
-	float blocklocation_y = 0;
-	float blocklocation_z = 0;
-	char chatting[CHATSIZE] = "none";
-	char todestroyblock[BLOCKSIZE] = "none";
-}RecvPacket;
+	int packetsize = sizeof(PlayerInfoPacket);
+	char id = PLAYERINFO;
+	int playerindex = 0;
+	int hp = 100;
+}PlayerInfoPacket;
+
 
 #pragma pack(pop)
