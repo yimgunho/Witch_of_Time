@@ -76,7 +76,7 @@ HANDLE iocp_handle;
 bool ready_count[MAX_USER] = { 0, };
 int current_players = 0;
 
-
+float start_x = 1000, start_y = 10000, start_z = 200;
 
 
 void display_error(const char* msg, int err_no)
@@ -214,10 +214,21 @@ void process_packet(int p_id, unsigned char* buffer)
 		auto cast = reinterpret_cast<BlockPacket*>(buffer);
 
 		BlockPacket blocklistpacket;
-
-		blocklistpacket.id = cast->id;
-		blocklistpacket.packetsize = cast->packetsize;
 		blocklistpacket.blockindex = cast->blockindex;
+		if (blocklistpacket.blockindex == 76)
+		{
+			start_x = cast->blocklocation_x;
+			start_y = cast->blocklocation_y;
+			start_z = cast->blocklocation_z;
+
+			blocklistpacket.blocklocation_x = cast->blocklocation_x;
+			blocklistpacket.blocklocation_y = cast->blocklocation_y;
+			blocklistpacket.blocklocation_z = cast->blocklocation_z;
+
+			Broadcast_Packet(&blocklistpacket);
+
+			break;
+		}
 
 		int blockid = get_new_block_id();
 		blocklistpacket.block_id = blockid;
@@ -376,16 +387,16 @@ void process_packet(int p_id, unsigned char* buffer)
 			playerpacket.angle_x = 0;
 			playerpacket.angle_y = 0;
 			playerpacket.angle_z = 0;
-			playerpacket.playerlocation_x = 100;
-			playerpacket.playerlocation_y = 100;
-			playerpacket.playerlocation_z = 500;
+			playerpacket.playerlocation_x = start_x;
+			playerpacket.playerlocation_y = start_y;
+			playerpacket.playerlocation_z = start_z;
 
 			objects[p_id].angle_x = 0;
 			objects[p_id].angle_y = 0;
 			objects[p_id].angle_z = 0;
-			objects[p_id].x = 100;
-			objects[p_id].y = 100;
-			objects[p_id].z = 500;
+			objects[p_id].x = start_x;
+			objects[p_id].y = start_y;
+			objects[p_id].z = start_z;
 
 			Broadcast_Packet(&playerpacket);
 

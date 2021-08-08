@@ -249,6 +249,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void spawn_block(int index, int id, float x, float y, float z);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int my_index = -1;
 
 	std::thread *worker_thread;
