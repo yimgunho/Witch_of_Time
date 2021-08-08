@@ -231,6 +231,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void spawn_dummy_player(int index, FVector pos, FRotator ang);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void spawn_block(int index, int id, float x, float y, float z);
+
 	int my_index = -1;
 
 	std::thread *worker_thread;

@@ -211,10 +211,6 @@ void process_packet(int p_id, unsigned char* buffer)
 	{
 		auto cast = reinterpret_cast<BlockPacket*>(buffer);
 
-		std::cout << cast->blocklocation_x << std::endl;
-		std::cout << cast->blocklocation_y << std::endl;
-		std::cout << cast->blocklocation_z << std::endl;
-		std::cout << std::endl;
 		BlockPacket blocklistpacket;
 
 		blocklistpacket.id = cast->id;

@@ -256,11 +256,7 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 	case BLOCK:
 	{
 		auto cast = reinterpret_cast<BlockPacket*>(p_buf);
-		block_index = cast->blockindex;
-		block_id_CL_2 = cast->block_id;
-		block_position_x_2 = cast->blocklocation_x;
-		block_position_y_2 = cast->blocklocation_y;
-		block_position_z_2 = cast->blocklocation_z;
+		spawn_block(cast->blockindex, cast->block_id, cast->blocklocation_x, cast->blocklocation_y, cast->blocklocation_z);
 	}
 	break;
 	case TIMEBLOCK:
