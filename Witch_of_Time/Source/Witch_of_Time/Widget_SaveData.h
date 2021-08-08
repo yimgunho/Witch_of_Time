@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "SaveEditorLevel.h"
+#include "client.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/TextBlock.h"
 #include "Components/EditableTextBox.h"
@@ -28,6 +29,8 @@ protected:
 	USaveEditorLevel* LoadGameInstance;
 
 public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		Aclient* client;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int blockid_SaveData;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)

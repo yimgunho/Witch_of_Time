@@ -102,7 +102,8 @@ void UWidget_SaveData::LoadGame()
 			for (auto block : LoadGameInstance->blockarray)
 			{
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "LoadPlace_By_SaveData");
-				auto spawned = GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
+				//auto spawned = GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
+				client->send_block_packet(block.index_of_block, block.location.X, block.location.Y, block.location.Z);
 
 				//blockpacket.blockindex = block_index;
 				//blockpacket.block_id = block_id_CL;
@@ -116,19 +117,13 @@ void UWidget_SaveData::LoadGame()
 				location_z_SaveData = block.location.Z;
 				blockindex_SaveData = block.index_of_block;
 
-				id_arr.Add(blockid_SaveData);
-				location_x_arr.Add(block.location.X);
-				location_y_arr.Add(block.location.Y);
-				location_z_arr.Add(block.location.Z);
-				blockindex_arr.Add(block.index_of_block);
+				//auto casted = Cast<ABlockBase>(spawned);
 
-				auto casted = Cast<ABlockBase>(spawned);
-
-				if (casted)
-				{
-					casted->CommandBlockArray = block.CommandArray;
-					//casted->blockindex = block.index_of_block;
-				}
+				//if (casted)
+				//{
+				//	casted->CommandBlockArray = block.CommandArray;
+				//	//casted->blockindex = block.index_of_block;
+				//}
 			}
 		}
 
