@@ -123,6 +123,10 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 				CommandBlockInitialized = false;
 				CurrentCommandBlock++;
 			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
 		}
 		else
 		{
@@ -147,12 +151,16 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 
 		Waited_Time += DeltaTime;
 
-		if (Waited_Time > block.data[0])
+		if (Waited_Time > (block.data[0]/10))
 		{
 			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 			{
 				CommandBlockInitialized = false;
 				CurrentCommandBlock++;
+			}
+			else
+			{
+				SetActorTickEnabled(false);
 			}
 		}
 		break;
@@ -163,6 +171,10 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 				CommandBlockInitialized = false;
 				CurrentCommandBlock++;
 			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
 		}
 		break;
 	case 4: // 데미지 부여
@@ -172,17 +184,29 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 				CommandBlockInitialized = false;
 				CurrentCommandBlock++;
 			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
+			
 		}
 		break;
 
-	case 5:
+	case 5: // 게임 종료
 		if (cbgameend()) {
 			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 			{
 				CommandBlockInitialized = false;
 				CurrentCommandBlock++;
 			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
 		}
+		break;
+
+	case 6: // 텍스트 출력
 		break;
 
 	default:
@@ -190,6 +214,10 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 		{
 			CommandBlockInitialized = false;
 			CurrentCommandBlock++;
+		}
+		else
+		{
+			SetActorTickEnabled(false);
 		}
 		break;
 	}
