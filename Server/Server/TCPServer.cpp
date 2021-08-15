@@ -189,7 +189,6 @@ void process_packet(int p_id, unsigned char* buffer)
 	{
 	case LOAD:
 	{
-		std::cout << "loadpacketrecv" << std::endl;
 		auto cast = reinterpret_cast<LoadPacket*>(buffer);
 
 		std::cout << cast->blocklocation_x[0] << std::endl;
@@ -200,6 +199,7 @@ void process_packet(int p_id, unsigned char* buffer)
 	case CHATTING:
 	{
 		auto cast = reinterpret_cast<ChattingPacket*>(buffer);
+
 		std::cout << cast->chatting << std::endl;
 
 		ChattingPacket chattingpacket;
@@ -208,6 +208,7 @@ void process_packet(int p_id, unsigned char* buffer)
 		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), cast->chatting);
 
 		Broadcast_Packet(&chattingpacket);
+		//Broadcast_Packet(cast);
 	}
 	break;
 	case BLOCK:

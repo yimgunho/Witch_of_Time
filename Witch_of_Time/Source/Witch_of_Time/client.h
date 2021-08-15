@@ -253,6 +253,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void spawn_block(int index, int id, float x, float y, float z);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void receive_chatting();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int my_index = -1;
 
