@@ -305,27 +305,30 @@ void process_packet(int p_id, unsigned char* buffer)
 	case COMMAND:
 	{
 		auto cast = reinterpret_cast<CommandPacket*>(buffer);
-		for (int i = 0; i < COMMANDS; ++i)
-		{
-			std::cout << cast->commandblock_id << std::endl;
-			std::cout << cast->commandblockindex[i] << std::endl;
-			std::cout << cast->commandblockdata_0[i] << std::endl;
-			std::cout << cast->commandblockdata_1[i] << std::endl;
-			std::cout << cast->commandblockdata_2[i] << std::endl;
-			std::cout << cast->commandblockdata_3[i] << std::endl;
-		}
 		CommandPacket commandpacket;
 
 		commandpacket.commandblock_id = cast->commandblock_id;
 
 		for (int i = 0; i < COMMANDS; ++i)
 		{
-			commandpacket.commandblockindex[i] = cast->commandblockindex[i];
-			commandpacket.commandblockdata_0[i] = cast->commandblockdata_0[i];
-			commandpacket.commandblockdata_1[i] = cast->commandblockdata_1[i];
-			commandpacket.commandblockdata_2[i] = cast->commandblockdata_2[i];
-			commandpacket.commandblockdata_3[i] = cast->commandblockdata_3[i];
+			if (cast->commandblockindex[i] >= 0) 
+			{
+				commandpacket.commandblockindex[i] = cast->commandblockindex[i];
+				commandpacket.commandblockdata_0[i] = cast->commandblockdata_0[i];
+				commandpacket.commandblockdata_1[i] = cast->commandblockdata_1[i];
+				commandpacket.commandblockdata_2[i] = cast->commandblockdata_2[i];
+				commandpacket.commandblockdata_3[i] = cast->commandblockdata_3[i];
+			}
+			std::cout << i << "///////////////////////////" << std::endl;
+			std::cout << commandpacket.commandblockindex[i] << std::endl;
+			std::cout << commandpacket.commandblockdata_0[i] << std::endl;
+			std::cout << commandpacket.commandblockdata_1[i] << std::endl;
+			std::cout << commandpacket.commandblockdata_2[i] << std::endl;
+			std::cout << commandpacket.commandblockdata_3[i] << std::endl;
+			//std::cout << i << "Åë°ú" << std::endl;
 		}
+
+
 		Broadcast_Packet(&commandpacket);
 
 	}

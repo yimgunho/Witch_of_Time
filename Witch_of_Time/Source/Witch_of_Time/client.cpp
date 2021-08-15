@@ -202,17 +202,20 @@ void Aclient::send_destroy_packet(int block_id)
 	send_packet(&destroypacket);
 }
 
-void Aclient::send_command_packet(int block_id, TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3)
+void Aclient::send_command_packet(int block_id, TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3)
 {
 	CommandPacket commandpacket;
 	commandpacket.commandblock_id = block_id;
 	for (int i = 0; i < lengthofcommandlist; ++i)
 	{
-		commandpacket.commandblockindex[i] = commandindex[i];
-		commandpacket.commandblockdata_0[i] = commanddata_0[i];
-		commandpacket.commandblockdata_1[i] = commanddata_1[i];
-		commandpacket.commandblockdata_2[i] = commanddata_2[i];
-		commandpacket.commandblockdata_3[i] = commanddata_3[i];
+		if (commandindex[i] >= 0)
+		{
+			commandpacket.commandblockindex[i] = commandindex[i];
+			commandpacket.commandblockdata_0[i] = commanddata_0[i];
+			commandpacket.commandblockdata_1[i] = commanddata_1[i];
+			commandpacket.commandblockdata_2[i] = commanddata_2[i];
+			commandpacket.commandblockdata_3[i] = commanddata_3[i];
+		}
 	}
 	send_packet(&commandpacket);
 }
@@ -340,7 +343,6 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 	case COMMAND:
 	{
 		auto cast = reinterpret_cast<CommandPacket*>(p_buf);
-
 		TempCommandBlockId_recv = cast->commandblock_id;
 
 		commandblockindex_recv.Init(-1, 0);
@@ -351,11 +353,14 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 		for (int i = 0; i < COMMANDS; ++i)
 		{
-			commandblockindex_recv.Add(cast->commandblockindex[i]);
-			commandblockdata_0_recv.Add(cast->commandblockdata_0[i]);
-			commandblockdata_1_recv.Add(cast->commandblockdata_1[i]);
-			commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
-			commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
+			if (cast->commandblockindex[i] >= 0)
+			{
+				commandblockindex_recv.Add(cast->commandblockindex[i]);
+				commandblockdata_0_recv.Add(cast->commandblockdata_0[i]);
+				commandblockdata_1_recv.Add(cast->commandblockdata_1[i]);
+				commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
+				commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
+			}
 		}
 		paste_commandlist(TempCommandBlockId_recv, commandblockindex_recv, commandblockdata_0_recv, commandblockdata_1_recv, commandblockdata_2_recv, commandblockdata_3_recv);
 
@@ -447,29 +452,7 @@ void Aclient::Tick(float DeltaTime)
 
 	tempchars = *TempSendStr;
 
-	if (TempCommandBlockId != -1)
-	{
-		commandpacket.commandblock_id = TempCommandBlockId;
-
-		for (int i = 0; i < lengthofcommandlist; ++i)
-		{
-			commandpacket.commandblockindex[i] = commandblockindex_CL[i];
-			commandpacket.commandblockdata_0[i] = commandblockdata_0[i];
-			commandpacket.commandblockdata_1[i] = commandblockdata_1[i];
-			commandpacket.commandblockdata_2[i] = commandblockdata_2[i];
-			commandpacket.commandblockdata_3[i] = commandblockdata_3[i];
-		}
-		send_packet(&commandpacket);
-
-		TempCommandBlockId = -1;
-		commandblockindex_CL.Empty();
-		commandblockdata_0.Empty();
-		commandblockdata_1.Empty();
-		commandblockdata_2.Empty();
-		commandblockdata_3.Empty();
-	}
-
-	else if (FastTimeBlock_id_CL >= 0 || SlowTimeBlock_id_CL >= 0)
+	if (FastTimeBlock_id_CL >= 0 || SlowTimeBlock_id_CL >= 0)
 	{
 		if (FastTimeBlock_id_CL >= 0) {
 			timeblockpacket.timeblock_id = FastTimeBlock_id_CL;
