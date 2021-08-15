@@ -202,6 +202,14 @@ void Aclient::send_destroy_packet(int block_id)
 	send_packet(&destroypacket);
 }
 
+void Aclient::send_chatting_packet(FString chat)
+{
+	ChattingPacket chattingpacket;
+	std::string TempSendString(TCHAR_TO_UTF8(*chat));
+	strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), TempSendString.c_str());
+	send_packet(&chattingpacket);
+}
+
 void Aclient::send_change_packet()
 {
 	ModeChangePacket packet;
@@ -459,16 +467,16 @@ void Aclient::Tick(float DeltaTime)
 	}
 
 
-	else if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
-	{
-		std::string TempSendString(TCHAR_TO_UTF8(*TempSendStr));
+	//else if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
+	//{
+	//	std::string TempSendString(TCHAR_TO_UTF8(*TempSendStr));
 
-		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), TempSendString.c_str());
+	//	strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), TempSendString.c_str());
 
-		send(sock, (char*)&chattingpacket, sizeof(chattingpacket), 0);
+	//	send(sock, (char*)&chattingpacket, sizeof(chattingpacket), 0);
 
-		TempSendStr = "";
-	}
+	//	TempSendStr = "";
+	//}
 
 	else if (TempCommandBlockId != -1)
 	{

@@ -213,14 +213,18 @@ public:
 		int TimeBlock_type_SERVER;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<FPlayerinfo> players;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UClass* luna;
+
+
+
 
 	UFUNCTION(BlueprintCallable)
 		void SetBlockIndex(int index);
 
 	UFUNCTION(BlueprintCallable)
 	void send_destroy_packet(int block_id);
+
+	UFUNCTION(BlueprintCallable)
+	void send_chatting_packet(FString chat);
 
 	UFUNCTION(BlueprintCallable)
 	void send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z);
