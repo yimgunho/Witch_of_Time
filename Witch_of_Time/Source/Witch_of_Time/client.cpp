@@ -202,6 +202,21 @@ void Aclient::send_destroy_packet(int block_id)
 	send_packet(&destroypacket);
 }
 
+void Aclient::send_command_packet(int block_id, TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3)
+{
+	CommandPacket commandpacket;
+	commandpacket.commandblock_id = block_id;
+	for (int i = 0; i < lengthofcommandlist; ++i)
+	{
+		commandpacket.commandblockindex[i] = commandindex[i];
+		commandpacket.commandblockdata_0[i] = commanddata_0[i];
+		commandpacket.commandblockdata_1[i] = commanddata_1[i];
+		commandpacket.commandblockdata_2[i] = commanddata_2[i];
+		commandpacket.commandblockdata_3[i] = commanddata_3[i];
+	}
+	send_packet(&commandpacket);
+}
+
 void Aclient::send_chatting_packet(FString chat)
 {
 	ChattingPacket chattingpacket;
@@ -342,7 +357,7 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 			commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
 			commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
 		}
-
+		paste_commandlist(TempCommandBlockId_recv, commandblockindex_recv, commandblockdata_0_recv, commandblockdata_1_recv, commandblockdata_2_recv, commandblockdata_3_recv);
 
 	}
 	break;

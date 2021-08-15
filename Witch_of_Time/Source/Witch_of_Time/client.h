@@ -198,6 +198,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void send_player_packet(FVector player_pos, FRotator player_angle);
 
+	UFUNCTION(BlueprintCallable)
+		void send_command_packet(int block_id, TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3);
+
 	UFUNCTION(BlueprintImplementableEvent)
 		void apply_damage(AActor* actor, int hp, bool flag = false);
 
@@ -215,6 +218,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void destroy_block(int id);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void paste_commandlist(int id, const TArray<int32>& index, const TArray<int32>& data_0, const TArray<int32>& data_1, const TArray<int32>& data_2, const TArray<int32>& data_3);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void receive_chatting();
