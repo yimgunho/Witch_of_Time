@@ -175,6 +175,16 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 		}
 		break;
 
+	case 5:
+		if (cbgameend()) {
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+		}
+		break;
+
 	default:
 		if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 		{

@@ -151,4 +151,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
 	bool cbdamage(int damage);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
+	bool cbgameend();
+
 };
