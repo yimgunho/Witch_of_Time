@@ -135,10 +135,10 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 	case 1: // 반복
 		CurrentCommandBlock = 0;
 		break;
-	case 2: // 블럭 초기화
+	case 9: // 블럭 초기화
 		ResetBlock();
 		break;
-	case 3:
+	case 2: // 대기
 		if (!CommandBlockInitialized)
 		{
 			Waited_Time = 0.f;
@@ -156,6 +156,25 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 			}
 		}
 		break;
+	case 3: // 상호작용
+		if (cbcollision()) {
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+		}
+		break;
+	case 4: // 데미지 부여
+		if(cbdamage(block.data[0])) {
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+		}
+		break;
+
 	default:
 		if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 		{
