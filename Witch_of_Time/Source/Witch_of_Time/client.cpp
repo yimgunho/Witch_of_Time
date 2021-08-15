@@ -289,9 +289,8 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 	{
 		auto cast = reinterpret_cast<DestroyPacket*>(p_buf);
 		int todestroyblockid_recv(cast->block_id);
-		todestroyblockid_2 = todestroyblockid_recv;
-
 		FString todestroyblockid_2_FString = FString::FromInt(todestroyblockid_2);
+		destroy_block(cast->block_id);
 	}
 	break;
 	case PLAYER:

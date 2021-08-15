@@ -52,47 +52,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempRecvStr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_z;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_z;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int recv_cnt;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_x_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_y_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_z_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_x_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_y_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_z_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int is_moving;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int is_moving_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_z;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_x_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_y_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_z_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int32> commandblockindex_CL;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -252,6 +212,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void spawn_block(int index, int id, float x, float y, float z);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void destroy_block(int id);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void receive_chatting();
