@@ -154,4 +154,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
 	bool cbgameend();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
+	bool cbteleport(int x, int y, int z);
+
 };

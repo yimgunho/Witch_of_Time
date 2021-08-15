@@ -139,7 +139,7 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 	case 1: // 반복
 		CurrentCommandBlock = 0;
 		break;
-	case 9: // 블럭 초기화
+	case 8: // 블럭 초기화
 		ResetBlock();
 		break;
 	case 2: // 대기
@@ -207,6 +207,21 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 		break;
 
 	case 6: // 텍스트 출력
+		break;
+
+	case 7: // 텔레포트
+		if (cbteleport(block.data[0], block.data[1], block.data[2]))
+		{
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
+		}
 		break;
 
 	default:
