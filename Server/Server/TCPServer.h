@@ -5,7 +5,7 @@
 #include <string>
 #include <algorithm>
 #define BUFSIZE 1024
-#define CHATSIZE 256
+#define CHATSIZE 128
 #define BLOCKSIZE 64
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
 #define COMMANDS 9

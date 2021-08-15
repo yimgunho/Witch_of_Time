@@ -266,6 +266,8 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 		std::string test(cast->chatting);
 		TempRecvStr = (test.c_str());
+		receive_chatting();
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, cast->chatting);
 	}
 	break;
 	case BLOCK:
@@ -431,76 +433,9 @@ void Aclient::Tick(float DeltaTime)
 
 	tempchars = *TempSendStr;
 
-
-	//if (Block_cnt_load != 0)
-	//{
-	//	blockpacket_load.blockindex = blockindex_load;
-	//	blockpacket_load.block_id = block_id_CL;
-	//	blockpacket_load.blocklocation_x = block_position_x_load;
-	//	blockpacket_load.blocklocation_y = block_position_y_load;
-	//	blockpacket_load.blocklocation_z = block_position_z_load;
-	//	//blockpacket.commandblockindex = ;
-	//	//blockpacket.
-	//	send(sock, (char*)&blockpacket_load, sizeof(blockpacket_load), 0);
-	//	Block_cnt_load = 0;
-	//}
-
-	if (Block_cnt_load != 0)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "LoadData Send Enter");
-
-		for (int i = 0; i < blockindex_arr_CL.Num(); ++i)
-		{
-			//blockpacket_load.id;
-			blockpacket_load.blocklocation_x[i] = location_x_arr_CL[i];
-			blockpacket_load.blocklocation_y[i] = location_y_arr_CL[i];
-			blockpacket_load.blocklocation_z[i] = location_z_arr_CL[i];
-			blockpacket_load.blockindex[i] = blockindex_arr_CL[i];
-		}
-
-		send_packet(&blockpacket_load);
-		blockindex_arr_CL.Empty();
-		location_x_arr_CL.Empty();
-		location_y_arr_CL.Empty();
-		location_z_arr_CL.Empty();
-		Block_cnt_load = 0;
-	}
-
-
-	//else if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
-	//{
-	//	std::string TempSendString(TCHAR_TO_UTF8(*TempSendStr));
-
-	//	strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), TempSendString.c_str());
-
-	//	send(sock, (char*)&chattingpacket, sizeof(chattingpacket), 0);
-
-	//	TempSendStr = "";
-	//}
-
-	else if (TempCommandBlockId != -1)
+	if (TempCommandBlockId != -1)
 	{
 		commandpacket.commandblock_id = TempCommandBlockId;
-		//for (int index : commandblockindex_CL) {
-		//	commandpacket.commandblockindex.push_back(index);
-		//}
-		//for (int data_0 : commandblockdata_0) {
-		//	commandpacket.commandblockdata_0.push_back(data_0);
-		//}
-		//for (int data_1 : commandblockdata_1) {
-		//	commandpacket.commandblockdata_1.push_back(data_1);
-		//}
-		//for (int data_2 : commandblockdata_2) {
-		//	commandpacket.commandblockdata_2.push_back(data_2);
-		//}
-		//for (int data_3 : commandblockdata_3) {
-		//	commandpacket.commandblockdata_3.push_back(data_3);
-		//}
-		//commandpacket.commandblockindex = commandblockindex_CL[0];
-		//commandpacket.commandblockdata_0 = commandblockdata_0[0];
-		//commandpacket.commandblockdata_1 = commandblockdata_1[0];
-		//commandpacket.commandblockdata_2 = commandblockdata_2[0];
-		//commandpacket.commandblockdata_3 = commandblockdata_3[0];
 
 		for (int i = 0; i < lengthofcommandlist; ++i)
 		{
@@ -512,14 +447,6 @@ void Aclient::Tick(float DeltaTime)
 		}
 		send_packet(&commandpacket);
 
-		//for (int i = 0; i < lengthofcommandlist; ++i)
-		//{
-		//	commandpacket.commandblockindex[i] = -1;
-		//	commandpacket.commandblockdata_0[i] = 0;
-		//	commandpacket.commandblockdata_1[i] = 0;
-		//	commandpacket.commandblockdata_2[i] = 0;
-		//	commandpacket.commandblockdata_3[i] = 0;
-		//}
 		TempCommandBlockId = -1;
 		commandblockindex_CL.Empty();
 		commandblockdata_0.Empty();
@@ -527,23 +454,6 @@ void Aclient::Tick(float DeltaTime)
 		commandblockdata_2.Empty();
 		commandblockdata_3.Empty();
 	}
-
-	//else if (is_moving != 0 || is_changed_mode == true)
-	//{
-	//	playerpacket.angle_x = angle_x;
-	//	playerpacket.angle_y = angle_y;
-	//	playerpacket.angle_z = angle_z;
-	//	playerpacket.playerlocation_x = position_x;
-	//	playerpacket.playerlocation_y = position_y;
-	//	playerpacket.playerlocation_z = position_z;
-
-	//	send(sock, (char*)&playerpacket, sizeof(playerpacket), 0);
-
-	//	if (is_changed_mode == true)
-	//	{
-	//		is_changed_mode = false;
-	//	}
-	//}
 
 	else if (FastTimeBlock_id_CL >= 0 || SlowTimeBlock_id_CL >= 0)
 	{
@@ -563,10 +473,6 @@ void Aclient::Tick(float DeltaTime)
 		FastTimeBlock_id_CL = -1;
 		SlowTimeBlock_id_CL = -1;
 	}
-
-
-
-	/////////////////////////////////////////////////////////////////////////////////////////////
 }
 
 void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)
