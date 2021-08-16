@@ -244,6 +244,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void attack_monster(int block_id);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void move_monster(int block_id, int player_id);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int my_index = -1;
 

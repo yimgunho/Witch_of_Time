@@ -410,6 +410,12 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		attack_monster(cast->block_id);
 	}
 		break;
+	case TRACE:
+	{
+		auto cast = reinterpret_cast<TracePacket*>(p_buf);
+		move_monster(cast->block_id, cast->player_id);
+	}
+	break;
 	case PLAYER:
 	{
 		auto cast = reinterpret_cast<PlayerPacket*>(p_buf);

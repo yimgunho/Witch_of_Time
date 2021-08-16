@@ -10,8 +10,9 @@
 #include <thread>
 #include <array>
 #include <mutex>
+#include <math.h>
 #include <atomic>
-#include <set>
+#include <unordered_map>
 
 
 #pragma comment(lib, "Ws2_32.lib")
@@ -76,7 +77,7 @@ HANDLE iocp_handle;
 
 bool ready_count[MAX_USER] = { 0, };
 int current_players = 0;
-set<int> monster_block_id;
+unordered_map<int, int> monster_block_id;
 
 float start_x = 1000, start_y = 10000, start_z = 200;
 
@@ -259,7 +260,7 @@ void process_packet(int p_id, unsigned char* buffer)
 		{
 			// 몬스터 블럭일 경우
 			objects[blockid].hp = 100;
-			monster_block_id.insert(blockid);
+			monster_block_id[blockid] = cast->blockindex;
 		}
 
 		Broadcast_Packet(&blocklistpacket);
@@ -300,7 +301,7 @@ void process_packet(int p_id, unsigned char* buffer)
 		{
 			// 몬스터 블럭일 경우
 			objects[blockid].hp = 100;
-			monster_block_id.insert(blockid);
+			monster_block_id[blockid] = cast->blockindex;
 		}
 
 		Broadcast_Packet(cast);
@@ -437,7 +438,7 @@ void process_packet(int p_id, unsigned char* buffer)
 			{
 				for (auto i : monster_block_id)
 				{
-					objects[i].hp = 100;
+					objects[i.first].hp = 100;
 				}
 			}
 		}
@@ -572,6 +573,41 @@ void worker(HANDLE h_iocp, SOCKET l_socket) {
 		}
 
 
+	}
+}
+
+void Tick()
+{
+	while (1)
+	{
+		if (!is_play_mode || monster_block_id.empty())
+			this_thread::sleep_for(chrono::milliseconds(100));
+		for (auto monster : monster_block_id)
+		{
+			if (monster.second == 75) // 바이킹
+			{
+				TracePacket packet;
+				packet.block_id = monster.first;
+
+				float mindistance = 999999;
+				int minid = -1;
+				for (int i = 1; i <= MAX_USER; i++)
+				{
+					if (objects[i].object_state != STATE_INGAME) continue;
+					float x = powf((objects[i].x - objects[monster.first].x), 2);
+					float y = powf((objects[i].y - objects[monster.first].y), 2);
+					float z = powf((objects[i].z - objects[monster.first].z), 2);
+					float temp = sqrtf(x + y + z);
+
+					if (mindistance > temp)
+						mindistance = temp;
+					minid = i;
+				}
+				if (minid != -1)
+					packet.player_id = minid;
+				Broadcast_Packet(&packet);
+			}
+		}
 	}
 }
 
