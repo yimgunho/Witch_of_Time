@@ -456,14 +456,14 @@ void process_packet(int p_id, unsigned char* buffer)
 			playerpacket.angle_z = 0;
 			playerpacket.playerlocation_x = start_x;
 			playerpacket.playerlocation_y = start_y;
-			playerpacket.playerlocation_z = start_z;
+			playerpacket.playerlocation_z = start_z + 100;
 
 			objects[p_id].angle_x = 0;
 			objects[p_id].angle_y = 0;
 			objects[p_id].angle_z = 0;
 			objects[p_id].x = start_x;
 			objects[p_id].y = start_y;
-			objects[p_id].z = start_z;
+			objects[p_id].z = start_z + 100;
 
 			Broadcast_Packet(&playerpacket);
 
