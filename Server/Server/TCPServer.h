@@ -16,7 +16,7 @@
 
 enum PacketId
 {
-	RECV, CHATTING, BLOCK, BLOCKWITHCMD, TIMEBLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD, PLAYERINFO, LOGINOK, LOGOUT, OP, ATTACK, TRACE
+	RECV, CHATTING, BLOCK, BLOCKWITHCMD, TIME, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD, PLAYERINFO, LOGINOK, LOGOUT, OP, ATTACK, TRACE
 };
 #pragma pack(push, 1)
 typedef struct ChattingPacket
@@ -94,13 +94,13 @@ typedef struct TracePacket
 	int player_id = 0;
 }TracePacket;
 
-typedef struct TimeBlockPacket
+typedef struct TimePacket
 {
-	int packetsize = sizeof(TimeBlockPacket);
-	unsigned char id = TIMEBLOCK;
+	int packetsize = sizeof(TimePacket);
+	unsigned char id = TIME;
 	int timeblock_id = 0;
 	int timetype = 0;
-}TimeBlockPacket;
+}TimePacket;
 
 typedef struct LoadPacket
 {

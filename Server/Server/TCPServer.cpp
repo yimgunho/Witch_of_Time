@@ -308,11 +308,11 @@ void process_packet(int p_id, unsigned char* buffer)
 
 	}
 	break;
-	case TIMEBLOCK:
+	case TIME:
 	{
-		auto cast = reinterpret_cast<TimeBlockPacket*>(buffer);
+		auto cast = reinterpret_cast<TimePacket*>(buffer);
 
-		TimeBlockPacket timeblockpacket;
+		TimePacket timeblockpacket;
 
 		std::cout << cast->timeblock_id << ", " << cast->timetype << std::endl;
 		timeblockpacket.id = cast->id;
