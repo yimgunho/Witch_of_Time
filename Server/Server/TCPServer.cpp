@@ -130,7 +130,7 @@ int get_new_player_id(SOCKET p_socket)
 
 int get_new_block_id()
 {
-	for (int i = NPC_ID_START; i <= MAX_OBJECTS; ++i)
+	for (int i = NPC_ID_START; i < MAX_OBJECTS; ++i)
 	{
 		lock_guard<mutex> lg{ objects[i].state_lock };
 		if (objects[i].object_state == STATE_READY) {
@@ -150,13 +150,14 @@ void disconnect(int p_id) {
 		if (current_players == 0)
 		{
 			is_play_mode = false;
-			for (int i = NPC_ID_START; i <= MAX_OBJECTS; ++i)
+			for (int i = NPC_ID_START; i < MAX_OBJECTS; ++i)
 			{
 				lock_guard<mutex> lg{ objects[i].state_lock };
 				if (objects[i].object_state == STATE_INGAME) {
 					objects[i].object_state = STATE_READY;
 				}
 			}
+			monster_block_id.clear();
 		}
 	}
 }
