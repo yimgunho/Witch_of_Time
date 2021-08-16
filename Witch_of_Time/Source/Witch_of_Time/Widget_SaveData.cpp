@@ -51,7 +51,6 @@ void UWidget_SaveData::SaveGame()
 				temp.CommandArray = casted->CommandBlockArray;
 				temp.index_of_block = casted->blockindex;
 				FString blockindex_FString = FString::FromInt(temp.index_of_block);
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, blockindex_FString);
 			}
 			else
 			{
@@ -146,31 +145,26 @@ void UWidget_SaveData::LoadGame()
 
 int UWidget_SaveData::Transblockid()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblockid");
 	return blockid_SaveData;
 
 }
 
 float UWidget_SaveData::Transblocklocation_x()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblocklocation_x");
 	return location_x_SaveData;
 }
 
 float UWidget_SaveData::Transblocklocation_y()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblocklocation_y");
 	return location_y_SaveData;
 }
 
 float UWidget_SaveData::Transblocklocation_z()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblocklocation_z");
 	return location_z_SaveData;
 }
 
 int UWidget_SaveData::Transblockindex()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblockindex");
 	return blockindex_SaveData;
 }

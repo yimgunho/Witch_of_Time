@@ -161,7 +161,6 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			//BlockName = spawned->GetName();
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 		}
 	}
 	else
@@ -192,7 +191,6 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Tried Block Spawning but not proper MODE");
 	}
 
 	
@@ -383,7 +381,6 @@ void ALevelEditorPawn::LoadGame()
 
 		for (auto block : LoadGameInstance->blockarray)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "LoadPlace");
 			auto spawned = GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
 
 			auto casted = Cast<ABlockBase>(spawned);

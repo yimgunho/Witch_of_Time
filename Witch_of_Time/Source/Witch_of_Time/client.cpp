@@ -117,19 +117,12 @@ Aclient::Aclient()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Elapsed_Time = 0;
-	recv_cnt = 0;
-}
-
-void Aclient::SetBlockIndex(int index)
-{
-	block_index = index;
 }
 
 // Called when the game starts or when spawned
 void Aclient::BeginPlay()
 {
 	Super::BeginPlay();
-
 
 	TempSendStr = TEXT("");
 	TempRecvStr = TEXT("");
@@ -159,10 +152,6 @@ void Aclient::BeginPlay()
 	location_z_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
 	blockindex_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
 
-	TimeBlock_id_Gen = 0;
-
-	FastTimeBlock_id_CL = -1;
-	SlowTimeBlock_id_CL = -1;
 
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
@@ -339,7 +328,6 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		std::string test(cast->chatting);
 		TempRecvStr = (test.c_str());
 		receive_chatting();
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, cast->chatting);
 	}
 	break;
 	case BLOCK:

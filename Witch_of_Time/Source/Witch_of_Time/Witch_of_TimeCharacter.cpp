@@ -123,14 +123,12 @@ void AWitch_of_TimeCharacter::PickTarget()
 		if ((PickedActor->ActorHasTag("Returnable")) || (PickedActor->ActorHasTag("Jumpable")) || (PickedActor->ActorHasTag("Destroyable")) || (PickedActor->ActorHasTag("Restorable")))
 		{
 			DrawBillboard(PickedActor);
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, PickedActor->GetName());
 
 		}
 		else
 		{
 			PickedActor = nullptr;
 			DrawBillboard(PickedActor);
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "billboard2");
 		}
 	}
 
