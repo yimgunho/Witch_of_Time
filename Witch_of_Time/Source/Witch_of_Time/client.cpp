@@ -328,7 +328,6 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		std::string test(cast->chatting);
 		TempRecvStr = (test.c_str());
 		receive_chatting();
-		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, cast->chatting);
 	}
 	break;
 	case BLOCK:

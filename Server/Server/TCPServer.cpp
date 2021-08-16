@@ -194,16 +194,12 @@ void process_packet(int p_id, unsigned char* buffer)
 	{
 		auto cast = reinterpret_cast<LoadPacket*>(buffer);
 
-		std::cout << cast->blocklocation_x[0] << std::endl;
-
 		Broadcast_Packet(cast);
 	}
 	break;
 	case CHATTING:
 	{
 		auto cast = reinterpret_cast<ChattingPacket*>(buffer);
-		
-		std::cout << cast->chatting << std::endl;
 		
 		string temp = to_string(p_id);
 		char name[CHATSIZE];
@@ -314,7 +310,6 @@ void process_packet(int p_id, unsigned char* buffer)
 
 		TimePacket timeblockpacket;
 
-		std::cout << cast->timeblock_id << ", " << cast->timetype << std::endl;
 		timeblockpacket.id = cast->id;
 		timeblockpacket.packetsize = cast->packetsize;
 		timeblockpacket.timeblock_id = cast->timeblock_id;
@@ -392,13 +387,6 @@ void process_packet(int p_id, unsigned char* buffer)
 				commandpacket.commandblockdata_2[i] = cast->commandblockdata_2[i];
 				commandpacket.commandblockdata_3[i] = cast->commandblockdata_3[i];
 			}
-			std::cout << i << "///////////////////////////" << std::endl;
-			std::cout << commandpacket.commandblockindex[i] << std::endl;
-			std::cout << commandpacket.commandblockdata_0[i] << std::endl;
-			std::cout << commandpacket.commandblockdata_1[i] << std::endl;
-			std::cout << commandpacket.commandblockdata_2[i] << std::endl;
-			std::cout << commandpacket.commandblockdata_3[i] << std::endl;
-			//std::cout << i << "통과" << std::endl;
 		}
 
 		Broadcast_Packet(&commandpacket);
@@ -413,7 +401,6 @@ void process_packet(int p_id, unsigned char* buffer)
 
 		modepacket.id = cast->id;
 		modepacket.packetsize = cast->packetsize;
-		//std::cout << index << "번 클라이언트 " << cast->readycount << std::endl;
 		ready_count[p_id] = true;
 
 		int ready_c = 0;
@@ -423,9 +410,7 @@ void process_packet(int p_id, unsigned char* buffer)
 			{
 				ready_c++;
 			}
-			//std::cout << index << ":" << ready_count[c] << std::endl;
 		}
-		//std::cout << "ready 상황 " << ready_c << "클라이언트 수 " << current_players << std::endl;
 		if (ready_c >= current_players)
 		{
 			Broadcast_Packet(&modepacket);
@@ -478,7 +463,6 @@ void process_packet(int p_id, unsigned char* buffer)
 	}
 		break;
 	default:
-		//cout << "Unknown Packet Type from Client [" << p_id << "] Packet Type [" << p_buf[1] << "]" << endl;
 		//exit(-1);
 		break;
 	}
