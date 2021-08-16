@@ -206,7 +206,7 @@ public:
 		void send_player_packet(FVector player_pos, FRotator player_angle);
 
 	UFUNCTION(BlueprintCallable)
-		void send_time_packet();
+		void send_time_packet(int block_id, int time_type);
 
 	UFUNCTION(BlueprintCallable)
 		void send_command_packet(int block_id, TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3);

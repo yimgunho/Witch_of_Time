@@ -298,25 +298,14 @@ void Aclient::send_player_packet(FVector player_pos, FRotator player_angle)
 	send_packet(&playerpacket);
 }
 
-void Aclient::send_time_packet()
+void Aclient::send_time_packet(int block_id, int time_type)
 {
-	TimeBlockPacket timeblockpacket;
+	TimePacket timepacket;
 
-	if (FastTimeBlock_id_CL >= 0) {
-		timeblockpacket.timeblock_id = FastTimeBlock_id_CL;
-		timeblockpacket.timetype = 1;
-	}
+	timepacket.timeblock_id = block_id;
+	timepacket.timetype = time_type;
 
-	else if (SlowTimeBlock_id_CL >= 0) {
-		timeblockpacket.timeblock_id = SlowTimeBlock_id_CL;
-		timeblockpacket.timetype = 2;
-	}
-
-	send_packet(&timeblockpacket);
-
-
-	FastTimeBlock_id_CL = -1;
-	SlowTimeBlock_id_CL = -1;
+	send_packet(&timepacket);
 }
 
 void Aclient::process_packet(int p_id, unsigned char* p_buf)
@@ -387,11 +376,9 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 	}
 	break;
-	case TIMEBLOCK:
+	case TIME:
 	{
-		auto cast = reinterpret_cast<TimeBlockPacket*>(p_buf);
-		TimeBlock_id_SERVER = cast->timeblock_id;
-		TimeBlock_type_SERVER = cast->timetype;
+		auto cast = reinterpret_cast<TimePacket*>(p_buf);
 
 		casting_magic(cast->timeblock_id, cast->timetype);
 	}
@@ -535,26 +522,6 @@ void Aclient::worker()
 void Aclient::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//char buffer[BUFSIZE];
-	ChattingPacket chattingpacket;
-	BlockPacket blockpacket;
-	TimeBlockPacket timeblockpacket;
-	LoadPacket blockpacket_load;
-	DestroyPacket destroypacket;
-	PlayerPacket playerpacket;
-	CommandPacket commandpacket;
-	ModeChangePacket modepacket;
-
-	int len = 0;
-	Elapsed_Time += DeltaTime;
-
-	tempchars = *TempSendStr;
-
-	if (FastTimeBlock_id_CL >= 0 || SlowTimeBlock_id_CL >= 0)
-	{
-
-	}
 }
 
 void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)

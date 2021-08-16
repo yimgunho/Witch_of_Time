@@ -53,6 +53,15 @@ void ATimeControllableActorBase::ReturnTime()
 {
 	if (CurrentMesh != Past && !Changing)
 	{
+		client->send_time_packet(block_id, 0);
+	}
+
+}
+
+void ATimeControllableActorBase::ReturnTimeNiagara()
+{
+	if (CurrentMesh != Past && !Changing)
+	{
 		if (CurrentMesh == Current)
 		{
 			if (m_Current_to_Past != nullptr)
@@ -69,15 +78,25 @@ void ATimeControllableActorBase::ReturnTime()
 				m_FutureMesh->SetVisibility(false);
 			}
 		}
-		ReturnTimeBlock_id = TimeBlock_id;
+
 		CurrentMesh--;
 		Changing = true;
 		IsFuture = false;
 		Elapsed_Time = 0.f;
 	}
+
 }
 
 void ATimeControllableActorBase::JumpTime()
+{
+	if (CurrentMesh != Future && !Changing)
+	{
+		JumpTimeBlock_id = TimeBlock_id;
+		client->send_time_packet(block_id, 1);
+	}
+}
+
+void ATimeControllableActorBase::JumpTimeNiagara()
 {
 	if (CurrentMesh != Future && !Changing)
 	{
@@ -97,7 +116,7 @@ void ATimeControllableActorBase::JumpTime()
 				m_PastMesh->SetVisibility(false);
 			}
 		}
-		JumpTimeBlock_id = TimeBlock_id;
+
 		CurrentMesh++;
 		Changing = true;
 		IsFuture = true;
