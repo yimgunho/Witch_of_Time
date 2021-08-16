@@ -203,6 +203,9 @@ public:
 		void send_player_packet(FVector player_pos, FRotator player_angle);
 
 	UFUNCTION(BlueprintCallable)
+		void send_time_packet();
+
+	UFUNCTION(BlueprintCallable)
 		void send_command_packet(int block_id, TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3);
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -222,6 +225,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void spawn_with_command_block(int index, int id, float x, float y, float z, const TArray<int32>& commandindex, const TArray<float>& data_0, const TArray<float>& data_1, const TArray<float>& data_2, const TArray<float>& data_3);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void casting_magic(int block_id, int magic_type);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void destroy_block(int id);

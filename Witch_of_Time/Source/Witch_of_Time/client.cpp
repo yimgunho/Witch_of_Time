@@ -290,6 +290,27 @@ void Aclient::send_player_packet(FVector player_pos, FRotator player_angle)
 	send_packet(&playerpacket);
 }
 
+void Aclient::send_time_packet()
+{
+	TimeBlockPacket timeblockpacket;
+
+	if (FastTimeBlock_id_CL >= 0) {
+		timeblockpacket.timeblock_id = FastTimeBlock_id_CL;
+		timeblockpacket.timetype = 1;
+	}
+
+	else if (SlowTimeBlock_id_CL >= 0) {
+		timeblockpacket.timeblock_id = SlowTimeBlock_id_CL;
+		timeblockpacket.timetype = 2;
+	}
+
+	send_packet(&timeblockpacket);
+
+
+	FastTimeBlock_id_CL = -1;
+	SlowTimeBlock_id_CL = -1;
+}
+
 void Aclient::process_packet(int p_id, unsigned char* p_buf)
 {
 	switch (p_buf[4])
@@ -363,6 +384,8 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		auto cast = reinterpret_cast<TimeBlockPacket*>(p_buf);
 		TimeBlock_id_SERVER = cast->timeblock_id;
 		TimeBlock_type_SERVER = cast->timetype;
+
+		casting_magic(cast->timeblock_id, cast->timetype);
 	}
 	break;
 	case DESTROY:
@@ -516,21 +539,7 @@ void Aclient::Tick(float DeltaTime)
 
 	if (FastTimeBlock_id_CL >= 0 || SlowTimeBlock_id_CL >= 0)
 	{
-		if (FastTimeBlock_id_CL >= 0) {
-			timeblockpacket.timeblock_id = FastTimeBlock_id_CL;
-			timeblockpacket.timetype = 1;
-		}
 
-		else if (SlowTimeBlock_id_CL >= 0) {
-			timeblockpacket.timeblock_id = SlowTimeBlock_id_CL;
-			timeblockpacket.timetype = 2;
-		}
-
-		send_packet(&timeblockpacket);
-
-
-		FastTimeBlock_id_CL = -1;
-		SlowTimeBlock_id_CL = -1;
 	}
 }
 
