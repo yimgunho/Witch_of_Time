@@ -11,6 +11,8 @@
 #include <array>
 #include <WS2tcpip.h>
 #include <MSWSock.h>
+#include "Components/TextRenderComponent.h"
+#include "Misc/Paths.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
@@ -110,6 +112,12 @@ void err_display(const char* msg)
 	LocalFree(lpMsgBuf);
 }
 
+FString ReadFile(FString filename)
+{
+	FString result;
+	FFileHelper::LoadFileToString(result, *(FPaths::ProjectDir() + filename));
+	return result;
+}
 
 
 Aclient::Aclient()
@@ -119,6 +127,8 @@ Aclient::Aclient()
 	Elapsed_Time = 0;
 }
 
+
+
 // Called when the game starts or when spawned
 void Aclient::BeginPlay()
 {
@@ -127,6 +137,8 @@ void Aclient::BeginPlay()
 	TempSendStr = TEXT("");
 	TempRecvStr = TEXT("");
 	chars = *TempSendStr;
+
+	auto tbuf = ReadFile("ip.txt");
 
 	PositionCnt = 0;
 	BlockPositionCnt = 0;
@@ -165,13 +177,15 @@ void Aclient::BeginPlay()
 	SOCKADDR_IN serveraddr;
 	//ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
+	serveraddr.sin_addr.s_addr = inet_addr(TCHAR_TO_ANSI(*tbuf));
 	serveraddr.sin_port = htons(SERVERPORT);
 	connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 
 	worker_thread = new std::thread(&Aclient::worker, this);
 	do_recv(0);
 }
+
+
 
 void Aclient::send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z)
 {

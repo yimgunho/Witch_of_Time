@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "BlockBase.h"
 #include "../../../Server/Server/TCPServer.h"
+
 #include <string>
 #include <vector>
 #include <thread>
@@ -34,6 +35,8 @@ struct FCommandBlockArray
 	TArray<FCommandBlockInfo> MyActors;
 };
 
+
+
 UCLASS()
 class WITCH_OF_TIME_API Aclient : public AActor
 {
@@ -44,6 +47,8 @@ public:
 	// Sets default values for this actor's properties
 	//전역 변수로 선언하지 말고 여기 선언하고 변수이름 좀더 잘 알아볼수 있게 만들기
 	Aclient();
+
+	
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<FCommandBlockArray> commandblockarr;
@@ -251,3 +256,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 };
+
+
+
