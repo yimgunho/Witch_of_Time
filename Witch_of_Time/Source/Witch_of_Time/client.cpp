@@ -181,7 +181,6 @@ void Aclient::BeginPlay()
 	serveraddr.sin_port = htons(SERVERPORT);
 	connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 
-	worker_thread = new std::thread(&Aclient::worker, this);
 	do_recv(0);
 }
 
@@ -487,13 +486,15 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 void Aclient::worker()
 {
-	while (true) {
+	while (true) 
+	{
 		DWORD num_bytes;
 		ULONG_PTR ikey;
 		WSAOVERLAPPED* over;
 
-		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &ikey, &over, INFINITE);
+		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &ikey, &over, 0);
 		int key = static_cast<int>(ikey);
+		if (ret == false) return;
 
 		EX_OVER* ex_over = reinterpret_cast<EX_OVER*>(over);
 
@@ -530,6 +531,7 @@ void Aclient::worker()
 void Aclient::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	worker();
 }
 
 void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)
