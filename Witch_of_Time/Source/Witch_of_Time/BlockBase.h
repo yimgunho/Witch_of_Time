@@ -84,6 +84,7 @@ protected:
 	FVector OriginLocation;
 	// 이동 함수 구현을 위한 변수
 	FVector TargetLocation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector DirectionVector;
 	float TargetDistance;
 
