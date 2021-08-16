@@ -128,6 +128,7 @@ Aclient::Aclient()
 }
 
 
+std::vector<std::thread> th;
 
 // Called when the game starts or when spawned
 void Aclient::BeginPlay()
@@ -181,6 +182,9 @@ void Aclient::BeginPlay()
 	serveraddr.sin_port = htons(SERVERPORT);
 	connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 
+	for (int i = 0; i < 4; i++) {
+		th.emplace_back(&Aclient::worker, this);
+	}
 	worker_thread = new std::thread(&Aclient::worker, this);
 	do_recv(0);
 }
