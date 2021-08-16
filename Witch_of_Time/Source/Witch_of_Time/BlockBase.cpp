@@ -190,6 +190,19 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 			}
 			
 		}
+		else
+		{
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
+
+		}
 		break;
 
 	case 5: // 게임 종료
