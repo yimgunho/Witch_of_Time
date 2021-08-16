@@ -248,6 +248,40 @@ void process_packet(int p_id, unsigned char* buffer)
 
 	}
 	break;
+	case BLOCKWITHCMD:
+	{
+		auto cast = reinterpret_cast<BlockWithCommandPacket*>(buffer);
+
+		BlockWithCommandPacket blocklistpacket;
+		blocklistpacket.blockindex = cast->blockindex;
+		if (blocklistpacket.blockindex == 76)
+		{
+			start_x = cast->blocklocation_x;
+			start_y = cast->blocklocation_y;
+			start_z = cast->blocklocation_z;
+
+			blocklistpacket.blocklocation_x = cast->blocklocation_x;
+			blocklistpacket.blocklocation_y = cast->blocklocation_y;
+			blocklistpacket.blocklocation_z = cast->blocklocation_z;
+
+			Broadcast_Packet(&blocklistpacket);
+
+			break;
+		}
+
+		int blockid = get_new_block_id();
+		cast->block_id = blockid;
+
+
+		objects[blockid].block_index = cast->blockindex;
+		objects[blockid].x = cast->blocklocation_x;
+		objects[blockid].y = cast->blocklocation_y;
+		objects[blockid].z = cast->blocklocation_z;
+
+		Broadcast_Packet(cast);
+
+	}
+	break;
 	case TIMEBLOCK:
 	{
 		auto cast = reinterpret_cast<TimeBlockPacket*>(buffer);
@@ -327,7 +361,6 @@ void process_packet(int p_id, unsigned char* buffer)
 			std::cout << commandpacket.commandblockdata_3[i] << std::endl;
 			//std::cout << i << "Åë°ú" << std::endl;
 		}
-
 
 		Broadcast_Packet(&commandpacket);
 

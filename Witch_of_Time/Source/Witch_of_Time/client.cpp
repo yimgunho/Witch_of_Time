@@ -195,11 +195,40 @@ void Aclient::send_block_packet(int blockindex, float block_pos_x, float block_p
 	send_packet(&blockpacket);
 }
 
-void Aclient::send_destroy_packet(int block_id)
+void Aclient::send_block_with_command_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z,
+	TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3)
 {
-	DestroyPacket destroypacket;
-	destroypacket.block_id = block_id;
-	send_packet(&destroypacket);
+	BlockWithCommandPacket blockwithcommandpacket;
+	blockwithcommandpacket.blockindex = blockindex;
+	blockwithcommandpacket.blocklocation_x = block_pos_x;
+	blockwithcommandpacket.blocklocation_y = block_pos_y;
+	blockwithcommandpacket.blocklocation_z = block_pos_z;
+	
+	for (int i = 0; i < commandindex.Num(); ++i)
+	{
+		if (commandindex[i] >= 0)
+		{
+				blockwithcommandpacket.commandblockindex[i] = commandindex[i];
+			if (commanddata_0.IsValidIndex(i) == true)
+				blockwithcommandpacket.commandblockdata_0[i] = commanddata_0[i];
+			else
+				blockwithcommandpacket.commandblockdata_0[i] = -1;
+			if (commanddata_1.IsValidIndex(i) == true)
+				blockwithcommandpacket.commandblockdata_1[i] = commanddata_1[i];
+			else
+				blockwithcommandpacket.commandblockdata_1[i] = -1;
+			if (commanddata_2.IsValidIndex(i) == true)
+				blockwithcommandpacket.commandblockdata_2[i] = commanddata_2[i];
+			else
+				blockwithcommandpacket.commandblockdata_2[i] = -1;
+			if (commanddata_3.IsValidIndex(i) == true)
+				blockwithcommandpacket.commandblockdata_3[i] = commanddata_3[i];
+			else
+				blockwithcommandpacket.commandblockdata_3[i] = -1;
+		}
+	}
+
+	send_packet(&blockwithcommandpacket);
 }
 
 void Aclient::send_command_packet(int block_id, TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3)
@@ -220,6 +249,13 @@ void Aclient::send_command_packet(int block_id, TArray<int32> commandindex, TArr
 	send_packet(&commandpacket);
 }
 
+void Aclient::send_destroy_packet(int block_id)
+{
+	DestroyPacket destroypacket;
+	destroypacket.block_id = block_id;
+	send_packet(&destroypacket);
+
+}
 void Aclient::send_chatting_packet(FString chat)
 {
 	ChattingPacket chattingpacket;
@@ -293,6 +329,32 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		auto cast = reinterpret_cast<BlockPacket*>(p_buf);
 
 		spawn_block(cast->blockindex, cast->block_id, cast->blocklocation_x, cast->blocklocation_y, cast->blocklocation_z);
+
+	}
+	break;
+	case BLOCKWITHCMD:
+	{
+		auto cast = reinterpret_cast<BlockWithCommandPacket*>(p_buf);
+
+		TArray<int32> commandblock_index;
+		TArray<float> block_data_0;
+		TArray<float> block_data_1;
+		TArray<float> block_data_2;
+		TArray<float> block_data_3;
+
+		for (int i = 0; i < COMMANDS; ++i)
+		{
+			if (cast->commandblockindex[i] >= 0) {
+				commandblock_index.Insert(cast->commandblockindex[i], i);
+				block_data_0.Insert(cast->commandblockdata_0[i], i);
+				block_data_1.Insert(cast->commandblockdata_1[i], i);
+				block_data_2.Insert(cast->commandblockdata_2[i], i);
+				block_data_3.Insert(cast->commandblockdata_3[i], i);
+			}
+		}
+
+		spawn_with_command_block(cast->blockindex, cast->block_id, cast->blocklocation_x, cast->blocklocation_y, cast->blocklocation_z,
+			commandblock_index, block_data_0, block_data_1, block_data_2, block_data_3);
 
 	}
 	break;

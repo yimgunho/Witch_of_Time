@@ -190,6 +190,10 @@ public:
 	void send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z);
 
 	UFUNCTION(BlueprintCallable)
+	void send_block_with_command_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z,
+		TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3);
+
+	UFUNCTION(BlueprintCallable)
 	void send_change_packet();
 
 	UFUNCTION(BlueprintCallable)
@@ -215,6 +219,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void spawn_block(int index, int id, float x, float y, float z);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void spawn_with_command_block(int index, int id, float x, float y, float z, const TArray<int32>& commandindex, const TArray<float>& data_0, const TArray<float>& data_1, const TArray<float>& data_2, const TArray<float>& data_3);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void destroy_block(int id);
