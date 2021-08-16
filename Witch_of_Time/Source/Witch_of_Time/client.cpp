@@ -185,7 +185,7 @@ void Aclient::send_block_packet(int blockindex, float block_pos_x, float block_p
 }
 
 void Aclient::send_block_with_command_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z,
-	TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3)
+	TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3)
 {
 	BlockWithCommandPacket blockwithcommandpacket;
 	blockwithcommandpacket.blockindex = blockindex;
@@ -220,7 +220,7 @@ void Aclient::send_block_with_command_packet(int blockindex, float block_pos_x, 
 	send_packet(&blockwithcommandpacket);
 }
 
-void Aclient::send_command_packet(int block_id, TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3)
+void Aclient::send_command_packet(int block_id, TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3)
 {
 	CommandPacket commandpacket;
 	commandpacket.commandblock_id = block_id;
@@ -343,10 +343,10 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		auto cast = reinterpret_cast<BlockWithCommandPacket*>(p_buf);
 
 		TArray<int32> commandblock_index;
-		TArray<float> block_data_0;
-		TArray<float> block_data_1;
-		TArray<float> block_data_2;
-		TArray<float> block_data_3;
+		TArray<int32> block_data_0;
+		TArray<int32> block_data_1;
+		TArray<int32> block_data_2;
+		TArray<int32> block_data_3;
 
 		for (int i = 0; i < COMMANDS; ++i)
 		{

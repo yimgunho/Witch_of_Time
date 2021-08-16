@@ -64,11 +64,11 @@ typedef struct BlockWithCommandPacket
 	float blocklocation_y = 0;
 	float blocklocation_z = 0;
 
-	float commandblockindex[COMMANDS] = { -1,-1,-1,-1,-1,-1,-1,-1,-1 };
-	float commandblockdata_0[COMMANDS] = { 0, };
-	float commandblockdata_1[COMMANDS] = { 0, };
-	float commandblockdata_2[COMMANDS] = { 0, };
-	float commandblockdata_3[COMMANDS] = { 0, };
+	int commandblockindex[COMMANDS] = { -1,-1,-1,-1,-1,-1,-1,-1,-1 };
+	int commandblockdata_0[COMMANDS] = { 0, };
+	int commandblockdata_1[COMMANDS] = { 0, };
+	int commandblockdata_2[COMMANDS] = { 0, };
+	int commandblockdata_3[COMMANDS] = { 0, };
 }BlockWithCommandPacket;
 
 typedef struct OperationPacket
