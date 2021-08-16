@@ -11,6 +11,7 @@
 #include <array>
 #include <mutex>
 #include <atomic>
+#include <set>
 
 
 #pragma comment(lib, "Ws2_32.lib")
@@ -75,6 +76,7 @@ HANDLE iocp_handle;
 
 bool ready_count[MAX_USER] = { 0, };
 int current_players = 0;
+set<int> monster_block_id;
 
 float start_x = 1000, start_y = 10000, start_z = 200;
 
@@ -253,6 +255,13 @@ void process_packet(int p_id, unsigned char* buffer)
 		objects[blockid].y = cast->blocklocation_y;
 		objects[blockid].z = cast->blocklocation_z;
 
+		if (cast->blockindex == 68 || cast->blockindex == 75)
+		{
+			// 몬스터 블럭일 경우
+			objects[blockid].hp = 100;
+			monster_block_id.insert(blockid);
+		}
+
 		Broadcast_Packet(&blocklistpacket);
 
 	}
@@ -287,6 +296,13 @@ void process_packet(int p_id, unsigned char* buffer)
 		objects[blockid].y = cast->blocklocation_y;
 		objects[blockid].z = cast->blocklocation_z;
 
+		if (cast->blockindex == 68 || cast->blockindex == 75)
+		{
+			// 몬스터 블럭일 경우
+			objects[blockid].hp = 100;
+			monster_block_id.insert(blockid);
+		}
+
 		Broadcast_Packet(cast);
 
 	}
@@ -313,6 +329,12 @@ void process_packet(int p_id, unsigned char* buffer)
 
 		lock_guard<mutex> lg{ objects[cast->block_id].state_lock };
 		objects[cast->block_id].object_state = STATE_READY;
+
+		if (monster_block_id.count(cast->block_id))
+		{
+			// 몬스터 블럭일 경우
+			monster_block_id.erase(cast->block_id);
+		}
 
 		Broadcast_Packet(cast);
 
@@ -411,6 +433,13 @@ void process_packet(int p_id, unsigned char* buffer)
 				ready_count[c] = false;
 			}
 			is_play_mode = !is_play_mode;
+			if (is_play_mode)
+			{
+				for (auto i : monster_block_id)
+				{
+					objects[i].hp = 100;
+				}
+			}
 		}
 	}
 	break;
