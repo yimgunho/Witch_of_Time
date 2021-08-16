@@ -104,10 +104,10 @@ void UWidget_SaveData::LoadGame()
 				//auto spawned = GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
 				//client->send_block_packet(block.index_of_block, block.location.X, block.location.Y, block.location.Z);
 				TArray<int32> block_index;
-				TArray<float> block_data_0;
-				TArray<float> block_data_1;
-				TArray<float> block_data_2;
-				TArray<float> block_data_3;
+				TArray<int32> block_data_0;
+				TArray<int32> block_data_1;
+				TArray<int32> block_data_2;
+				TArray<int32> block_data_3;
 
 				for (int i = 0; i < block.CommandArray.Num(); ++i)
 				{

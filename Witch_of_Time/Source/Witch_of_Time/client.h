@@ -54,13 +54,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int32> commandblockindex_CL;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<float> commandblockdata_0;
+		TArray<int32> commandblockdata_0;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<float> commandblockdata_1;
+		TArray<int32> commandblockdata_1;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<float> commandblockdata_2;
+		TArray<int32> commandblockdata_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<float> commandblockdata_3;
+		TArray<int32> commandblockdata_3;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		AActor* ToDestroyBlock_CL;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -108,13 +108,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int32> commandblockindex_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<float> commandblockdata_0_recv;
+		TArray<int32> commandblockdata_0_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<float> commandblockdata_1_recv;
+		TArray<int32> commandblockdata_1_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<float> commandblockdata_2_recv;
+		TArray<int32> commandblockdata_2_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		TArray<float> commandblockdata_3_recv;
+		TArray<int32> commandblockdata_3_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempCommandBlockName_recv;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -180,7 +180,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void send_block_with_command_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z,
-		TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3);
+		TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3);
 
 	UFUNCTION(BlueprintCallable)
 	void send_change_packet();
@@ -195,7 +195,7 @@ public:
 	void send_time_packet(int block_id, int time_type);
 
 	UFUNCTION(BlueprintCallable)
-	void send_command_packet(int block_id, TArray<int32> commandindex, TArray<float> commanddata_0, TArray<float> commanddata_1, TArray<float> commanddata_2, TArray<float> commanddata_3);
+	void send_command_packet(int block_id, TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void apply_damage(AActor* actor, int hp, bool flag = false);
@@ -213,7 +213,7 @@ public:
 	void spawn_block(int index, int id, float x, float y, float z);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void spawn_with_command_block(int index, int id, float x, float y, float z, const TArray<int32>& commandindex, const TArray<float>& data_0, const TArray<float>& data_1, const TArray<float>& data_2, const TArray<float>& data_3);
+	void spawn_with_command_block(int index, int id, float x, float y, float z, const TArray<int32>& commandindex, const TArray<int32>& data_0, const TArray<int32>& data_1, const TArray<int32>& data_2, const TArray<int32>& data_3);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void casting_magic(int block_id, int magic_type);
@@ -222,7 +222,7 @@ public:
 	void destroy_block(int id);
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void paste_commandlist(int id, const TArray<int32>& index, const TArray<float>& data_0, const TArray<float>& data_1, const TArray<float>& data_2, const TArray<float>& data_3);
+	void paste_commandlist(int id, const TArray<int32>& index, const TArray<int32>& data_0, const TArray<int32>& data_1, const TArray<int32>& data_2, const TArray<int32>& data_3);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void receive_chatting();
