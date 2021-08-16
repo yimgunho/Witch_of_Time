@@ -147,6 +147,17 @@ void disconnect(int p_id) {
 		closesocket(objects[p_id].socket);
 		objects[p_id].object_state = STATE_READY;
 		current_players--;
+		if (current_players == 0)
+		{
+			is_play_mode = false;
+			for (int i = NPC_ID_START; i <= MAX_OBJECTS; ++i)
+			{
+				lock_guard<mutex> lg{ objects[i].state_lock };
+				if (objects[i].object_state == STATE_INGAME) {
+					objects[i].object_state = STATE_READY;
+				}
+			}
+		}
 	}
 }
 
@@ -581,7 +592,10 @@ void Tick()
 	while (1)
 	{
 		if (!is_play_mode || monster_block_id.empty())
+		{
 			this_thread::sleep_for(chrono::milliseconds(100));
+			continue;
+		}
 		for (auto monster : monster_block_id)
 		{
 			if (monster.second == 75) // πŸ¿Ã≈∑
@@ -603,11 +617,15 @@ void Tick()
 						mindistance = temp;
 					minid = i;
 				}
-				if (minid != -1)
+				if (minid != -1 && mindistance < 1000)
+				{
 					packet.player_id = minid;
-				Broadcast_Packet(&packet);
+					Broadcast_Packet(&packet);
+				}
+					
 			}
 		}
+		this_thread::sleep_for(chrono::milliseconds(100));
 	}
 }
 
@@ -645,6 +663,7 @@ int main()
 			display_error("AcceptEX : ", err_num);
 	}
 	vector <thread> worker_threads;
+	thread tick_thread{ Tick };
 	for (int i = 0; i < 4; ++i)
 	{
 		worker_threads.emplace_back(worker, iocp_handle, l_socket);
@@ -653,6 +672,7 @@ int main()
 	{
 		th.join();
 	}
+	tick_thread.join();
 	closesocket(l_socket);
 
 	WSACleanup();
