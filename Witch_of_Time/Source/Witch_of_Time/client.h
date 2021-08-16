@@ -184,6 +184,9 @@ public:
 	void send_destroy_packet(int block_id);
 
 	UFUNCTION(BlueprintCallable)
+		void send_attack_packet(int block_id);
+
+	UFUNCTION(BlueprintCallable)
 	void send_chatting_packet(FString chat);
 
 	UFUNCTION(BlueprintCallable)
@@ -237,6 +240,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void receive_chatting();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void attack_monster(int block_id);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int my_index = -1;

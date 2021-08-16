@@ -256,6 +256,14 @@ void Aclient::send_destroy_packet(int block_id)
 	send_packet(&destroypacket);
 
 }
+
+void Aclient::send_attack_packet(int block_id)
+{
+	AttackPacket attackpacket;
+	attackpacket.block_id = block_id;
+	send_packet(&attackpacket);
+
+}
 void Aclient::send_chatting_packet(FString chat)
 {
 	ChattingPacket chattingpacket;
@@ -320,7 +328,7 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		auto cast = reinterpret_cast<LoginOKPacket*>(p_buf);
 		my_index = cast->playerindex;
 	}
-		break;
+	break;
 	case LOAD:
 	{
 		auto cast = reinterpret_cast<LoadPacket*>(p_buf);
@@ -396,6 +404,12 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		destroy_block(cast->block_id);
 	}
 	break;
+	case ATTACK:
+	{
+		auto cast = reinterpret_cast<AttackPacket*>(p_buf);
+		attack_monster(cast->block_id);
+	}
+		break;
 	case PLAYER:
 	{
 		auto cast = reinterpret_cast<PlayerPacket*>(p_buf);

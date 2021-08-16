@@ -318,6 +318,13 @@ void process_packet(int p_id, unsigned char* buffer)
 
 	}
 	break;
+	case ATTACK:
+	{
+		auto cast = reinterpret_cast<AttackPacket*>(buffer);
+		objects[cast->block_id].hp = 0;
+		Broadcast_Packet(cast);
+	}
+		break;
 	case PLAYER:
 	{
 		auto cast = reinterpret_cast<PlayerPacket*>(buffer);
