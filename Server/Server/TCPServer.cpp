@@ -199,13 +199,22 @@ void process_packet(int p_id, unsigned char* buffer)
 	case CHATTING:
 	{
 		auto cast = reinterpret_cast<ChattingPacket*>(buffer);
-
+		
 		std::cout << cast->chatting << std::endl;
+		
+		string temp = to_string(p_id);
+		char name[CHATSIZE];
+		strcpy_s(name, "player_");
+		strcat(name, temp.c_str());
+		char dot[4] = " : ";
+		strcat(name, dot);
+		strcat(name, cast->chatting);
+
 
 		ChattingPacket chattingpacket;
 		chattingpacket.id = cast->id;
 		chattingpacket.packetsize = cast->packetsize;
-		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), cast->chatting);
+		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), name);
 
 		Broadcast_Packet(&chattingpacket);
 		//Broadcast_Packet(cast);
