@@ -47,3 +47,5 @@ Witch_of_Time/Plugins/VRM4U/Binaries/Win64/UE4Editor-VRM4UMisc.dll
 Server/Release/Server.exe
 Server/Release/Server.iobj
 Server/Release/Server.ipdb
+Server/Server/Release/Server.ipdb
+Server/Server/Release/Server.iobj
