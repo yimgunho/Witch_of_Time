@@ -296,14 +296,40 @@ void process_packet(int p_id, unsigned char* buffer)
 			break;
 		}
 
+		//도중 접속시 로드 관련
+		//COMMAND_BLOCK tempcommand_block;
+		//if (*cast->commandblockindex >= 0)
+		//{
+		//	tempcommand_block.commandindex = *cast->commandblockindex;
+
+		//	if(*cast->commandblockdata_0 >= -60)
+		//		tempcommand_block.commandblockdata.push_back(*cast->commandblockdata_0);
+		//	else
+		//		tempcommand_block.commandblockdata.push_back(0);
+		//	if (*cast->commandblockdata_1 >= -60)
+		//		tempcommand_block.commandblockdata.push_back(*cast->commandblockdata_1);
+		//	else
+		//		tempcommand_block.commandblockdata.push_back(0);
+		//	if (*cast->commandblockdata_2 >= -60)
+		//		tempcommand_block.commandblockdata.push_back(*cast->commandblockdata_2);
+		//	else
+		//		tempcommand_block.commandblockdata.push_back(0);
+		//	if (*cast->commandblockdata_3 >= -60)
+		//		tempcommand_block.commandblockdata.push_back(*cast->commandblockdata_3);
+		//	else
+		//		tempcommand_block.commandblockdata.push_back(0);
+		//}
+
 		int blockid = get_new_block_id();
 		cast->block_id = blockid;
-
 
 		objects[blockid].block_index = cast->blockindex;
 		objects[blockid].x = cast->blocklocation_x;
 		objects[blockid].y = cast->blocklocation_y;
 		objects[blockid].z = cast->blocklocation_z;
+
+		//도중 접속시 로드 관련
+		//objects[blockid].command_block.push_back(tempcommand_block);
 
 		if (cast->blockindex == 68 || cast->blockindex == 75)
 		{
@@ -361,8 +387,27 @@ void process_packet(int p_id, unsigned char* buffer)
 
 		PlayerPacket playerpacket;
 
-		playerpacket.id = cast->id;
-		playerpacket.packetsize = cast->packetsize;
+		if (cast->playerlocation_z <= -1000)
+		{
+			playerpacket.playerindex = p_id;
+			playerpacket.angle_x = 0;
+			playerpacket.angle_y = 0;
+			playerpacket.angle_z = 0;
+			playerpacket.playerlocation_x = start_x;
+			playerpacket.playerlocation_y = start_y;
+			playerpacket.playerlocation_z = start_z + 100;
+
+			objects[p_id].angle_x = 0;
+			objects[p_id].angle_y = 0;
+			objects[p_id].angle_z = 0;
+			objects[p_id].x = start_x;
+			objects[p_id].y = start_y;
+			objects[p_id].z = start_z + 100;
+
+			Broadcast_Packet(&playerpacket);
+			break;
+		}
+
 		playerpacket.playerindex = p_id;
 		playerpacket.angle_x = cast->angle_x;
 		playerpacket.angle_y = cast->angle_y;
@@ -564,6 +609,25 @@ void worker(HANDLE h_iocp, SOCKET l_socket) {
 			SOCKET c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 			over_ex->socket = c_socket;
 			AcceptEx(l_socket, c_socket, over_ex->packetbuf, 0, 32, 32, NULL, &over_ex->overlapped);
+
+			//도중 접속시 맵 로드 기능
+			//for (int i = 11; i < 100; ++i)
+			//{
+			//	BlockWithCommandPacket blockwithcommandpacket;
+			//	blockwithcommandpacket.blockindex = objects[i].block_index;
+			//	blockwithcommandpacket.blocklocation_x = objects[i].x;
+			//	blockwithcommandpacket.blocklocation_y = objects[i].y;
+			//	blockwithcommandpacket.blocklocation_z = objects[i].z;
+			//	blockwithcommandpacket.block_id = i;
+			//	//blockwithcommandpacket.commandblockindex = objects[i].command_block.
+			//	//blockwithcommandpacket.commandblockdata_0 = objects[i].command_block[0];
+			//	//blockwithcommandpacket.commandblockdata_1 = objects[i].command_block[1];
+			//	//blockwithcommandpacket.commandblockdata_2 = objects[i].command_block[2];
+			//	//blockwithcommandpacket.commandblockdata_3 = objects[i].command_block[3];
+			//	send_packet(c_id, &blockwithcommandpacket);
+			//}
+
+
 			break;
 		}
 		}
