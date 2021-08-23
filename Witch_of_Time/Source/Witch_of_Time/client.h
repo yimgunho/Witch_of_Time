@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "BlockBase.h"
 #include "../../../Server/Server/TCPServer.h"
+
 #include <string>
 #include <vector>
 #include <thread>
@@ -34,6 +35,8 @@ struct FCommandBlockArray
 	TArray<FCommandBlockInfo> MyActors;
 };
 
+
+
 UCLASS()
 class WITCH_OF_TIME_API Aclient : public AActor
 {
@@ -45,54 +48,14 @@ public:
 	//전역 변수로 선언하지 말고 여기 선언하고 변수이름 좀더 잘 알아볼수 있게 만들기
 	Aclient();
 
+	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<FCommandBlockArray> commandblockarr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempSendStr;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString TempRecvStr;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_z;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_z;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int recv_cnt;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_x_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_y_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float position_z_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_x_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_y_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float angle_z_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int is_moving;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int is_moving_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_x;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_y;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_z;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_x_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_y_2;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float block_position_z_2;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<int32> commandblockindex_CL;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
@@ -202,52 +165,78 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		FString SlowTimeBlock_name_CL;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int TimeBlock_id_Gen;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int SlowTimeBlock_id_CL;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		int FastTimeBlock_id_CL;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int TimeBlock_id_SERVER;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int TimeBlock_type_SERVER;
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		TArray<FPlayerinfo> players;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		UClass* luna;
-
-	UFUNCTION(BlueprintCallable)
-		void SetBlockIndex(int index);
 
 	UFUNCTION(BlueprintCallable)
 	void send_destroy_packet(int block_id);
 
 	UFUNCTION(BlueprintCallable)
+	void send_attack_packet(int block_id);
+
+	UFUNCTION(BlueprintCallable)
+	void send_chatting_packet(FString chat);
+
+	UFUNCTION(BlueprintCallable)
 	void send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z);
+
+	UFUNCTION(BlueprintCallable)
+	void send_block_with_command_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z,
+		TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3);
 
 	UFUNCTION(BlueprintCallable)
 	void send_change_packet();
 
 	UFUNCTION(BlueprintCallable)
-		void send_playerinfo_packet(int hp);
+	void send_playerinfo_packet(int hp);
 
 	UFUNCTION(BlueprintCallable)
-		void send_player_packet(FVector player_pos, FRotator player_angle);
+	void send_player_packet(FVector player_pos, FRotator player_angle);
+
+	UFUNCTION(BlueprintCallable)
+	void send_time_packet(int block_id, int time_type);
+
+	UFUNCTION(BlueprintCallable)
+	void send_command_packet(int block_id, TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void apply_damage(AActor* actor, int hp, bool flag = false);
+	void apply_damage(AActor* actor, int hp, bool flag = false);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void move_player(float x, float y, float z, float a_x, float a_y, float a_z);
+	void move_player(float x, float y, float z, float a_x, float a_y, float a_z);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void mode_change();
+	void mode_change();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void spawn_dummy_player(int index, FVector pos, FRotator ang);
+	void spawn_dummy_player(int index, FVector pos, FRotator ang);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void spawn_block(int index, int id, float x, float y, float z);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void spawn_with_command_block(int index, int id, float x, float y, float z, const TArray<int32>& commandindex, const TArray<int32>& data_0, const TArray<int32>& data_1, const TArray<int32>& data_2, const TArray<int32>& data_3);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void casting_magic(int block_id, int magic_type);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void destroy_block(int id);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void paste_commandlist(int id, const TArray<int32>& index, const TArray<int32>& data_0, const TArray<int32>& data_1, const TArray<int32>& data_2, const TArray<int32>& data_3);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void receive_chatting();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void attack_monster(int block_id);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void move_monster(int block_id, int player_id);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	int my_index = -1;
@@ -267,3 +256,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 };
+
+
+

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "BlockBase.h"
+#include "client.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraSystem.h"
 #include "TimeControllableActorBase.generated.h"
@@ -20,6 +21,9 @@ class WITCH_OF_TIME_API ATimeControllableActorBase : public ABlockBase
 public:	
 	// Sets default values for this actor's properties
 	ATimeControllableActorBase();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		Aclient* client;
 
 	UPROPERTY(VisibleAnywhere, BluePrintReadWrite, Category = Mesh)
 		UStaticMeshComponent* m_CurrentMesh;
@@ -55,7 +59,13 @@ public:
 	void ReturnTime();
 
 	UFUNCTION(BlueprintCallable)
+	void ReturnTimeNiagara();
+
+	UFUNCTION(BlueprintCallable)
 	void JumpTime();
+
+	UFUNCTION(BlueprintCallable)
+	void JumpTimeNiagara();
 
 	UFUNCTION(BlueprintCallable, Category = "Mesh")
 	void ChangeMesh();

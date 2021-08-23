@@ -5,7 +5,7 @@
 #include <string>
 #include <algorithm>
 #define BUFSIZE 1024
-#define CHATSIZE 256
+#define CHATSIZE 128
 #define BLOCKSIZE 64
 #define MAX_SOCKET  10 // 최대 접속 가능한 소켓의 갯수!
 #define COMMANDS 9
@@ -16,7 +16,7 @@
 
 enum PacketId
 {
-	RECV, CHATTING, BLOCK, TIMEBLOCK, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD, PLAYERINFO, LOGINOK, LOGOUT, OP
+	RECV, CHATTING, BLOCK, BLOCKWITHCMD, TIME, DESTROY, PLAYER, COMMAND, MODECHANGE, LOAD, PLAYERINFO, LOGINOK, LOGOUT, OP, ATTACK, TRACE
 };
 #pragma pack(push, 1)
 typedef struct ChattingPacket
@@ -54,6 +54,23 @@ typedef struct BlockPacket
 	//std::vector<int> commandblockdata;
 }BlockPacket;
 
+typedef struct BlockWithCommandPacket
+{
+	int packetsize = sizeof(BlockWithCommandPacket);
+	unsigned char id = BLOCKWITHCMD;
+	int blockindex = 1;
+	int block_id = 0;
+	float blocklocation_x = 0;
+	float blocklocation_y = 0;
+	float blocklocation_z = 0;
+
+	int commandblockindex[COMMANDS] = { -1,-1,-1,-1,-1,-1,-1,-1,-1 };
+	int commandblockdata_0[COMMANDS] = { 0, };
+	int commandblockdata_1[COMMANDS] = { 0, };
+	int commandblockdata_2[COMMANDS] = { 0, };
+	int commandblockdata_3[COMMANDS] = { 0, };
+}BlockWithCommandPacket;
+
 typedef struct OperationPacket
 {
 	int packetsize = sizeof(OperationPacket);
@@ -62,13 +79,28 @@ typedef struct OperationPacket
 	int op_id = 0;
 }OperationPacket;
 
-typedef struct TimeBlockPacket
+typedef struct AttackPacket
 {
-	int packetsize = sizeof(TimeBlockPacket);
-	unsigned char id = TIMEBLOCK;
+	int packetsize = sizeof(AttackPacket);
+	unsigned char id = ATTACK;
+	int block_id = 0;
+}AttackPacket;
+
+typedef struct TracePacket
+{
+	int packetsize = sizeof(TracePacket);
+	unsigned char id = TRACE;
+	int block_id = 0;
+	int player_id = 0;
+}TracePacket;
+
+typedef struct TimePacket
+{
+	int packetsize = sizeof(TimePacket);
+	unsigned char id = TIME;
 	int timeblock_id = 0;
 	int timetype = 0;
-}TimeBlockPacket;
+}TimePacket;
 
 typedef struct LoadPacket
 {
@@ -108,18 +140,18 @@ typedef struct CommandPacket
 {
 	int packetsize = sizeof(CommandPacket);
 	unsigned char id = COMMAND;
-	int commandblock_id = -1;
+	int commandblock_id = 0;
 	//std::vector<int> commandblockindex{ -1 };
 	//std::vector<int> commandblockdata_0{ 0 };
 	//std::vector<int> commandblockdata_1{ 0 };
 	//std::vector<int> commandblockdata_2{ 0 };
 	//std::vector<int> commandblockdata_3{ 0 };
 
-	int commandblockindex[COMMANDS] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
-	int commandblockdata_0[COMMANDS] = { 0, };
-	int commandblockdata_1[COMMANDS] = { 0, };
-	int commandblockdata_2[COMMANDS] = { 0, };
-	int commandblockdata_3[COMMANDS] = { 0, };
+	float commandblockindex[COMMANDS] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+	float commandblockdata_0[COMMANDS] = { 0, };
+	float commandblockdata_1[COMMANDS] = { 0, };
+	float commandblockdata_2[COMMANDS] = { 0, };
+	float commandblockdata_3[COMMANDS] = { 0, };
 	
 
 }CommandPacket;

@@ -84,6 +84,7 @@ protected:
 	FVector OriginLocation;
 	// 이동 함수 구현을 위한 변수
 	FVector TargetLocation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector DirectionVector;
 	float TargetDistance;
 
@@ -144,5 +145,17 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
+	bool cbcollision();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
+	bool cbdamage(int damage);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
+	bool cbgameend();
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Optimise")
+	bool cbteleport(int x, int y, int z);
 
 };

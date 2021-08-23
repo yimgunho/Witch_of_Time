@@ -10,7 +10,9 @@
 #include <thread>
 #include <array>
 #include <mutex>
+#include <math.h>
 #include <atomic>
+#include <unordered_map>
 
 
 #pragma comment(lib, "Ws2_32.lib")
@@ -75,6 +77,7 @@ HANDLE iocp_handle;
 
 bool ready_count[MAX_USER] = { 0, };
 int current_players = 0;
+unordered_map<int, int> monster_block_id;
 
 float start_x = 1000, start_y = 10000, start_z = 200;
 
@@ -127,7 +130,7 @@ int get_new_player_id(SOCKET p_socket)
 
 int get_new_block_id()
 {
-	for (int i = NPC_ID_START; i <= MAX_OBJECTS; ++i)
+	for (int i = NPC_ID_START; i < MAX_OBJECTS; ++i)
 	{
 		lock_guard<mutex> lg{ objects[i].state_lock };
 		if (objects[i].object_state == STATE_READY) {
@@ -144,6 +147,18 @@ void disconnect(int p_id) {
 		closesocket(objects[p_id].socket);
 		objects[p_id].object_state = STATE_READY;
 		current_players--;
+		if (current_players == 0)
+		{
+			is_play_mode = false;
+			for (int i = NPC_ID_START; i < MAX_OBJECTS; ++i)
+			{
+				lock_guard<mutex> lg{ objects[i].state_lock };
+				if (objects[i].object_state == STATE_INGAME) {
+					objects[i].object_state = STATE_READY;
+				}
+			}
+			monster_block_id.clear();
+		}
 	}
 }
 
@@ -189,10 +204,7 @@ void process_packet(int p_id, unsigned char* buffer)
 	{
 	case LOAD:
 	{
-		std::cout << "loadpacketrecv" << std::endl;
 		auto cast = reinterpret_cast<LoadPacket*>(buffer);
-
-		std::cout << cast->blocklocation_x[0] << std::endl;
 
 		Broadcast_Packet(cast);
 	}
@@ -200,13 +212,23 @@ void process_packet(int p_id, unsigned char* buffer)
 	case CHATTING:
 	{
 		auto cast = reinterpret_cast<ChattingPacket*>(buffer);
+		
+		string temp = to_string(p_id);
+		char name[CHATSIZE];
+		strcpy_s(name, "player_");
+		strcat(name, temp.c_str());
+		char dot[4] = " : ";
+		strcat(name, dot);
+		strcat(name, cast->chatting);
+
+
 		ChattingPacket chattingpacket;
 		chattingpacket.id = cast->id;
 		chattingpacket.packetsize = cast->packetsize;
-		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), cast->chatting);
-
+		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), name);
 
 		Broadcast_Packet(&chattingpacket);
+		//Broadcast_Packet(cast);
 	}
 	break;
 	case BLOCK:
@@ -242,17 +264,90 @@ void process_packet(int p_id, unsigned char* buffer)
 		objects[blockid].y = cast->blocklocation_y;
 		objects[blockid].z = cast->blocklocation_z;
 
+		if (cast->blockindex == 68 || cast->blockindex == 75)
+		{
+			// 몬스터 블럭일 경우
+			objects[blockid].hp = 100;
+			monster_block_id[blockid] = cast->blockindex;
+		}
+
 		Broadcast_Packet(&blocklistpacket);
 
 	}
 	break;
-	case TIMEBLOCK:
+	case BLOCKWITHCMD:
 	{
-		auto cast = reinterpret_cast<TimeBlockPacket*>(buffer);
+		auto cast = reinterpret_cast<BlockWithCommandPacket*>(buffer);
 
-		TimeBlockPacket timeblockpacket;
+		BlockWithCommandPacket blocklistpacket;
+		blocklistpacket.blockindex = cast->blockindex;
+		if (blocklistpacket.blockindex == 76)
+		{
+			start_x = cast->blocklocation_x;
+			start_y = cast->blocklocation_y;
+			start_z = cast->blocklocation_z;
 
-		std::cout << cast->timeblock_id << ", " << cast->timetype << std::endl;
+			blocklistpacket.blocklocation_x = cast->blocklocation_x;
+			blocklistpacket.blocklocation_y = cast->blocklocation_y;
+			blocklistpacket.blocklocation_z = cast->blocklocation_z;
+
+			Broadcast_Packet(&blocklistpacket);
+
+			break;
+		}
+
+		//도중 접속시 로드 관련
+		//COMMAND_BLOCK tempcommand_block;
+		//if (*cast->commandblockindex >= 0)
+		//{
+		//	tempcommand_block.commandindex = *cast->commandblockindex;
+
+		//	if(*cast->commandblockdata_0 >= -60)
+		//		tempcommand_block.commandblockdata.push_back(*cast->commandblockdata_0);
+		//	else
+		//		tempcommand_block.commandblockdata.push_back(0);
+		//	if (*cast->commandblockdata_1 >= -60)
+		//		tempcommand_block.commandblockdata.push_back(*cast->commandblockdata_1);
+		//	else
+		//		tempcommand_block.commandblockdata.push_back(0);
+		//	if (*cast->commandblockdata_2 >= -60)
+		//		tempcommand_block.commandblockdata.push_back(*cast->commandblockdata_2);
+		//	else
+		//		tempcommand_block.commandblockdata.push_back(0);
+		//	if (*cast->commandblockdata_3 >= -60)
+		//		tempcommand_block.commandblockdata.push_back(*cast->commandblockdata_3);
+		//	else
+		//		tempcommand_block.commandblockdata.push_back(0);
+		//}
+
+		int blockid = get_new_block_id();
+		cast->block_id = blockid;
+
+		objects[blockid].block_index = cast->blockindex;
+		objects[blockid].x = cast->blocklocation_x;
+		objects[blockid].y = cast->blocklocation_y;
+		objects[blockid].z = cast->blocklocation_z;
+
+		//도중 접속시 로드 관련
+		//objects[blockid].command_block.push_back(tempcommand_block);
+
+		if (cast->blockindex == 68 || cast->blockindex == 75)
+		{
+			// 몬스터 블럭일 경우
+			objects[blockid].hp = 100;
+			monster_block_id[blockid] = cast->blockindex;
+		}
+
+		Broadcast_Packet(cast);
+
+	}
+	break;
+	case TIME:
+	{
+		auto cast = reinterpret_cast<TimePacket*>(buffer);
+
+		TimePacket timeblockpacket;
+
 		timeblockpacket.id = cast->id;
 		timeblockpacket.packetsize = cast->packetsize;
 		timeblockpacket.timeblock_id = cast->timeblock_id;
@@ -269,18 +364,50 @@ void process_packet(int p_id, unsigned char* buffer)
 		lock_guard<mutex> lg{ objects[cast->block_id].state_lock };
 		objects[cast->block_id].object_state = STATE_READY;
 
+		if (monster_block_id.count(cast->block_id))
+		{
+			// 몬스터 블럭일 경우
+			monster_block_id.erase(cast->block_id);
+		}
+
 		Broadcast_Packet(cast);
 
 	}
 	break;
+	case ATTACK:
+	{
+		auto cast = reinterpret_cast<AttackPacket*>(buffer);
+		objects[cast->block_id].hp = 0;
+		Broadcast_Packet(cast);
+	}
+		break;
 	case PLAYER:
 	{
 		auto cast = reinterpret_cast<PlayerPacket*>(buffer);
 
 		PlayerPacket playerpacket;
 
-		playerpacket.id = cast->id;
-		playerpacket.packetsize = cast->packetsize;
+		if (cast->playerlocation_z <= -1000)
+		{
+			playerpacket.playerindex = p_id;
+			playerpacket.angle_x = 0;
+			playerpacket.angle_y = 0;
+			playerpacket.angle_z = 0;
+			playerpacket.playerlocation_x = start_x;
+			playerpacket.playerlocation_y = start_y;
+			playerpacket.playerlocation_z = start_z + 100;
+
+			objects[p_id].angle_x = 0;
+			objects[p_id].angle_y = 0;
+			objects[p_id].angle_z = 0;
+			objects[p_id].x = start_x;
+			objects[p_id].y = start_y;
+			objects[p_id].z = start_z + 100;
+
+			Broadcast_Packet(&playerpacket);
+			break;
+		}
+
 		playerpacket.playerindex = p_id;
 		playerpacket.angle_x = cast->angle_x;
 		playerpacket.angle_y = cast->angle_y;
@@ -303,40 +430,21 @@ void process_packet(int p_id, unsigned char* buffer)
 	case COMMAND:
 	{
 		auto cast = reinterpret_cast<CommandPacket*>(buffer);
-
 		CommandPacket commandpacket;
 
 		commandpacket.commandblock_id = cast->commandblock_id;
-		//std::cout << "블록 id 번호: " << cast->commandblock_id << std::endl;
-		//strcpy_s(commandpacket.blockname, sizeof(commandpacket.blockname), cast->blockname);
-		//for (int i = 0; i < sizeof(cast->commandblockindex); ++i)
-		//{
-		//	commandpacket.commandblockindex.emplace_back(cast->commandblockindex[i]);
-		//}
+
 		for (int i = 0; i < COMMANDS; ++i)
 		{
-			commandpacket.commandblockindex[i] = cast->commandblockindex[i];
-			commandpacket.commandblockdata_0[i] = cast->commandblockdata_0[i];
-			commandpacket.commandblockdata_1[i] = cast->commandblockdata_1[i];
-			commandpacket.commandblockdata_2[i] = cast->commandblockdata_2[i];
-			commandpacket.commandblockdata_3[i] = cast->commandblockdata_3[i];
+			if (cast->commandblockindex[i] >= 0) 
+			{
+				commandpacket.commandblockindex[i] = cast->commandblockindex[i];
+				commandpacket.commandblockdata_0[i] = cast->commandblockdata_0[i];
+				commandpacket.commandblockdata_1[i] = cast->commandblockdata_1[i];
+				commandpacket.commandblockdata_2[i] = cast->commandblockdata_2[i];
+				commandpacket.commandblockdata_3[i] = cast->commandblockdata_3[i];
+			}
 		}
-
-		//for (int i = 0; i < COMMANDS; ++i)
-		//{
-		//	std::cout << i << "번째 데이터" << std::endl;
-		//	std::cout << commandpacket.commandblockindex[i] << std::endl;
-		//	std::cout << commandpacket.commandblockdata_0[i] << std::endl;
-		//	std::cout << commandpacket.commandblockdata_1[i] << std::endl;
-		//	std::cout << commandpacket.commandblockdata_2[i] << std::endl;
-		//	std::cout << commandpacket.commandblockdata_3[i] << std::endl;
-		//	std::cout << "----------------------------------" << std::endl;
-		//}
-
-		//for (int i = 0; i < sizeof(commandpacket.commandblockindex); ++i)
-		//{
-		//	std::cout << commandpacket.commandblockindex[i] << std::endl;
-		//}
 
 		Broadcast_Packet(&commandpacket);
 
@@ -350,7 +458,6 @@ void process_packet(int p_id, unsigned char* buffer)
 
 		modepacket.id = cast->id;
 		modepacket.packetsize = cast->packetsize;
-		//std::cout << index << "번 클라이언트 " << cast->readycount << std::endl;
 		ready_count[p_id] = true;
 
 		int ready_c = 0;
@@ -360,9 +467,7 @@ void process_packet(int p_id, unsigned char* buffer)
 			{
 				ready_c++;
 			}
-			//std::cout << index << ":" << ready_count[c] << std::endl;
 		}
-		//std::cout << "ready 상황 " << ready_c << "클라이언트 수 " << current_players << std::endl;
 		if (ready_c >= current_players)
 		{
 			Broadcast_Packet(&modepacket);
@@ -371,6 +476,13 @@ void process_packet(int p_id, unsigned char* buffer)
 				ready_count[c] = false;
 			}
 			is_play_mode = !is_play_mode;
+			if (is_play_mode)
+			{
+				for (auto i : monster_block_id)
+				{
+					objects[i.first].hp = 100;
+				}
+			}
 		}
 	}
 	break;
@@ -389,14 +501,14 @@ void process_packet(int p_id, unsigned char* buffer)
 			playerpacket.angle_z = 0;
 			playerpacket.playerlocation_x = start_x;
 			playerpacket.playerlocation_y = start_y;
-			playerpacket.playerlocation_z = start_z;
+			playerpacket.playerlocation_z = start_z + 100;
 
 			objects[p_id].angle_x = 0;
 			objects[p_id].angle_y = 0;
 			objects[p_id].angle_z = 0;
 			objects[p_id].x = start_x;
 			objects[p_id].y = start_y;
-			objects[p_id].z = start_z;
+			objects[p_id].z = start_z + 100;
 
 			Broadcast_Packet(&playerpacket);
 
@@ -408,7 +520,6 @@ void process_packet(int p_id, unsigned char* buffer)
 	}
 		break;
 	default:
-		//cout << "Unknown Packet Type from Client [" << p_id << "] Packet Type [" << p_buf[1] << "]" << endl;
 		//exit(-1);
 		break;
 	}
@@ -498,11 +609,72 @@ void worker(HANDLE h_iocp, SOCKET l_socket) {
 			SOCKET c_socket = WSASocket(AF_INET, SOCK_STREAM, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 			over_ex->socket = c_socket;
 			AcceptEx(l_socket, c_socket, over_ex->packetbuf, 0, 32, 32, NULL, &over_ex->overlapped);
+
+			//도중 접속시 맵 로드 기능
+			//for (int i = 11; i < 100; ++i)
+			//{
+			//	BlockWithCommandPacket blockwithcommandpacket;
+			//	blockwithcommandpacket.blockindex = objects[i].block_index;
+			//	blockwithcommandpacket.blocklocation_x = objects[i].x;
+			//	blockwithcommandpacket.blocklocation_y = objects[i].y;
+			//	blockwithcommandpacket.blocklocation_z = objects[i].z;
+			//	blockwithcommandpacket.block_id = i;
+			//	//blockwithcommandpacket.commandblockindex = objects[i].command_block.
+			//	//blockwithcommandpacket.commandblockdata_0 = objects[i].command_block[0];
+			//	//blockwithcommandpacket.commandblockdata_1 = objects[i].command_block[1];
+			//	//blockwithcommandpacket.commandblockdata_2 = objects[i].command_block[2];
+			//	//blockwithcommandpacket.commandblockdata_3 = objects[i].command_block[3];
+			//	send_packet(c_id, &blockwithcommandpacket);
+			//}
+
+
 			break;
 		}
 		}
 
 
+	}
+}
+
+void Tick()
+{
+	while (1)
+	{
+		if (!is_play_mode || monster_block_id.empty())
+		{
+			this_thread::sleep_for(chrono::milliseconds(100));
+			continue;
+		}
+		for (auto monster : monster_block_id)
+		{
+			if (monster.second == 75) // 바이킹
+			{
+				TracePacket packet;
+				packet.block_id = monster.first;
+
+				float mindistance = 999999;
+				int minid = -1;
+				for (int i = 1; i <= MAX_USER; i++)
+				{
+					if (objects[i].object_state != STATE_INGAME) continue;
+					float x = powf((objects[i].x - objects[monster.first].x), 2);
+					float y = powf((objects[i].y - objects[monster.first].y), 2);
+					float z = powf((objects[i].z - objects[monster.first].z), 2);
+					float temp = sqrtf(x + y + z);
+
+					if (mindistance > temp)
+						mindistance = temp;
+					minid = i;
+				}
+				if (minid != -1 && mindistance < 1000)
+				{
+					packet.player_id = minid;
+					Broadcast_Packet(&packet);
+				}
+					
+			}
+		}
+		this_thread::sleep_for(chrono::milliseconds(100));
 	}
 }
 
@@ -540,6 +712,7 @@ int main()
 			display_error("AcceptEX : ", err_num);
 	}
 	vector <thread> worker_threads;
+	thread tick_thread{ Tick };
 	for (int i = 0; i < 4; ++i)
 	{
 		worker_threads.emplace_back(worker, iocp_handle, l_socket);
@@ -548,6 +721,7 @@ int main()
 	{
 		th.join();
 	}
+	tick_thread.join();
 	closesocket(l_socket);
 
 	WSACleanup();

@@ -51,7 +51,6 @@ void UWidget_SaveData::SaveGame()
 				temp.CommandArray = casted->CommandBlockArray;
 				temp.index_of_block = casted->blockindex;
 				FString blockindex_FString = FString::FromInt(temp.index_of_block);
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, blockindex_FString);
 			}
 			else
 			{
@@ -99,37 +98,42 @@ void UWidget_SaveData::LoadGame()
 			FActorSpawnParameters SpawnParams;
 			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
+			
 			for (auto block : LoadGameInstance->blockarray)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "LoadPlace_By_SaveData");
 				//auto spawned = GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
-				client->send_block_packet(block.index_of_block, block.location.X, block.location.Y, block.location.Z);
+				//client->send_block_packet(block.index_of_block, block.location.X, block.location.Y, block.location.Z);
+				TArray<int32> block_index;
+				TArray<int32> block_data_0;
+				TArray<int32> block_data_1;
+				TArray<int32> block_data_2;
+				TArray<int32> block_data_3;
 
-				//blockpacket.blockindex = block_index;
-				//blockpacket.block_id = block_id_CL;
-				//blockpacket.blocklocation_x = block_position_x;
-				//blockpacket.blocklocation_y = block_position_y;
-				//blockpacket.blocklocation_z = block_position_z;
-				blockid_SaveData++;
-				
-				location_x_SaveData = block.location.X;
-				location_y_SaveData = block.location.Y;
-				location_z_SaveData = block.location.Z;
-				blockindex_SaveData = block.index_of_block;
+				for (int i = 0; i < block.CommandArray.Num(); ++i)
+				{
+					block_index.Emplace(block.CommandArray[i].index);
+					
+					if(block.CommandArray[i].data.IsValidIndex(0) == true)
+						block_data_0.Insert(block.CommandArray[i].data[0], i);
+					else
+						block_data_0.Insert(-1, i);
+					if (block.CommandArray[i].data.IsValidIndex(1) == true)
+						block_data_1.Insert(block.CommandArray[i].data[1], i);
+					else
+						block_data_1.Insert(-1, i);
+					if (block.CommandArray[i].data.IsValidIndex(2) == true)
+						block_data_2.Insert(block.CommandArray[i].data[2], i);
+					else
+						block_data_2.Insert(-1, i);
+					if (block.CommandArray[i].data.IsValidIndex(3) == true)
+						block_data_3.Insert(block.CommandArray[i].data[3], i);
+					else
+						block_data_3.Insert(-1, i);
+				}
 
-				FCommandBlockArray tempcommandarray;
-				tempcommandarray.blockid = Generated_block_id;
-				Generated_block_id++;
-				tempcommandarray.MyActors = block.CommandArray;
+				client->send_block_with_command_packet(block.index_of_block, block.location.X, block.location.Y, block.location.Z, block_index,
+					block_data_0, block_data_1, block_data_2, block_data_3);
 
-				client->commandblockarr.Emplace(tempcommandarray);
-				
-				//auto casted = Cast<ABlockBase>(spawned);
-
-				//if (casted)
-				//{
-				//	casted->CommandBlockArray = block.CommandArray;
-				//}
 			}
 		}
 
@@ -141,31 +145,26 @@ void UWidget_SaveData::LoadGame()
 
 int UWidget_SaveData::Transblockid()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblockid");
 	return blockid_SaveData;
 
 }
 
 float UWidget_SaveData::Transblocklocation_x()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblocklocation_x");
 	return location_x_SaveData;
 }
 
 float UWidget_SaveData::Transblocklocation_y()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblocklocation_y");
 	return location_y_SaveData;
 }
 
 float UWidget_SaveData::Transblocklocation_z()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblocklocation_z");
 	return location_z_SaveData;
 }
 
 int UWidget_SaveData::Transblockindex()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Transblockindex");
 	return blockindex_SaveData;
 }

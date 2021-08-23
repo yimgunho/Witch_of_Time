@@ -123,6 +123,10 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 				CommandBlockInitialized = false;
 				CurrentCommandBlock++;
 			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
 		}
 		else
 		{
@@ -135,10 +139,10 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 	case 1: // 반복
 		CurrentCommandBlock = 0;
 		break;
-	case 2: // 블럭 초기화
+	case 8: // 블럭 초기화
 		ResetBlock();
 		break;
-	case 3:
+	case 2: // 대기
 		if (!CommandBlockInitialized)
 		{
 			Waited_Time = 0.f;
@@ -147,20 +151,101 @@ void ABlockBase::ExecuteCommandBlock(FCommandBlockInfo block, float DeltaTime)
 
 		Waited_Time += DeltaTime;
 
-		if (Waited_Time > block.data[0])
+		if (Waited_Time > (block.data[0]/10))
 		{
 			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 			{
 				CommandBlockInitialized = false;
 				CurrentCommandBlock++;
 			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
 		}
 		break;
+	case 3: // 상호작용
+		if (cbcollision()) {
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
+		}
+		break;
+	case 4: // 데미지 부여
+		if(cbdamage(block.data[0])) {
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
+			
+		}
+		else
+		{
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
+
+		}
+		break;
+
+	case 5: // 게임 종료
+		if (cbgameend()) {
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
+		}
+		break;
+
+	case 6: // 텍스트 출력
+		break;
+
+	case 7: // 텔레포트
+		if (cbteleport(block.data[0], block.data[1], block.data[2]))
+		{
+			if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
+			{
+				CommandBlockInitialized = false;
+				CurrentCommandBlock++;
+			}
+			else
+			{
+				SetActorTickEnabled(false);
+			}
+		}
+		break;
+
 	default:
 		if (CommandBlockArray.IsValidIndex(CurrentCommandBlock + 1))
 		{
 			CommandBlockInitialized = false;
 			CurrentCommandBlock++;
+		}
+		else
+		{
+			SetActorTickEnabled(false);
 		}
 		break;
 	}
@@ -211,118 +296,5 @@ void ABlockBase::Tick(float DeltaTime)
 	{
 		ExecuteCommandBlock(CommandBlockArray[CurrentCommandBlock], DeltaTime);
 	}
-	//if (this->ActorHasTag("Restorable") == true)
-	//{
-	//	this->timetype = 0;
-	//}
-
-	//else if (this->ActorHasTag("Restorable") == false)
-	//{
-	//	this->timetype = 1;
-	//}
-
-	//if (this->timetype == 0)
-	//{
-	//	this->SetActorEnableCollision(true);
-	//}
-
-	//else if (this->timetype == 1)
-	//{
-	//	this->SetActorEnableCollision(false);
-	//}
-
-	/*
-	* move 였던것
-	if (IsMovable && Move_MaxCount != 0)
-	{
-		if (MoveChange)
-		{
-			FVector location = this->GetActorLocation();
-			location.X -= Move_Speed * DeltaTime;
-
-			
-			Actors.Empty();
-			FVector temp = location;
-
-			temp.Z += 100.f;
-
-			UKismetSystemLibrary::BoxOverlapActors(GetWorld(), temp, FVector(95.f, 95.f, 95.f), Types, NULL, Ignores, Actors);
-
-			if (Actors.Num() != 0)
-			{
-				MoveChange = !MoveChange;
-				for (auto target : Actors)
-				{
-					if (target->ActorHasTag("Dummy"))
-					{
-						SetActorLocation(location);
-						target->Destroy();
-						MoveChange = !MoveChange;
-
-						break;
-					}
-				}
-				
-			}
-			else
-			{
-				SetActorLocation(location);
-			}
-
-			if (fabs(location.X - OriginLocation.X) > Move_MaxCount * 200.f)
-			{
-				location.X = OriginLocation.X - 200.f * Move_MaxCount;
-
-				SetActorLocation(location);
-
-				MoveChange = !MoveChange;
-			}
-		}
-		else
-		{
-			FVector location = this->GetActorLocation();
-			location.X += Move_Speed * DeltaTime;
-
-			Actors.Empty();
-			FVector temp = location;
-
-			temp.Z += 100.f;
-
-			UKismetSystemLibrary::BoxOverlapActors(GetWorld(), temp, FVector(95.f, 95.f, 95.f), Types, NULL, Ignores, Actors);
-
-
-			if (Actors.Num() != 0)
-			{
-				MoveChange = !MoveChange;
-				for (auto target : Actors)
-				{
-					if (target->ActorHasTag("Dummy"))
-					{
-						SetActorLocation(location);
-						target->Destroy();
-						MoveChange = !MoveChange;
-
-						break;
-					}
-				}
-			}
-			else
-			{
-				SetActorLocation(location);
-			}
-
-			if (fabs(location.X - OriginLocation.X) > Move_MaxCount * 200.f)
-			{
-				location.X = OriginLocation.X + 200.f * Move_MaxCount;
-
-				SetActorLocation(location);
-
-				MoveChange = !MoveChange;
-			}
-		}
-
-		
-	}
-	*/
 }
 

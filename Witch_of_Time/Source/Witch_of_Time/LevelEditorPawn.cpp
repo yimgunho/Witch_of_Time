@@ -88,61 +88,6 @@ void ALevelEditorPawn::Location_Clear()
 void ALevelEditorPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
-	if (((X_arr_level_from_CL[0] > 0) && (Y_arr_level_from_CL[0] > 0) && (Z_arr_level_from_CL[0] > 0)) == true)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Entered Loading");
-		FRotator Rotator = { 0,0,0 };
-
-		FActorSpawnParameters SpawnParams;
-
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-		for (int i = 0; i < id_arr_level_from_CL.Num(); ++i)
-		{
-			if ((X_arr_level_from_CL[i] > 0 && Y_arr_level_from_CL[i] > 0 && Z_arr_level_from_CL[i] > 0) == true) 
-			{
-				//SetClassOfPlacedBlock(blockindex_to_uclass[0]);
-				auto spawned_Load = GetWorld()->SpawnActor<AActor>(ClassOfPlacedBlock, { X_arr_level_from_CL[i],Y_arr_level_from_CL[i],Z_arr_level_from_CL[i] }, Rotator, SpawnParams);
-			}
-		}
-		blockindex_arr_level_from_CL.Empty();
-		X_arr_level_from_CL.Empty();
-		Y_arr_level_from_CL.Empty();
-		Z_arr_level_from_CL.Empty();
-		blockindex_to_uclass.Empty();
-
-	}
-	location_to_FVector = { temp_location_x, temp_location_y, temp_location_z };
-
-	if (!(temp_location_x == 0 && temp_location_y == 0 && temp_location_z == 0) && (temp_location_x > 0 && temp_location_y > 0 && temp_location_z > 0))
-	{
-		FRotator Rotator = { 0,0,0 };
-
-		FActorSpawnParameters SpawnParams;
-
-		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-
-		auto spawned_by_server = GetWorld()->SpawnActor<AActor>(ClassOfPlacedBlock, location_to_FVector, Rotator, SpawnParams);
-
-
-		old_location_x = temp_location_x;
-		old_location_y = temp_location_y;
-		old_location_z = temp_location_z;
-
-		location_x = 0;
-		location_y = 0;
-		location_z = 0;
-		temp_location_x = 0;
-		temp_location_y = 0;
-		temp_location_z = 0;
-	}
-
-	
-
-	//ToDestroyBlock->Destroy();
 }
 
 void ALevelEditorPawn::PlaceBlock()
@@ -216,7 +161,6 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 			//BlockName = spawned->GetName();
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Block Spawned");
 		}
 	}
 	else
@@ -247,7 +191,6 @@ void ALevelEditorPawn::PlaceBlock()
 			}
 
 		}
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "Tried Block Spawning but not proper MODE");
 	}
 
 	
@@ -438,7 +381,6 @@ void ALevelEditorPawn::LoadGame()
 
 		for (auto block : LoadGameInstance->blockarray)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "LoadPlace");
 			auto spawned = GetWorld()->SpawnActor<AActor>(block.blockclass, block.location, Rotator, SpawnParams);
 
 			auto casted = Cast<ABlockBase>(spawned);

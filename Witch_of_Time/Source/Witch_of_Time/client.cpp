@@ -11,6 +11,8 @@
 #include <array>
 #include <WS2tcpip.h>
 #include <MSWSock.h>
+#include "Components/TextRenderComponent.h"
+#include "Misc/Paths.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "MSWSock.lib")
@@ -110,6 +112,12 @@ void err_display(const char* msg)
 	LocalFree(lpMsgBuf);
 }
 
+FString ReadFile(FString filename)
+{
+	FString result;
+	FFileHelper::LoadFileToString(result, *(FPaths::ProjectDir() + filename));
+	return result;
+}
 
 
 Aclient::Aclient()
@@ -117,23 +125,20 @@ Aclient::Aclient()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Elapsed_Time = 0;
-	recv_cnt = 0;
 }
 
-void Aclient::SetBlockIndex(int index)
-{
-	block_index = index;
-}
+
 
 // Called when the game starts or when spawned
 void Aclient::BeginPlay()
 {
 	Super::BeginPlay();
 
-
 	TempSendStr = TEXT("");
 	TempRecvStr = TEXT("");
 	chars = *TempSendStr;
+
+	auto tbuf = ReadFile("ip.txt");
 
 	PositionCnt = 0;
 	BlockPositionCnt = 0;
@@ -159,10 +164,6 @@ void Aclient::BeginPlay()
 	location_z_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
 	blockindex_arr_to_levelEditor.Init(0, MAXLOADBLOCK);
 
-	TimeBlock_id_Gen = 0;
-
-	FastTimeBlock_id_CL = -1;
-	SlowTimeBlock_id_CL = -1;
 
 	WSADATA wsaData;
 	WSAStartup(WINSOCK_VERSION, &wsaData);
@@ -176,13 +177,14 @@ void Aclient::BeginPlay()
 	SOCKADDR_IN serveraddr;
 	//ZeroMemory(&serveraddr, sizeof(serveraddr));
 	serveraddr.sin_family = AF_INET;
-	serveraddr.sin_addr.s_addr = inet_addr(SERVERIP);
+	serveraddr.sin_addr.s_addr = inet_addr(TCHAR_TO_ANSI(*tbuf));
 	serveraddr.sin_port = htons(SERVERPORT);
 	connect(sock, (SOCKADDR*)&serveraddr, sizeof(serveraddr));
 
-	worker_thread = new std::thread(&Aclient::worker, this);
 	do_recv(0);
 }
+
+
 
 void Aclient::send_block_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z)
 {
@@ -195,11 +197,81 @@ void Aclient::send_block_packet(int blockindex, float block_pos_x, float block_p
 	send_packet(&blockpacket);
 }
 
+void Aclient::send_block_with_command_packet(int blockindex, float block_pos_x, float block_pos_y, float block_pos_z,
+	TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3)
+{
+	BlockWithCommandPacket blockwithcommandpacket;
+	blockwithcommandpacket.blockindex = blockindex;
+	blockwithcommandpacket.blocklocation_x = block_pos_x;
+	blockwithcommandpacket.blocklocation_y = block_pos_y;
+	blockwithcommandpacket.blocklocation_z = block_pos_z;
+	
+	for (int i = 0; i < commandindex.Num(); ++i)
+	{
+		if (commandindex[i] >= 0)
+		{
+				blockwithcommandpacket.commandblockindex[i] = commandindex[i];
+			if (commanddata_0.IsValidIndex(i) == true)
+				blockwithcommandpacket.commandblockdata_0[i] = commanddata_0[i];
+			else
+				blockwithcommandpacket.commandblockdata_0[i] = -1;
+			if (commanddata_1.IsValidIndex(i) == true)
+				blockwithcommandpacket.commandblockdata_1[i] = commanddata_1[i];
+			else
+				blockwithcommandpacket.commandblockdata_1[i] = -1;
+			if (commanddata_2.IsValidIndex(i) == true)
+				blockwithcommandpacket.commandblockdata_2[i] = commanddata_2[i];
+			else
+				blockwithcommandpacket.commandblockdata_2[i] = -1;
+			if (commanddata_3.IsValidIndex(i) == true)
+				blockwithcommandpacket.commandblockdata_3[i] = commanddata_3[i];
+			else
+				blockwithcommandpacket.commandblockdata_3[i] = -1;
+		}
+	}
+
+	send_packet(&blockwithcommandpacket);
+}
+
+void Aclient::send_command_packet(int block_id, TArray<int32> commandindex, TArray<int32> commanddata_0, TArray<int32> commanddata_1, TArray<int32> commanddata_2, TArray<int32> commanddata_3)
+{
+	CommandPacket commandpacket;
+	commandpacket.commandblock_id = block_id;
+	for (int i = 0; i < lengthofcommandlist; ++i)
+	{
+		if (commandindex[i] >= 0)
+		{
+			commandpacket.commandblockindex[i] = commandindex[i];
+			commandpacket.commandblockdata_0[i] = commanddata_0[i];
+			commandpacket.commandblockdata_1[i] = commanddata_1[i];
+			commandpacket.commandblockdata_2[i] = commanddata_2[i];
+			commandpacket.commandblockdata_3[i] = commanddata_3[i];
+		}
+	}
+	send_packet(&commandpacket);
+}
+
 void Aclient::send_destroy_packet(int block_id)
 {
 	DestroyPacket destroypacket;
 	destroypacket.block_id = block_id;
 	send_packet(&destroypacket);
+
+}
+
+void Aclient::send_attack_packet(int block_id)
+{
+	AttackPacket attackpacket;
+	attackpacket.block_id = block_id;
+	send_packet(&attackpacket);
+
+}
+void Aclient::send_chatting_packet(FString chat)
+{
+	ChattingPacket chattingpacket;
+	std::string TempSendString(TCHAR_TO_UTF8(*chat));
+	strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), TempSendString.c_str());
+	send_packet(&chattingpacket);
 }
 
 void Aclient::send_change_packet()
@@ -228,6 +300,16 @@ void Aclient::send_player_packet(FVector player_pos, FRotator player_angle)
 	send_packet(&playerpacket);
 }
 
+void Aclient::send_time_packet(int block_id, int time_type)
+{
+	TimePacket timepacket;
+
+	timepacket.timeblock_id = block_id;
+	timepacket.timetype = time_type;
+
+	send_packet(&timepacket);
+}
+
 void Aclient::process_packet(int p_id, unsigned char* p_buf)
 {
 	switch (p_buf[4])
@@ -237,7 +319,7 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 		auto cast = reinterpret_cast<LoginOKPacket*>(p_buf);
 		my_index = cast->playerindex;
 	}
-		break;
+	break;
 	case LOAD:
 	{
 		auto cast = reinterpret_cast<LoadPacket*>(p_buf);
@@ -258,6 +340,7 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 		std::string test(cast->chatting);
 		TempRecvStr = (test.c_str());
+		receive_chatting();
 	}
 	break;
 	case BLOCK:
@@ -268,20 +351,57 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 	}
 	break;
-	case TIMEBLOCK:
+	case BLOCKWITHCMD:
 	{
-		auto cast = reinterpret_cast<TimeBlockPacket*>(p_buf);
-		TimeBlock_id_SERVER = cast->timeblock_id;
-		TimeBlock_type_SERVER = cast->timetype;
+		auto cast = reinterpret_cast<BlockWithCommandPacket*>(p_buf);
+
+		TArray<int32> commandblock_index;
+		TArray<int32> block_data_0;
+		TArray<int32> block_data_1;
+		TArray<int32> block_data_2;
+		TArray<int32> block_data_3;
+
+		for (int i = 0; i < COMMANDS; ++i)
+		{
+			if (cast->commandblockindex[i] >= 0) {
+				commandblock_index.Insert(cast->commandblockindex[i], i);
+				block_data_0.Insert(cast->commandblockdata_0[i], i);
+				block_data_1.Insert(cast->commandblockdata_1[i], i);
+				block_data_2.Insert(cast->commandblockdata_2[i], i);
+				block_data_3.Insert(cast->commandblockdata_3[i], i);
+			}
+		}
+
+		spawn_with_command_block(cast->blockindex, cast->block_id, cast->blocklocation_x, cast->blocklocation_y, cast->blocklocation_z,
+			commandblock_index, block_data_0, block_data_1, block_data_2, block_data_3);
+
+	}
+	break;
+	case TIME:
+	{
+		auto cast = reinterpret_cast<TimePacket*>(p_buf);
+
+		casting_magic(cast->timeblock_id, cast->timetype);
 	}
 	break;
 	case DESTROY:
 	{
 		auto cast = reinterpret_cast<DestroyPacket*>(p_buf);
 		int todestroyblockid_recv(cast->block_id);
-		todestroyblockid_2 = todestroyblockid_recv;
-
 		FString todestroyblockid_2_FString = FString::FromInt(todestroyblockid_2);
+		destroy_block(cast->block_id);
+	}
+	break;
+	case ATTACK:
+	{
+		auto cast = reinterpret_cast<AttackPacket*>(p_buf);
+		attack_monster(cast->block_id);
+	}
+		break;
+	case TRACE:
+	{
+		auto cast = reinterpret_cast<TracePacket*>(p_buf);
+		move_monster(cast->block_id, cast->player_id);
 	}
 	break;
 	case PLAYER:
@@ -316,7 +436,6 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 	case COMMAND:
 	{
 		auto cast = reinterpret_cast<CommandPacket*>(p_buf);
-
 		TempCommandBlockId_recv = cast->commandblock_id;
 
 		commandblockindex_recv.Init(-1, 0);
@@ -327,13 +446,16 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 		for (int i = 0; i < COMMANDS; ++i)
 		{
-			commandblockindex_recv.Add(cast->commandblockindex[i]);
-			commandblockdata_0_recv.Add(cast->commandblockdata_0[i]);
-			commandblockdata_1_recv.Add(cast->commandblockdata_1[i]);
-			commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
-			commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
+			if (cast->commandblockindex[i] >= 0)
+			{
+				commandblockindex_recv.Add(cast->commandblockindex[i]);
+				commandblockdata_0_recv.Add(cast->commandblockdata_0[i]);
+				commandblockdata_1_recv.Add(cast->commandblockdata_1[i]);
+				commandblockdata_2_recv.Add(cast->commandblockdata_2[i]);
+				commandblockdata_3_recv.Add(cast->commandblockdata_3[i]);
+			}
 		}
-
+		paste_commandlist(TempCommandBlockId_recv, commandblockindex_recv, commandblockdata_0_recv, commandblockdata_1_recv, commandblockdata_2_recv, commandblockdata_3_recv);
 
 	}
 	break;
@@ -364,13 +486,15 @@ void Aclient::process_packet(int p_id, unsigned char* p_buf)
 
 void Aclient::worker()
 {
-	while (true) {
+	while (true) 
+	{
 		DWORD num_bytes;
 		ULONG_PTR ikey;
 		WSAOVERLAPPED* over;
 
-		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &ikey, &over, INFINITE);
+		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &ikey, &over, 0);
 		int key = static_cast<int>(ikey);
+		if (ret == false) return;
 
 		EX_OVER* ex_over = reinterpret_cast<EX_OVER*>(over);
 
@@ -407,158 +531,7 @@ void Aclient::worker()
 void Aclient::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	//char buffer[BUFSIZE];
-	ChattingPacket chattingpacket;
-	BlockPacket blockpacket;
-	TimeBlockPacket timeblockpacket;
-	LoadPacket blockpacket_load;
-	DestroyPacket destroypacket;
-	PlayerPacket playerpacket;
-	CommandPacket commandpacket;
-	ModeChangePacket modepacket;
-
-	int len = 0;
-	Elapsed_Time += DeltaTime;
-
-	tempchars = *TempSendStr;
-
-
-	//if (Block_cnt_load != 0)
-	//{
-	//	blockpacket_load.blockindex = blockindex_load;
-	//	blockpacket_load.block_id = block_id_CL;
-	//	blockpacket_load.blocklocation_x = block_position_x_load;
-	//	blockpacket_load.blocklocation_y = block_position_y_load;
-	//	blockpacket_load.blocklocation_z = block_position_z_load;
-	//	//blockpacket.commandblockindex = ;
-	//	//blockpacket.
-	//	send(sock, (char*)&blockpacket_load, sizeof(blockpacket_load), 0);
-	//	Block_cnt_load = 0;
-	//}
-
-	if (Block_cnt_load != 0)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, "LoadData Send Enter");
-
-		for (int i = 0; i < blockindex_arr_CL.Num(); ++i)
-		{
-			//blockpacket_load.id;
-			blockpacket_load.blocklocation_x[i] = location_x_arr_CL[i];
-			blockpacket_load.blocklocation_y[i] = location_y_arr_CL[i];
-			blockpacket_load.blocklocation_z[i] = location_z_arr_CL[i];
-			blockpacket_load.blockindex[i] = blockindex_arr_CL[i];
-		}
-
-		send_packet(&blockpacket_load);
-		blockindex_arr_CL.Empty();
-		location_x_arr_CL.Empty();
-		location_y_arr_CL.Empty();
-		location_z_arr_CL.Empty();
-		Block_cnt_load = 0;
-	}
-
-
-	else if (/*PositionCnt != 0 && cnt == 0*/TempSendStr != "")
-	{
-		std::string TempSendString(TCHAR_TO_UTF8(*TempSendStr));
-
-		strcpy_s(chattingpacket.chatting, sizeof(chattingpacket.chatting), TempSendString.c_str());
-
-		send(sock, (char*)&chattingpacket, sizeof(chattingpacket), 0);
-
-		TempSendStr = "";
-	}
-
-	else if (TempCommandBlockId != -1)
-	{
-		commandpacket.commandblock_id = TempCommandBlockId;
-		//for (int index : commandblockindex_CL) {
-		//	commandpacket.commandblockindex.push_back(index);
-		//}
-		//for (int data_0 : commandblockdata_0) {
-		//	commandpacket.commandblockdata_0.push_back(data_0);
-		//}
-		//for (int data_1 : commandblockdata_1) {
-		//	commandpacket.commandblockdata_1.push_back(data_1);
-		//}
-		//for (int data_2 : commandblockdata_2) {
-		//	commandpacket.commandblockdata_2.push_back(data_2);
-		//}
-		//for (int data_3 : commandblockdata_3) {
-		//	commandpacket.commandblockdata_3.push_back(data_3);
-		//}
-		//commandpacket.commandblockindex = commandblockindex_CL[0];
-		//commandpacket.commandblockdata_0 = commandblockdata_0[0];
-		//commandpacket.commandblockdata_1 = commandblockdata_1[0];
-		//commandpacket.commandblockdata_2 = commandblockdata_2[0];
-		//commandpacket.commandblockdata_3 = commandblockdata_3[0];
-
-		for (int i = 0; i < lengthofcommandlist; ++i)
-		{
-			commandpacket.commandblockindex[i] = commandblockindex_CL[i];
-			commandpacket.commandblockdata_0[i] = commandblockdata_0[i];
-			commandpacket.commandblockdata_1[i] = commandblockdata_1[i];
-			commandpacket.commandblockdata_2[i] = commandblockdata_2[i];
-			commandpacket.commandblockdata_3[i] = commandblockdata_3[i];
-		}
-		send_packet(&commandpacket);
-
-		//for (int i = 0; i < lengthofcommandlist; ++i)
-		//{
-		//	commandpacket.commandblockindex[i] = -1;
-		//	commandpacket.commandblockdata_0[i] = 0;
-		//	commandpacket.commandblockdata_1[i] = 0;
-		//	commandpacket.commandblockdata_2[i] = 0;
-		//	commandpacket.commandblockdata_3[i] = 0;
-		//}
-		TempCommandBlockId = -1;
-		commandblockindex_CL.Empty();
-		commandblockdata_0.Empty();
-		commandblockdata_1.Empty();
-		commandblockdata_2.Empty();
-		commandblockdata_3.Empty();
-	}
-
-	//else if (is_moving != 0 || is_changed_mode == true)
-	//{
-	//	playerpacket.angle_x = angle_x;
-	//	playerpacket.angle_y = angle_y;
-	//	playerpacket.angle_z = angle_z;
-	//	playerpacket.playerlocation_x = position_x;
-	//	playerpacket.playerlocation_y = position_y;
-	//	playerpacket.playerlocation_z = position_z;
-
-	//	send(sock, (char*)&playerpacket, sizeof(playerpacket), 0);
-
-	//	if (is_changed_mode == true)
-	//	{
-	//		is_changed_mode = false;
-	//	}
-	//}
-
-	else if (FastTimeBlock_id_CL >= 0 || SlowTimeBlock_id_CL >= 0)
-	{
-		if (FastTimeBlock_id_CL >= 0) {
-			timeblockpacket.timeblock_id = FastTimeBlock_id_CL;
-			timeblockpacket.timetype = 1;
-		}
-
-		else if (SlowTimeBlock_id_CL >= 0) {
-			timeblockpacket.timeblock_id = SlowTimeBlock_id_CL;
-			timeblockpacket.timetype = 2;
-		}
-
-		send_packet(&timeblockpacket);
-
-
-		FastTimeBlock_id_CL = -1;
-		SlowTimeBlock_id_CL = -1;
-	}
-
-
-
-	/////////////////////////////////////////////////////////////////////////////////////////////
+	worker();
 }
 
 void Aclient::EndPlay(const EEndPlayReason::Type EndPlayReason)
