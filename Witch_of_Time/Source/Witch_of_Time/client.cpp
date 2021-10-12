@@ -488,41 +488,39 @@ void Aclient::worker()
 {
 	while (true) 
 	{
-		DWORD num_bytes;
-		ULONG_PTR ikey;
-		WSAOVERLAPPED* over;
+		DWORD num_of_size;
+		WSAOVERLAPPED* overlapped;
+		
+		ULONG_PTR i_key;
+		BOOL GQCS = GetQueuedCompletionStatus(h_iocp, &num_of_size, &i_key, &overlapped, 0);
+		int key = static_cast<int>(i_key);
+		if (GQCS == false) return;
 
-		BOOL ret = GetQueuedCompletionStatus(h_iocp, &num_bytes, &ikey, &over, 0);
-		int key = static_cast<int>(ikey);
-		if (ret == false) return;
-
-		EX_OVER* ex_over = reinterpret_cast<EX_OVER*>(over);
+		EX_OVER* ex_over = reinterpret_cast<EX_OVER*>(overlapped);
 
 
-		switch (ex_over->m_op)
+		if (ex_over->m_op == OP_RECV)
 		{
-		case OP_RECV: {
 			unsigned char* packet_ptr = ex_over->m_packetbuf;
-			int num_data = num_bytes + m_prev_size;
+			int num_of_data = num_of_size + m_prev_size;
 			int packet_size = packet_ptr[0];
 
-			while (num_data >= packet_size)
+			while (num_of_data >= packet_size)
 			{
 				process_packet(key, packet_ptr);
-				num_data -= packet_size;
+				num_of_data -= packet_size;
 				packet_ptr += packet_size;
-				if (0 >= num_data)	break;
+				if (0 >= num_of_data)	break;
 				packet_size = packet_ptr[0];
 			}
-			m_prev_size = num_data;
-			if (num_data != 0)	memcpy(ex_over->m_packetbuf, packet_ptr, num_data);
+			m_prev_size = num_of_data;
+			if (num_of_data != 0)	memcpy(ex_over->m_packetbuf, packet_ptr, num_of_data);
 
 			do_recv(key);
 		}
-					break;
-		case OP_SEND:
+		else if (ex_over->m_op == OP_SEND)
+		{
 			delete ex_over;
-			break;
 		}
 	}
 }
